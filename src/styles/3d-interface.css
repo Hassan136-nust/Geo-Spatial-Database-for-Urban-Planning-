@@ -34,10 +34,10 @@ html {
 /* Glassmorphic glow effects */
 @keyframes glow-pulse {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(68, 136, 255, 0.3);
+    box-shadow: 0 0 20px rgba(51, 65, 85, 0.4);
   }
   50% {
-    box-shadow: 0 0 40px rgba(68, 136, 255, 0.5);
+    box-shadow: 0 0 40px rgba(71, 85, 105, 0.6);
   }
 }
 

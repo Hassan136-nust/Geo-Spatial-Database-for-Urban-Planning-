@@ -99,23 +99,23 @@ src/
 ├── app/
 │   ├── components/
 │   │   ├── 3d/
-│   │   │   ├── Earth.tsx           # Globe with all interactions
-│   │   │   ├── Starfield.tsx       # Animated stars
-│   │   │   ├── Scene.tsx           # Canvas container
-│   │   │   └── CameraController.tsx # Route transitions
-│   │   ├── GlassPanel.tsx          # Reusable glass panel
-│   │   ├── Navigation.tsx          # Top nav bar
-│   │   ├── RootLayout.tsx          # Global layout
-│   │   ├── LoadingFallback.tsx     # Loading state
-│   │   ├── PerformanceStats.tsx    # FPS monitor
-│   │   └── KeyboardShortcuts.tsx   # Shortcuts guide
+│   │   │   ├── Earth.jsx           # Globe with all interactions
+│   │   │   ├── Starfield.jsx       # Animated stars
+│   │   │   ├── Scene.jsx           # Canvas container
+│   │   │   └── CameraController.jsx # Route transitions
+│   │   ├── GlassPanel.jsx          # Reusable glass panel
+│   │   ├── Navigation.jsx          # Top nav bar
+│   │   ├── RootLayout.jsx          # Global layout
+│   │   ├── LoadingFallback.jsx     # Loading state
+│   │   ├── PerformanceStats.jsx    # FPS monitor
+│   │   └── KeyboardShortcuts.jsx   # Shortcuts guide
 │   ├── pages/
-│   │   ├── Overview.tsx            # Dashboard
-│   │   ├── Analytics.tsx           # Analytics
-│   │   ├── Mapping.tsx             # Mapping
-│   │   └── DataStreams.tsx         # Data streams
-│   ├── routes.ts                   # React Router config
-│   └── App.tsx                     # Entry point
+│   │   ├── Overview.jsx            # Dashboard
+│   │   ├── Analytics.jsx           # Analytics
+│   │   ├── Mapping.jsx             # Mapping
+│   │   └── DataStreams.jsx         # Data streams
+│   ├── routes.js                   # React Router config
+│   └── App.jsx                     # Entry point
 ├── styles/
 │   ├── 3d-interface.css            # Custom 3D styles
 │   ├── theme.css                   # Tailwind theme
@@ -137,10 +137,10 @@ Accent Yellow: #facc15
 ```
 
 ### Typography
-- **Hero headings**: 7xl (72px), bold, gradient text
+- **Hero headings**: 7xl (72px), bold, elegant text
 - **Section headings**: 2xl-6xl, bold
-- **Body text**: Base (16px), white/60%
-- **Small text**: SM (14px), white/50%
+- **Body text**: Base (16px), white/80%
+- **Small text**: SM (14px), white/60%
 
 ### Spacing
 - **Padding**: 6-8 (24-32px) for panels
@@ -164,7 +164,6 @@ Accent Yellow: #facc15
 | React Router | 7.13.0 | Client routing |
 | Tailwind CSS | 4.1.12 | Styling |
 | Vite | 6.3.5 | Build tool |
-| TypeScript | 5.x | Type safety |
 
 ## 🎮 Interactions
 
@@ -340,7 +339,6 @@ Accent Yellow: #facc15
 - ✅ Performance monitoring built-in
 - ✅ Keyboard accessibility
 - ✅ Responsive design patterns
-- ✅ TypeScript for type safety
 - ✅ Comprehensive documentation
 
 ---
