@@ -46,8 +46,27 @@ const roadSchema = new mongoose.Schema(
     },
     surface_type: {
       type: String,
-      enum: ['asphalt', 'concrete', 'unpaved'],
+      enum: ['asphalt', 'concrete', 'unpaved', 'unknown'],
       default: 'asphalt',
+    },
+    area_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'SavedArea',
+      default: null,
+    },
+    source: {
+      type: String,
+      enum: ['osm', 'user', 'seed'],
+      default: 'osm',
+    },
+    osm_id: {
+      type: Number,
+      default: null,
+      sparse: true,
+    },
+    city: {
+      type: String,
+      default: '',
     },
   },
   { timestamps: true }

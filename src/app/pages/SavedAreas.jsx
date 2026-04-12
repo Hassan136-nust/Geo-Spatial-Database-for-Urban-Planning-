@@ -1,0 +1,143 @@
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { GlassPanel } from '../components/GlassPanel';
+import { MapPin, Trash2, ExternalLink, Clock, Star, Loader2, Search, TrendingUp } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import mapsApi from '../services/mapsApi';
+import { useNavigate } from 'react-router';
+
+export function SavedAreas() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [areas, setAreas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(null);
+
+  useEffect(() => {
+    if (user) loadAreas();
+  }, [user]);
+
+  const loadAreas = async () => {
+    try {
+      setLoading(true);
+      const res = await mapsApi.getAreaHistory();
+      setAreas(res.data || []);
+    } catch (err) {
+      console.error('Load areas error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this saved area?')) return;
+    setDeleting(id);
+    try {
+      await mapsApi.deleteArea(id);
+      setAreas(areas.filter((a) => a._id !== id));
+    } catch (err) {
+      console.error('Delete error:', err);
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const getScoreColor = (score) => {
+    if (score >= 70) return 'text-green-400';
+    if (score >= 50) return 'text-yellow-400';
+    return 'text-red-400';
+  };
+
+  const getScoreBg = (score) => {
+    if (score >= 70) return 'from-green-500/10 to-green-500/5 border-green-500/20';
+    if (score >= 50) return 'from-yellow-500/10 to-yellow-500/5 border-yellow-500/20';
+    return 'from-red-500/10 to-red-500/5 border-red-500/20';
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen pt-28 pb-20 px-8 text-center">
+        <p className="text-white/50">Please login to view saved areas</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen pt-28 pb-20 px-8">
+      <div className="max-w-6xl mx-auto">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
+            Saved Areas
+          </h1>
+          <p className="text-white/50 mt-2">Your search history with cached analytics</p>
+        </motion.div>
+
+        {loading ? (
+          <div className="text-center py-20">
+            <Loader2 className="w-8 h-8 text-cyan-400 mx-auto animate-spin" />
+          </div>
+        ) : areas.length === 0 ? (
+          <GlassPanel>
+            <div className="text-center py-16">
+              <Search className="w-12 h-12 text-white/20 mx-auto mb-4" />
+              <p className="text-white/40">No saved areas yet</p>
+              <p className="text-white/30 text-sm mt-1">Search for an area on the Dashboard to get started</p>
+              <button onClick={() => navigate('/dashboard')} className="mt-4 px-6 py-2 bg-cyan-500/20 border border-cyan-500/30 rounded-xl text-cyan-400 text-sm hover:bg-cyan-500/30 transition-colors">
+                Go to Dashboard
+              </button>
+            </div>
+          </GlassPanel>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <AnimatePresence>
+              {areas.map((area, i) => (
+                <motion.div
+                  key={area._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <GlassPanel>
+                    <div className={`p-5 bg-gradient-to-br ${getScoreBg(area.last_analysis_score)} rounded-2xl`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-white/90 truncate">{area.area_name}</h3>
+                          <p className="text-xs text-white/40 mt-1 truncate">{area.display_name}</p>
+                        </div>
+                        {area.last_analysis_score != null && (
+                          <div className={`text-2xl font-bold ${getScoreColor(area.last_analysis_score)}`}>
+                            {area.last_analysis_score}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-3 text-xs text-white/40 mb-4">
+                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{area.city || 'N/A'}</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{new Date(area.created_at).toLocaleDateString()}</span>
+                        <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{area.landmark_count} landmarks</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => navigate('/dashboard')} className="flex-1 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs text-white/70 transition-colors flex items-center justify-center gap-1">
+                          <ExternalLink className="w-3 h-3" /> View on Map
+                        </button>
+                        <button
+                          onClick={() => handleDelete(area._id)}
+                          disabled={deleting === area._id}
+                          className="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-xs text-red-400 transition-colors"
+                        >
+                          {deleting === area._id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                        </button>
+                      </div>
+                    </div>
+                  </GlassPanel>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

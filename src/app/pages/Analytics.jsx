@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { MapContainer, TileLayer, Marker, Circle, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { GlassPanel } from '../components/GlassPanel';
-import { BarChart3, AlertTriangle, Shield, TrendingUp, Stethoscope, GraduationCap, Trees, Search, Loader2, FileDown, MapPin, CheckCircle, Zap, Target, ChevronRight } from 'lucide-react';
+import { BarChart3, AlertTriangle, Shield, TrendingUp, Stethoscope, GraduationCap, Trees, Search, Loader2, FileDown, MapPin, CheckCircle, Zap, Target, ChevronRight, Database, Save } from 'lucide-react';
 import mapsApi from '../services/mapsApi';
 import 'leaflet/dist/leaflet.css';
 
@@ -49,47 +49,76 @@ export function Analytics() {
   const [loading, setLoading] = useState(false);
   const [areaName, setAreaName] = useState('');
   const [generating, setGenerating] = useState(false);
+  const [roadCount, setRoadCount] = useState(0);
+  const [dataSource, setDataSource] = useState(''); // 'search' | 'click'
 
-  const analyzePoint = useCallback(async (lat, lng, name = 'Selected Area') => {
+  // ═══════════════════════════════════════════════════════════
+  // UNIFIED DATA FLOW: Both search and map-click now use the
+  // SAME analysis pipeline as the Map (Dashboard) page.
+  // This ensures IDENTICAL scores, counts, and recommendations.
+  // ═══════════════════════════════════════════════════════════
+
+  // Search by name — uses /api/areas/search (SAME as Dashboard Map page)
+  const handleSearch = useCallback(async (e) => {
+    e?.preventDefault();
+    if (!searchInput.trim()) return;
+    setLoading(true);
+    setDataSource('search');
+    try {
+      // Use the SAME endpoint as the Map page for consistency
+      const result = await mapsApi.searchAndSaveArea(searchInput.trim(), 5000);
+      if (result.data) {
+        const { area, analysis: resultAnalysis, places: resultPlaces, roadCount: rCount } = result.data;
+
+        // Extract coordinates
+        let lat, lng;
+        if (area.coordinates && area.coordinates.coordinates) {
+          lng = area.coordinates.coordinates[0];
+          lat = area.coordinates.coordinates[1];
+        } else {
+          lat = area.lat;
+          lng = area.lng;
+        }
+
+        setSelectedPoint({ lat, lng });
+        setAreaName(area.display_name || area.displayName || searchInput.trim());
+        setAnalysis(resultAnalysis || null);
+        setPlaces(resultPlaces || []);
+        setRoadCount(rCount || 0);
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [searchInput]);
+
+  // Click on map — uses /api/maps/analyze-area (same analysis logic, fresh OSM data)
+  const handleMapClick = useCallback(async (lat, lng) => {
     setLoading(true);
     setSelectedPoint({ lat, lng });
-    setAreaName(name);
+    setDataSource('click');
     try {
+      // Get area name via reverse geocoding
+      let name = 'Selected Area';
+      try {
+        const rev = await mapsApi.reverse(lat, lng);
+        name = rev.data?.displayName || 'Selected Point';
+      } catch { /* fallback name */ }
+
+      setAreaName(name);
+
+      // Use the maps/analyze-area endpoint (which now also saves to cache)
       const result = await mapsApi.analyzeArea(lat, lng, 5000, name);
       setAnalysis(result.data?.analysis || null);
       setPlaces(result.data?.places || []);
+      setRoadCount(result.data?.roadCount || 0);
     } catch (err) {
       console.error('Analysis error:', err);
     } finally {
       setLoading(false);
     }
   }, []);
-
-  const handleSearch = useCallback(async (e) => {
-    e?.preventDefault();
-    if (!searchInput.trim()) return;
-    try {
-      setLoading(true);
-      const searchResult = await mapsApi.searchArea(searchInput.trim());
-      if (searchResult.data?.length > 0) {
-        const area = searchResult.data[0];
-        await analyzePoint(area.lat, area.lng, area.displayName);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchInput, analyzePoint]);
-
-  const handleMapClick = useCallback(async (lat, lng) => {
-    try {
-      const rev = await mapsApi.reverse(lat, lng);
-      await analyzePoint(lat, lng, rev.data?.displayName || 'Selected Point');
-    } catch {
-      await analyzePoint(lat, lng);
-    }
-  }, [analyzePoint]);
 
   const handleDownloadReport = useCallback(async () => {
     if (!selectedPoint) return;
@@ -125,6 +154,9 @@ export function Analytics() {
             Reports & Analytics
           </h1>
           <p className="text-lg text-white/50">Search any area or click the map to analyze infrastructure coverage</p>
+          <p className="text-xs text-white/25 mt-1 flex items-center gap-1">
+            <Database className="w-3 h-3" /> Uses same data source as Map page — scores are always synchronized
+          </p>
         </motion.div>
 
         {/* Search */}
@@ -211,7 +243,7 @@ export function Analytics() {
                       }`}
                     />
                   </div>
-                  <p className="text-[10px] text-white/30 mt-2">{analysis.totalPlaces} facilities within 5km radius</p>
+                  <p className="text-[10px] text-white/30 mt-2">{analysis.totalPlaces} facilities within 5km radius • {roadCount} roads</p>
 
                   {/* Score breakdown */}
                   {analysis.scoring && (
@@ -316,7 +348,6 @@ export function Analytics() {
                         <span className="text-white/40">found</span>
                         <span className={st.text}>{cov.nearest ? `${cov.nearest.toFixed(1)}km nearest` : 'none'}</span>
                       </div>
-                      {/* Score bar */}
                       {cov.score !== undefined && (
                         <div className="mt-2">
                           <div className="flex items-center justify-between text-[10px] mb-1">

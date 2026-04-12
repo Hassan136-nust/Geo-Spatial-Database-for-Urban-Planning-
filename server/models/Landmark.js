@@ -62,6 +62,26 @@ const landmarkSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    city: {
+      type: String,
+      default: '',
+      index: true,
+    },
+    source: {
+      type: String,
+      enum: ['osm', 'user', 'api', 'seed'],
+      default: 'osm',
+    },
+    osm_id: {
+      type: Number,
+      default: null,
+      sparse: true,
+    },
+    area_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'SavedArea',
+      default: null,
+    },
   },
   { timestamps: true }
 );

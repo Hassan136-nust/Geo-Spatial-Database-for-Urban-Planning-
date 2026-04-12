@@ -1,5 +1,8 @@
 import osmService from '../services/osmService.js';
 import { analyzeArea } from '../services/analysisService.js';
+import cacheService from '../services/cacheService.js';
+
+const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // @desc    Search/geocode an area by name
 // @route   GET /api/maps/search-area?q=Islamabad
@@ -32,9 +35,7 @@ export const nearbyPlaces = async (req, res, next) => {
       places = await osmService.getNearbyAllTypes(parseFloat(lat), parseFloat(lng), parseInt(radius));
     }
 
-    // Sort by distance
     places.sort((a, b) => (a.distance || 0) - (b.distance || 0));
-
     res.json({ success: true, count: places.length, data: places });
   } catch (error) {
     next(error);
@@ -91,7 +92,7 @@ export const reverse = async (req, res, next) => {
   }
 };
 
-// @desc    Analyze an area - fetch places + roads + run analysis
+// @desc    Analyze an area — fetches fresh data, validates, retries on rate limit
 // @route   POST /api/maps/analyze-area
 export const analyzeSelectedArea = async (req, res, next) => {
   try {
@@ -104,29 +105,49 @@ export const analyzeSelectedArea = async (req, res, next) => {
     const parsedLng = parseFloat(lng);
     const parsedRadius = parseInt(radius);
 
-    // Fetch places and roads sequentially to prevent Overpass API 429 Rate Limit errors
-    const places = await osmService.getNearbyAllTypes(parsedLat, parsedLng, parsedRadius);
+    console.log(`[Maps/Analyze] Analyzing: "${areaName}" at (${parsedLat.toFixed(4)}, ${parsedLng.toFixed(4)})`);
+
+    // Fetch places first
+    let places = await osmService.getNearbyAllTypes(parsedLat, parsedLng, parsedRadius);
+
+    // Wait before roads call to prevent 429
+    await delay(2500);
+
     const roadData = await osmService.getRoads(parsedLat, parsedLng, Math.min(parsedRadius, 3000));
 
-    // Run analysis with road data included
-    const analysis = analyzeArea(
-      places,
-      parsedLat,
-      parsedLng,
-      parsedRadius / 1000,
-      roadData.length // pass road count for road scoring
-    );
+    // VALIDATION: If 0 places but roads exist, retry places after delay
+    if (places.length === 0 && roadData.length > 0) {
+      console.warn(`[Maps/Analyze] ⚠️ 0 places but ${roadData.length} roads — retrying places in 4s...`);
+      await delay(4000);
+      places = await osmService.getNearbyAllTypes(parsedLat, parsedLng, parsedRadius);
+      console.log(`[Maps/Analyze] Retry result: ${places.length} places`);
+    }
+
+    console.log(`[Maps/Analyze] Final: ${places.length} places, ${roadData.length} roads`);
+
+    // Save to cache (non-blocking)
+    try {
+      await cacheService.saveLandmarksFromOSM(places, '', null);
+      await cacheService.saveRoadsFromOSM(roadData, '', null);
+    } catch (saveErr) {
+      console.error('[Maps/Analyze] Cache save error (non-fatal):', saveErr.message);
+    }
+
+    // Run analysis
+    const analysis = analyzeArea(places, parsedLat, parsedLng, parsedRadius / 1000, roadData.length);
+    console.log(`[Maps/Analyze] Score: ${analysis.score}/100 (${analysis.rating})`);
 
     res.json({
       success: true,
       data: {
         areaName,
         analysis,
-        places: places, // Return all places
+        places,
         roadCount: roadData.length,
       },
     });
   } catch (error) {
+    console.error('[Maps/Analyze] Error:', error.message);
     next(error);
   }
 };

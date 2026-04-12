@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { GlassPanel } from '../components/GlassPanel';
-import { Trash2, RotateCcw, Download, Lightbulb, AlertTriangle, CheckCircle, Loader2, GripVertical, FileDown, ChevronRight, X, ChevronDown, ChevronUp, Zap, Info, Shield } from 'lucide-react';
+import { Trash2, RotateCcw, Download, Lightbulb, AlertTriangle, CheckCircle, Loader2, GripVertical, FileDown, ChevronRight, X, ChevronDown, ChevronUp, Zap, Info, Shield, Save, FolderOpen } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import mapsApi from '../services/mapsApi';
+import { useSearchParams } from 'react-router';
 import 'leaflet/dist/leaflet.css';
 
 // Fix leaflet icons
@@ -119,6 +121,58 @@ export function Planner() {
   const [toast, setToast] = useState(null);
   const [expandedSection, setExpandedSection] = useState('score');
   const analyzeTimerRef = useRef(null);
+  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+
+  // ── Save/Load state ──
+  const [designName, setDesignName] = useState('');
+  const [currentDesignId, setCurrentDesignId] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+
+  // Auto-load design from URL ?load=designId
+  useEffect(() => {
+    const loadId = searchParams.get('load');
+    if (loadId && user) {
+      (async () => {
+        try {
+          const res = await mapsApi.getDesign(loadId);
+          const design = res.data;
+          setElements(design.elements.map((e) => ({ id: e.element_id, type: e.type, lat: e.lat, lng: e.lng })));
+          setDesignName(design.design_name);
+          setCurrentDesignId(design._id);
+          setToast({ type: 'success', message: `Loaded "${design.design_name}"` });
+          setTimeout(() => setToast(null), 3000);
+        } catch (err) {
+          console.error('Load design error:', err);
+          setToast({ type: 'error', message: 'Failed to load design' });
+          setTimeout(() => setToast(null), 3000);
+        }
+      })();
+    }
+  }, [searchParams, user]);
+
+  const handleSaveDesign = useCallback(async () => {
+    if (!designName.trim() || !user) return;
+    setSaving(true);
+    try {
+      const center = {
+        lat: elements.reduce((s, e) => s + e.lat, 0) / elements.length || 33.6844,
+        lng: elements.reduce((s, e) => s + e.lng, 0) / elements.length || 73.0479,
+      };
+      const res = await mapsApi.saveDesign(designName, elements, center, currentDesignId);
+      setCurrentDesignId(res.data._id);
+      setShowSaveDialog(false);
+      setToast({ type: 'success', message: `Design "${designName}" saved!` });
+      setTimeout(() => setToast(null), 3000);
+    } catch (err) {
+      console.error('Save error:', err);
+      setToast({ type: 'error', message: 'Failed to save design' });
+      setTimeout(() => setToast(null), 3000);
+    } finally {
+      setSaving(false);
+    }
+  }, [designName, elements, user, currentDesignId]);
 
   // Auto-analyze on element changes (debounced)
   useEffect(() => {
@@ -356,6 +410,38 @@ export function Planner() {
         )}
       </AnimatePresence>
 
+      {/* Save Modal */}
+      <AnimatePresence>
+        {showSaveDialog && (
+          <div className="fixed inset-0 z-[3000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full max-w-sm">
+              <GlassPanel>
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-white/90">Save Design</h3>
+                    <button onClick={() => setShowSaveDialog(false)}><X className="w-5 h-5 text-white/40 hover:text-white/80 transition-colors" /></button>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="E.g., Downtown Expansion"
+                    value={designName}
+                    onChange={(e) => setDesignName(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm mb-4 focus:outline-none focus:border-purple-500/50 transition-colors"
+                    autoFocus
+                  />
+                  <div className="flex gap-3">
+                    <button onClick={() => setShowSaveDialog(false)} className="flex-1 py-2.5 rounded-xl border border-white/10 text-sm font-medium hover:bg-white/5 transition-colors">Cancel</button>
+                    <button onClick={handleSaveDesign} disabled={saving || !designName.trim()} className="flex-1 py-2.5 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-colors">
+                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save
+                    </button>
+                  </div>
+                </div>
+              </GlassPanel>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Tool Palette - Left Side */}
       <div className="absolute top-24 left-4 z-[1000] w-56">
         <div className="bg-black/90 backdrop-blur-xl border border-white/15 rounded-2xl p-4 shadow-2xl">
@@ -424,6 +510,11 @@ export function Planner() {
                 <input type="file" accept=".geojson,.json" onChange={handleImportGeoJSON} className="hidden" />
               </label>
             </div>
+            {user && (
+              <button onClick={() => setShowSaveDialog(true)} disabled={elements.length === 0} className="w-full mt-1.5 px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 rounded-lg text-[10px] font-semibold flex items-center justify-center gap-1 transition-colors">
+                <Save className="w-3 h-3" /> Save / Update Design
+              </button>
+            )}
 
             {/* Line legend */}
             {elements.filter((e) => e.type === 'house').length > 0 && (

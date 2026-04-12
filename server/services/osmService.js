@@ -12,8 +12,29 @@ const OVERPASS_ENDPOINTS = [
   'https://overpass.osm.ch/api/interpreter'
 ];
 const OSRM_BASE = 'https://router.project-osrm.org';
+const USER_AGENT = 'UrbanPulse/1.0 (urban-planning-tool)';
+
+// ─────────────────────────────────────────────────────────
+// RATE LIMITING — Overpass allows ~2 requests per slot
+// We track the last call time and add delays to avoid 429s
+// ─────────────────────────────────────────────────────────
+let lastOverpassCall = 0;
+
+async function throttleOverpass() {
+  const now = Date.now();
+  const diff = now - lastOverpassCall;
+  // Minimum 2 seconds between Overpass calls to prevent 429
+  if (diff < 2000) {
+    const waitMs = 2000 - diff;
+    console.log(`[Overpass] Throttling: waiting ${waitMs}ms...`);
+    await new Promise((resolve) => setTimeout(resolve, waitMs));
+  }
+  lastOverpassCall = Date.now();
+}
 
 async function fetchOverpassData(query, timeout = 30000) {
+  await throttleOverpass();
+  
   let lastError;
   // Try each endpoint sequentially until one succeeds
   for (const endpoint of OVERPASS_ENDPOINTS) {
@@ -25,14 +46,40 @@ async function fetchOverpassData(query, timeout = 30000) {
       return data;
     } catch (err) {
       lastError = err;
-      console.warn(`[Overpass] ${endpoint} failed:`, err.message);
+      const status = err.response?.status || 'network';
+      console.warn(`[Overpass] ${endpoint} failed (${status}):`, err.message);
+      
+      // If rate limited (429), wait before trying next endpoint
+      if (status === 429) {
+        await new Promise((r) => setTimeout(r, 3000));
+      }
     }
   }
   console.error('[Overpass] All endpoints failed. Last error:', lastError?.message);
   throw lastError;
 }
 
-const USER_AGENT = 'UrbanPulse/1.0 (urban-planning-tool)';
+/**
+ * fetchOverpassWithRetry — wraps fetchOverpassData with automatic retry
+ * on 429/504 errors. Will attempt up to `maxRetries` times with backoff.
+ */
+async function fetchOverpassWithRetry(query, timeout = 30000, maxRetries = 2) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const data = await fetchOverpassData(query, timeout);
+      return data;
+    } catch (err) {
+      const status = err.response?.status || 0;
+      if (attempt < maxRetries && (status === 429 || status === 504 || status === 0)) {
+        const backoff = (attempt + 1) * 3000; // 3s, 6s
+        console.log(`[Overpass] Retry ${attempt + 1}/${maxRetries} after ${backoff}ms...`);
+        await new Promise((r) => setTimeout(r, backoff));
+      } else {
+        throw err;
+      }
+    }
+  }
+}
 
 // Rate limiting helper (Nominatim requires max 1 req/sec)
 let lastNominatimCall = 0;
@@ -138,7 +185,7 @@ export async function getNearbyPlaces(lat, lng, radiusMeters = 5000, type = 'hos
 
   let data;
   try {
-    data = await fetchOverpassData(query, 30000);
+    data = await fetchOverpassWithRetry(query, 30000, 2);
   } catch(err) {
     return [];
   }
@@ -158,7 +205,7 @@ export async function getNearbyPlaces(lat, lng, radiusMeters = 5000, type = 'hos
   }));
 }
 
-// Fetch multiple types at once
+// Fetch multiple types at once — with retry on failure
 export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000) {
   const types = ['hospital', 'school', 'university', 'park', 'mosque', 'police', 'fire_station', 'pharmacy', 'bank', 'mall'];
   
@@ -177,9 +224,10 @@ export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000) {
   `;
 
   try {
-    const data = await fetchOverpassData(query, 35000);
+    // Use retry wrapper — this is the most critical query
+    const data = await fetchOverpassWithRetry(query, 35000, 2);
 
-    return (data.elements || []).map((el) => ({
+    const results = (data.elements || []).map((el) => ({
       id: el.id,
       name: el.tags?.name || el.tags?.['name:en'] || 'Unnamed',
       type: classifyOSMElement(el.tags),
@@ -189,8 +237,11 @@ export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000) {
       address: formatOSMAddress(el.tags),
       distance: haversineDistance(lat, lng, el.lat || el.center?.lat, el.lon || el.center?.lon),
     }));
+
+    console.log(`[OSM] getNearbyAllTypes: ${results.length} places found for (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+    return results;
   } catch (err) {
-    console.error('Overpass API error:', err.message);
+    console.error('[OSM] getNearbyAllTypes error (all retries exhausted):', err.message);
     return [];
   }
 }
@@ -208,7 +259,7 @@ export async function getRoads(lat, lng, radiusMeters = 3000) {
   `;
 
   try {
-    const data = await fetchOverpassData(query, 30000);
+    const data = await fetchOverpassWithRetry(query, 30000, 1);
 
     return (data.elements || []).map((el) => ({
       id: el.id,
@@ -222,7 +273,7 @@ export async function getRoads(lat, lng, radiusMeters = 3000) {
         : [],
     }));
   } catch (err) {
-    console.error('Roads fetch error:', err.message);
+    console.error('[OSM] Roads fetch error (all retries exhausted):', err.message);
     return [];
   }
 }
@@ -250,12 +301,9 @@ export async function getDirections(originLat, originLng, destLat, destLng) {
   return {
     distance: route.distance, // meters
     duration: route.duration, // seconds
-    distanceKm: (route.distance / 1000).toFixed(2),
-    durationMin: (route.duration / 60).toFixed(1),
-    geometry: route.geometry, // GeoJSON LineString
-    steps: route.legs?.[0]?.steps?.map((s) => ({
-      instruction: s.maneuver?.type,
-      name: s.name,
+    geometry: route.geometry,
+    steps: route.legs[0]?.steps?.map((s) => ({
+      instruction: s.maneuver?.instruction || s.name || '',
       distance: s.distance,
       duration: s.duration,
     })),
