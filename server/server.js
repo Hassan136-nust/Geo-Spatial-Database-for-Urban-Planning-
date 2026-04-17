@@ -26,8 +26,7 @@ import landmarks2Routes from './routes/landmarks2.js';
 import notificationRoutes from './routes/notifications.js';
 import projectRoutes from './routes/projects.js';
 import comparisonRoutes from './routes/comparisons.js';
-import infraRequestRoutes from './routes/infraRequests.js';
-import bookmarkRoutes from './routes/bookmarks.js';
+
 import mapLayerRoutes from './routes/mapLayers.js';
 import activityRoutes from './routes/activity.js';
 import cityRoutes from './routes/cities.js';
@@ -79,21 +78,36 @@ app.use('/api/landmarks2', landmarks2Routes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/comparisons', comparisonRoutes);
-app.use('/api/infra-requests', infraRequestRoutes);
-app.use('/api/bookmarks', bookmarkRoutes);
+
 app.use('/api/map-layers', mapLayerRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/cities', cityRoutes);
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'UrbanPulse API is running',
-    version: '2.0',
-    collections: 18,
-    timestamp: new Date(),
-  });
+// Health check — enhanced for System Status page
+app.get('/api/health', async (req, res) => {
+  try {
+    const mongoose = (await import('mongoose')).default;
+    const dbState = mongoose.connection.readyState; // 0=disconnected,1=connected,2=connecting,3=disconnecting
+    const dbStateLabel = ['disconnected','connected','connecting','disconnecting'][dbState] || 'unknown';
+    let lastActivity = null;
+    try {
+      const ActivityLog = (await import('./models/ActivityLog.js')).default;
+      const latest = await ActivityLog.findOne().sort({ createdAt: -1 }).lean();
+      if (latest) lastActivity = latest.createdAt || latest.created_at;
+    } catch(e) { /* silent */ }
+    res.json({
+      success: true,
+      message: 'UrbanPulse API is running',
+      version: '2.1',
+      uptime: process.uptime(),
+      memoryMB: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+      db: { state: dbStateLabel, name: mongoose.connection.name || 'urbanpulse' },
+      lastActivity,
+      timestamp: new Date(),
+    });
+  } catch(err) {
+    res.json({ success: true, message: 'UrbanPulse API is running', version: '2.1', timestamp: new Date() });
+  }
 });
 
 // Admin stats endpoint — collection counts for System Status page
@@ -125,7 +139,6 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 UrbanPulse Server v2.0 running on port ${PORT}`);
-  console.log(`📡 API available at http://localhost:${PORT}/api`);
-  console.log(`🗄️  Database: 18 collections active`);
+  console.log(`UrbanPulse Server v2.1 running on port ${PORT}`);
+  console.log(`API available at http://localhost:${PORT}/api`);
 });

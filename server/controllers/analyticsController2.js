@@ -16,8 +16,10 @@ export const runAnalytics = async (req, res, next) => {
     const parsedLng = parseFloat(lng);
     const parsedRadius = parseInt(radius);
 
-    const places = await osmService.getNearbyAllTypes(parsedLat, parsedLng, parsedRadius);
-    const roadData = await osmService.getRoads(parsedLat, parsedLng, Math.min(parsedRadius, 3000));
+    const [places, roadData] = await Promise.all([
+      osmService.getNearbyAllTypes(parsedLat, parsedLng, parsedRadius),
+      osmService.getRoads(parsedLat, parsedLng, Math.min(parsedRadius, 3000))
+    ]);
     const analysis = analyzeArea(places, parsedLat, parsedLng, parsedRadius / 1000, roadData.length);
 
     if (req.user && areaId) {

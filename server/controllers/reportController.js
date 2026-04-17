@@ -16,11 +16,11 @@ const __dirname = path.dirname(__filename);
 // @route   POST /api/analysis/evaluate-layout
 export const evaluateUserLayout = async (req, res, next) => {
   try {
-    const { elements, centerLat, centerLng } = req.body;
+    const { elements, centerLat, centerLng, radius = 5 } = req.body;
     if (!elements || !Array.isArray(elements)) {
       return res.status(400).json({ success: false, message: 'Provide elements array' });
     }
-    const result = evaluateLayout(elements, centerLat, centerLng);
+    const result = evaluateLayout(elements, centerLat, centerLng, Number(radius));
     res.json({ success: true, data: result });
   } catch (error) {
     next(error);

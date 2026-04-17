@@ -4,6 +4,9 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, useMapEvents 
 import L from 'leaflet';
 import { GlassPanel } from '../components/GlassPanel';
 import { Trash2, RotateCcw, Download, Lightbulb, AlertTriangle, CheckCircle, Loader2, GripVertical, FileDown, ChevronRight, X, ChevronDown, ChevronUp, Zap, Info, Shield, Save, FolderOpen } from 'lucide-react';
+import { renderToString } from 'react-dom/server';
+import { FaHome, FaHospital, FaSchool, FaTree, FaRoad, FaMosque, FaShoppingBag, FaIndustry, FaMapMarkerAlt } from 'react-icons/fa';
+import { MdLocalPolice } from 'react-icons/md';
 import { useAuth } from '../context/AuthContext';
 import mapsApi from '../services/mapsApi';
 import { useSearchParams } from 'react-router';
@@ -18,15 +21,15 @@ L.Icon.Default.mergeOptions({
 });
 
 const PLANNER_ITEMS = [
-  { type: 'house', label: 'Houses', emoji: '🏠', color: '#3b82f6', desc: 'Residential area' },
-  { type: 'hospital', label: 'Hospital', emoji: '🏥', color: '#ef4444', desc: 'Healthcare facility' },
-  { type: 'school', label: 'School', emoji: '🏫', color: '#6366f1', desc: 'Educational institution' },
-  { type: 'park', label: 'Park', emoji: '🌳', color: '#22c55e', desc: 'Green space / recreation' },
-  { type: 'road', label: 'Road', emoji: '🛣️', color: '#f97316', desc: 'Road / connectivity' },
-  { type: 'mosque', label: 'Mosque', emoji: '🕌', color: '#a855f7', desc: 'Place of worship' },
-  { type: 'mall', label: 'Mall', emoji: '🛍️', color: '#ec4899', desc: 'Shopping center' },
-  { type: 'police', label: 'Police', emoji: '🚔', color: '#1e40af', desc: 'Police station' },
-  { type: 'industrial', label: 'Industrial', emoji: '🏭', color: '#78716c', desc: 'Industrial zone' },
+  { type: 'house', label: 'Houses', icon: <FaHome />, color: '#3b82f6', desc: 'Residential area' },
+  { type: 'hospital', label: 'Hospital', icon: <FaHospital />, color: '#ef4444', desc: 'Healthcare facility' },
+  { type: 'school', label: 'School', icon: <FaSchool />, color: '#6366f1', desc: 'Educational institution' },
+  { type: 'park', label: 'Park', icon: <FaTree />, color: '#22c55e', desc: 'Green space / recreation' },
+  { type: 'road', label: 'Road', icon: <FaRoad />, color: '#f97316', desc: 'Road / connectivity' },
+  { type: 'mosque', label: 'Mosque', icon: <FaMosque />, color: '#a855f7', desc: 'Place of worship' },
+  { type: 'mall', label: 'Mall', icon: <FaShoppingBag />, color: '#ec4899', desc: 'Shopping center' },
+  { type: 'police', label: 'Police', icon: <MdLocalPolice />, color: '#1e40af', desc: 'Police station' },
+  { type: 'industrial', label: 'Industrial', icon: <FaIndustry />, color: '#78716c', desc: 'Industrial zone' },
 ];
 
 // Distance thresholds for line coloring (km)
@@ -38,9 +41,14 @@ const DISTANCE_THRESHOLDS = {
 
 function createPlannerIcon(type) {
   const item = PLANNER_ITEMS.find((i) => i.type === type) || PLANNER_ITEMS[0];
+  const iconHtml = renderToString(
+    <div style={{ background: item.color, width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', color: 'white', border: '3px solid white', boxShadow: '0 4px 12px rgba(0,0,0,0.4)', cursor: 'grab', transition: 'transform 0.2s' }}>
+      {item.icon}
+    </div>
+  );
   return L.divIcon({
     className: 'planner-marker',
-    html: `<div style="background:${item.color};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid white;box-shadow:0 4px 12px rgba(0,0,0,0.4);cursor:grab;transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.2)'" onmouseleave="this.style.transform='scale(1)'">${item.emoji}</div>`,
+    html: iconHtml,
     iconSize: [36, 36],
     iconAnchor: [18, 36],
     popupAnchor: [0, -36],
@@ -90,8 +98,8 @@ function DraggableMarker({ element, onDragEnd, onDelete }) {
     >
       <Popup>
         <div style={{ minWidth: 140 }}>
-          <h3 style={{ margin: '0 0 4px', fontWeight: 700, fontSize: 13 }}>
-            {PLANNER_ITEMS.find((i) => i.type === element.type)?.emoji} {PLANNER_ITEMS.find((i) => i.type === element.type)?.label}
+          <h3 style={{ margin: '0 0 4px', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: '4px' }}>
+            {PLANNER_ITEMS.find((i) => i.type === element.type)?.icon} {PLANNER_ITEMS.find((i) => i.type === element.type)?.label}
           </h3>
           <p style={{ margin: '0 0 6px', color: '#666', fontSize: 11 }}>
             {element.lat.toFixed(5)}, {element.lng.toFixed(5)}
@@ -116,6 +124,7 @@ export function Planner() {
   const [activeTool, setActiveTool] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [radius, setRadius] = useState(5);
   const [showResults, setShowResults] = useState(true);
   const [mapCenter] = useState([33.6844, 73.0479]);
   const [toast, setToast] = useState(null);
@@ -193,7 +202,7 @@ export function Planner() {
     try {
       const centerLat = elements.reduce((sum, e) => sum + e.lat, 0) / elements.length;
       const centerLng = elements.reduce((sum, e) => sum + e.lng, 0) / elements.length;
-      const result = await mapsApi.evaluateLayout(elements, centerLat, centerLng);
+      const result = await mapsApi.evaluateLayout(elements, centerLat, centerLng, radius);
       setAnalysis(result.data);
       setShowResults(true);
     } catch (err) {
@@ -255,7 +264,13 @@ export function Planner() {
       lat,
       lng,
     };
-    setElements((prev) => [...prev, newElement]);
+    setElements((prev) => {
+      const newElements = [...prev, newElement];
+      if (currentDesignId) {
+        mapsApi.updateDesign(currentDesignId, { elements: newElements }).catch(console.error);
+      }
+      return newElements;
+    });
 
     // Show placement feedback toast
     const feedback = getPlacementFeedback(activeTool, lat, lng);
@@ -263,15 +278,27 @@ export function Planner() {
       setToast(feedback);
       setTimeout(() => setToast(null), 3000);
     }
-  }, [activeTool, getPlacementFeedback]);
+  }, [activeTool, getPlacementFeedback, currentDesignId]);
 
   const handleDragEnd = useCallback((id, lat, lng) => {
-    setElements((prev) => prev.map((el) => el.id === id ? { ...el, lat, lng } : el));
-  }, []);
+    setElements((prev) => {
+      const newElements = prev.map((el) => el.id === id ? { ...el, lat, lng } : el);
+      if (currentDesignId) {
+        mapsApi.updateDesign(currentDesignId, { elements: newElements }).catch(console.error);
+      }
+      return newElements;
+    });
+  }, [currentDesignId]);
 
   const handleDelete = useCallback((id) => {
-    setElements((prev) => prev.filter((el) => el.id !== id));
-  }, []);
+    setElements((prev) => {
+      const newElements = prev.filter((el) => el.id !== id);
+      if (currentDesignId) {
+        mapsApi.updateDesign(currentDesignId, { elements: newElements }).catch(console.error);
+      }
+      return newElements;
+    });
+  }, [currentDesignId]);
 
   const handleClear = useCallback(() => {
     setElements([]);
@@ -461,7 +488,7 @@ export function Planner() {
                     : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10'
                 }`}
               >
-                <span className="text-base flex-shrink-0">{item.emoji}</span>
+                <span className="text-base flex-shrink-0">{item.icon}</span>
                 <div className="flex-1">
                   <div className="font-semibold">{item.label}</div>
                   <div className="text-[10px] text-white/40">{item.desc}</div>
@@ -660,15 +687,15 @@ export function Planner() {
                   <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3">Elements Placed</h4>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     {[
-                      { label: 'Houses', count: analysis.summary?.houses || 0, emoji: '🏠' },
-                      { label: 'Hospitals', count: analysis.summary?.hospitals || 0, emoji: '🏥' },
-                      { label: 'Schools', count: analysis.summary?.schools || 0, emoji: '🏫' },
-                      { label: 'Parks', count: analysis.summary?.parks || 0, emoji: '🌳' },
-                      { label: 'Roads', count: analysis.summary?.roads || 0, emoji: '🛣️' },
-                      { label: 'Total', count: analysis.summary?.totalElements || 0, emoji: '📍' },
+                      { label: 'Houses', count: analysis.summary?.houses || 0, icon: <FaHome /> },
+                      { label: 'Hospitals', count: analysis.summary?.hospitals || 0, icon: <FaHospital /> },
+                      { label: 'Schools', count: analysis.summary?.schools || 0, icon: <FaSchool /> },
+                      { label: 'Parks', count: analysis.summary?.parks || 0, icon: <FaTree /> },
+                      { label: 'Roads', count: analysis.summary?.roads || 0, icon: <FaRoad /> },
+                      { label: 'Total', count: analysis.summary?.totalElements || 0, icon: <FaMapMarkerAlt /> },
                     ].map((s) => (
-                      <div key={s.label} className="bg-white/5 rounded-lg p-2">
-                        <div className="text-sm">{s.emoji}</div>
+                      <div key={s.label} className="bg-white/5 rounded-lg p-2 flex flex-col items-center">
+                        <div className="text-sm mb-1">{s.icon}</div>
                         <div className="text-lg font-bold">{s.count}</div>
                         <div className="text-[9px] text-white/40">{s.label}</div>
                       </div>

@@ -16,7 +16,7 @@ import {
 // Planner Layout Evaluation (drag & drop)
 // Smart rule-based analysis for user-placed elements
 // ─────────────────────────────────────────────────────────
-export function evaluateLayout(elements, centerLat, centerLng) {
+export function evaluateLayout(elements, centerLat, centerLng, evalRadius = 5) {
   const houses = elements.filter((e) => e.type === 'house' || e.type === 'residential');
   const hospitals = elements.filter((e) => e.type === 'hospital');
   const schools = elements.filter((e) => e.type === 'school');
@@ -30,6 +30,13 @@ export function evaluateLayout(elements, centerLat, centerLng) {
   const recommendations = [];
   const strengths = [];
   const weaknesses = [];
+
+  const scale = Math.max(1, evalRadius / 5);
+  const T = {
+    hospital: { ideal: THRESHOLDS.hospital.ideal * scale, acceptable: THRESHOLDS.hospital.acceptable * scale, critical: THRESHOLDS.hospital.critical * scale },
+    school: { ideal: THRESHOLDS.school.ideal * scale, acceptable: THRESHOLDS.school.acceptable * scale, critical: THRESHOLDS.school.critical * scale },
+    park: { ideal: THRESHOLDS.park.ideal * scale, acceptable: THRESHOLDS.park.acceptable * scale, critical: THRESHOLDS.park.critical * scale },
+  };
 
   // ── Score calculation: additive model ──
   let score = 0;
@@ -53,9 +60,9 @@ export function evaluateLayout(elements, centerLat, centerLng) {
     houses.forEach((house) => {
       const nearest = findNearest(house, hospitals);
       if (nearest) {
-        if (nearest.distance <= THRESHOLDS.hospital.ideal) {
+        if (nearest.distance <= T.hospital.ideal) {
           healthScore += 25 / houses.length;
-        } else if (nearest.distance <= THRESHOLDS.hospital.acceptable) {
+        } else if (nearest.distance <= T.hospital.acceptable) {
           healthScore += (18 / houses.length);
           allWithinIdeal = false;
           recommendations.push({
@@ -64,13 +71,13 @@ export function evaluateLayout(elements, centerLat, centerLng) {
             message: `Hospital is ${nearest.distance.toFixed(1)}km from housing at (${house.lat.toFixed(4)}, ${house.lng.toFixed(4)}). Consider a clinic nearby.`,
             icon: '🏥',
           });
-        } else if (nearest.distance <= THRESHOLDS.hospital.critical) {
+        } else if (nearest.distance <= T.hospital.critical) {
           healthScore += (8 / houses.length);
           allWithinIdeal = false;
           recommendations.push({
             severity: 'warning',
             category: 'healthcare',
-            message: `Hospital is ${nearest.distance.toFixed(1)}km from residential area — too far! Should be within ${THRESHOLDS.hospital.acceptable}km.`,
+            message: `Hospital is ${nearest.distance.toFixed(1)}km from residential area — too far! Should be within ${T.hospital.acceptable.toFixed(1)}km.`,
             icon: '🏥',
           });
         } else {
@@ -79,7 +86,7 @@ export function evaluateLayout(elements, centerLat, centerLng) {
           recommendations.push({
             severity: 'critical',
             category: 'healthcare',
-            message: `Hospital is ${nearest.distance.toFixed(1)}km from residential area — critically far! Must be within ${THRESHOLDS.hospital.critical}km.`,
+            message: `Hospital is ${nearest.distance.toFixed(1)}km from residential area — critically far! Must be within ${T.hospital.critical.toFixed(1)}km.`,
             icon: '🏥',
           });
         }
@@ -110,16 +117,16 @@ export function evaluateLayout(elements, centerLat, centerLng) {
     houses.forEach((house) => {
       const nearest = findNearest(house, schools);
       if (nearest) {
-        if (nearest.distance <= THRESHOLDS.school.ideal) {
+        if (nearest.distance <= T.school.ideal) {
           eduScore += 20 / houses.length;
-        } else if (nearest.distance <= THRESHOLDS.school.acceptable) {
+        } else if (nearest.distance <= T.school.acceptable) {
           eduScore += 14 / houses.length;
-        } else if (nearest.distance <= THRESHOLDS.school.critical) {
+        } else if (nearest.distance <= T.school.critical) {
           eduScore += 6 / houses.length;
           recommendations.push({
             severity: 'warning',
             category: 'education',
-            message: `School is ${nearest.distance.toFixed(1)}km from residential area. Should be within ${THRESHOLDS.school.acceptable}km.`,
+            message: `School is ${nearest.distance.toFixed(1)}km from residential area. Should be within ${T.school.acceptable.toFixed(1)}km.`,
             icon: '🏫',
           });
         } else {
@@ -153,14 +160,14 @@ export function evaluateLayout(elements, centerLat, centerLng) {
     houses.forEach((house) => {
       const nearest = findNearest(house, parks);
       if (nearest) {
-        if (nearest.distance <= THRESHOLDS.park.ideal) parkScore += 15 / houses.length;
-        else if (nearest.distance <= THRESHOLDS.park.acceptable) parkScore += 10 / houses.length;
-        else if (nearest.distance <= THRESHOLDS.park.critical) {
+        if (nearest.distance <= T.park.ideal) parkScore += 15 / houses.length;
+        else if (nearest.distance <= T.park.acceptable) parkScore += 10 / houses.length;
+        else if (nearest.distance <= T.park.critical) {
           parkScore += 4 / houses.length;
           recommendations.push({
             severity: 'warning',
             category: 'recreation',
-            message: `Nearest park is ${nearest.distance.toFixed(1)}km away. Add a green space within ${THRESHOLDS.park.acceptable}km.`,
+            message: `Nearest park is ${nearest.distance.toFixed(1)}km away. Add a green space within ${T.park.acceptable.toFixed(1)}km.`,
             icon: '🌳',
           });
         }

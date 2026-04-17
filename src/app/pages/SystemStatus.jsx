@@ -102,7 +102,7 @@ export function SystemStatus() {
         </motion.div>
 
         {/* Server Health */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <GlassPanel>
             <div className="p-5 flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center">
@@ -147,6 +147,20 @@ export function SystemStatus() {
               <div>
                 <p className="text-xs text-white/40">Total Documents</p>
                 <p className="text-lg font-bold">{totalDocs.toLocaleString()}</p>
+              </div>
+            </div>
+          </GlassPanel>
+
+          <GlassPanel>
+            <div className="p-5 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center">
+                <Activity className="w-6 h-6 text-blue-400" />
+              </div>
+              <div>
+                <p className="text-xs text-white/40">Memory & Uptime</p>
+                <p className="text-lg font-bold">
+                  {health?.memoryMB ? `${health.memoryMB}MB` : 'N/A'} <span className="text-sm font-normal text-white/50">({health?.uptime ? `${Math.floor(health.uptime / 60)}m` : '0m'})</span>
+                </p>
               </div>
             </div>
           </GlassPanel>

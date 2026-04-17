@@ -34,8 +34,8 @@ const mapsApi = {
   reverse: (lat, lng) => request('GET', `/maps/reverse?lat=${lat}&lng=${lng}`),
   analyzeArea: (lat, lng, radius = 5000, areaName = 'Selected Area') =>
     request('POST', '/maps/analyze-area', { lat, lng, radius, areaName }),
-  evaluateLayout: (elements, centerLat, centerLng) =>
-    request('POST', '/report/evaluate-layout', { elements, centerLat, centerLng }),
+  evaluateLayout: (elements, centerLat, centerLng, radius = 5) =>
+    request('POST', '/report/evaluate-layout', { elements, centerLat, centerLng, radius }),
 
   // ─── Reports (with persistence) ─────────────────────────
   generateReport: async (lat, lng, radius = 5000, areaName = 'Selected Area') => {
@@ -110,25 +110,6 @@ const mapsApi = {
   getComparison: (id) => request('GET', `/comparisons/${id}`),
   deleteComparison: (id) => request('DELETE', `/comparisons/${id}`),
 
-  // ─── Infrastructure Requests ────────────────────────────
-  submitInfraRequest: (data) => request('POST', '/infra-requests', data),
-  getInfraRequests: (filters = {}) => {
-    const params = new URLSearchParams(filters).toString();
-    return request('GET', `/infra-requests${params ? `?${params}` : ''}`);
-  },
-  getMyInfraRequests: () => request('GET', '/infra-requests/mine'),
-  voteInfraRequest: (id, vote) => request('PUT', `/infra-requests/${id}/vote`, { vote }),
-  reviewInfraRequest: (id, status, adminNotes = '') =>
-    request('PUT', `/infra-requests/${id}/review`, { status, admin_notes: adminNotes }),
-  deleteInfraRequest: (id) => request('DELETE', `/infra-requests/${id}`),
-
-  // ─── Bookmarks ──────────────────────────────────────────
-  addBookmark: (resourceType, resourceId, resourceName, lat, lng, notes = '') =>
-    request('POST', '/bookmarks', { resource_type: resourceType, resource_id: resourceId, resource_name: resourceName, lat, lng, notes }),
-  getBookmarks: (type = '') => request('GET', `/bookmarks${type ? `?resource_type=${type}` : ''}`),
-  checkBookmark: (resourceType, resourceId) =>
-    request('GET', `/bookmarks/check/${resourceType}/${resourceId}`),
-  removeBookmark: (id) => request('DELETE', `/bookmarks/${id}`),
 
   // ─── Map Layers ─────────────────────────────────────────
   createMapLayer: (name, layerType, data = {}) =>

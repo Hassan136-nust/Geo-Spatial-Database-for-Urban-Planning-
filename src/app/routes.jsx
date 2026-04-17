@@ -14,8 +14,6 @@ import { MyDesigns } from './pages/MyDesigns';
 import { SavedReports } from './pages/SavedReports';
 import { Projects } from './pages/Projects';
 import { CompareAreas } from './pages/CompareAreas';
-import { InfraRequests } from './pages/InfraRequests';
-import { Bookmarks } from './pages/Bookmarks';
 import { LandmarksManager } from './pages/LandmarksManager';
 import { SystemStatus } from './pages/SystemStatus';
 
@@ -38,8 +36,6 @@ export const router = createBrowserRouter([
       { path: 'saved-reports', Component: SavedReports },
       { path: 'projects', Component: Projects },
       { path: 'compare', Component: CompareAreas },
-      { path: 'infra-requests', Component: InfraRequests },
-      { path: 'bookmarks', Component: Bookmarks },
       { path: 'landmarks', Component: LandmarksManager },
       { path: 'system-status', Component: SystemStatus },
     ],

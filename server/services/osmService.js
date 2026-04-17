@@ -7,17 +7,38 @@ import axios from 'axios';
 
 const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org';
 const OVERPASS_ENDPOINTS = [
-  'https://overpass-api.de/api/interpreter',
   'https://lz4.overpass-api.de/api/interpreter',
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
   'https://overpass.osm.ch/api/interpreter'
 ];
 const OSRM_BASE = 'https://router.project-osrm.org';
 const USER_AGENT = 'UrbanPulse/1.0 (urban-planning-tool)';
 
 // ─────────────────────────────────────────────────────────
-// RATE LIMITING — Overpass allows ~2 requests per slot
-// We track the last call time and add delays to avoid 429s
+// CACHING & RATE LIMITING
 // ─────────────────────────────────────────────────────────
+const cache = new Map();
+const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
+
+function getCacheKey(type, lat, lng, radius) {
+  // Round coordinates to ~110m precision for cache hits (3 decimal places)
+  return `${type}_${lat.toFixed(3)}_${lng.toFixed(3)}_${radius}`;
+}
+
+function getFromCache(key) {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    console.log(`[Cache] HIT for ${key}`);
+    return cached.data;
+  }
+  return null;
+}
+
+function setCache(key, data) {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
 let lastOverpassCall = 0;
 
 async function throttleOverpass() {
@@ -205,20 +226,24 @@ export async function getNearbyPlaces(lat, lng, radiusMeters = 5000, type = 'hos
   }));
 }
 
-// Fetch multiple types at once — with retry on failure
+// Fetch multiple types at once — with retry on failure and caching
 export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000) {
-  const types = ['hospital', 'school', 'university', 'park', 'mosque', 'police', 'fire_station', 'pharmacy', 'bank', 'mall'];
-  
-  // Build combined Overpass query for performance
-  const filters = types.map((t) => {
-    const f = OSM_TYPE_MAP[t];
-    return `node${f}(around:${radiusMeters},${lat},${lng});\n      way${f}(around:${radiusMeters},${lat},${lng});`;
-  }).join('\n      ');
+  const cacheKey = getCacheKey('all', lat, lng, radiusMeters);
+  const cachedData = getFromCache(cacheKey);
+  if (cachedData) return cachedData;
 
+  // Use highly-optimized Regex queries for Overpass to prevent timeouts
   const query = `
     [out:json][timeout:30];
     (
-      ${filters}
+      node["amenity"~"^(hospital|clinic|school|university|pharmacy|bank|police|fire_station|place_of_worship|mosque|restaurant)$"](around:${radiusMeters},${lat},${lng});
+      way["amenity"~"^(hospital|clinic|school|university|pharmacy|bank|police|fire_station|place_of_worship|mosque|restaurant)$"](around:${radiusMeters},${lat},${lng});
+      node["leisure"~"^(park|playground|sports_centre)$"](around:${radiusMeters},${lat},${lng});
+      way["leisure"~"^(park|playground|sports_centre)$"](around:${radiusMeters},${lat},${lng});
+      node["shop"~"^(mall|supermarket)$"](around:${radiusMeters},${lat},${lng});
+      way["shop"~"^(mall|supermarket)$"](around:${radiusMeters},${lat},${lng});
+      node["office"~"^(government)$"](around:${radiusMeters},${lat},${lng});
+      way["office"~"^(government)$"](around:${radiusMeters},${lat},${lng});
     );
     out center body;
   `;
@@ -239,6 +264,7 @@ export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000) {
     }));
 
     console.log(`[OSM] getNearbyAllTypes: ${results.length} places found for (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+    setCache(cacheKey, results);
     return results;
   } catch (err) {
     console.error('[OSM] getNearbyAllTypes error (all retries exhausted):', err.message);
@@ -250,6 +276,10 @@ export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000) {
 // ROADS — Fetch road network from Overpass
 // ─────────────────────────────────────────────────────────
 export async function getRoads(lat, lng, radiusMeters = 3000) {
+  const cacheKey = getCacheKey('roads', lat, lng, radiusMeters);
+  const cachedData = getFromCache(cacheKey);
+  if (cachedData) return cachedData;
+
   const query = `
     [out:json][timeout:25];
     (
@@ -261,7 +291,7 @@ export async function getRoads(lat, lng, radiusMeters = 3000) {
   try {
     const data = await fetchOverpassWithRetry(query, 30000, 1);
 
-    return (data.elements || []).map((el) => ({
+    const resultRoads = (data.elements || []).map((el) => ({
       id: el.id,
       name: el.tags?.name || 'Unnamed Road',
       type: el.tags?.highway || 'road',
@@ -272,6 +302,8 @@ export async function getRoads(lat, lng, radiusMeters = 3000) {
         ? el.geometry.map((pt) => [pt.lat, pt.lng || pt.lon])
         : [],
     }));
+    setCache(cacheKey, resultRoads);
+    return resultRoads;
   } catch (err) {
     console.error('[OSM] Roads fetch error (all retries exhausted):', err.message);
     return [];

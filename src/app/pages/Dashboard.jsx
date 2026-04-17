@@ -4,6 +4,10 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, useMap as use
 import L from 'leaflet';
 import { GlassPanel } from '../components/GlassPanel';
 import { Search, MapPin, Stethoscope, GraduationCap, Trees, Building2, Layers, X, ChevronRight, AlertTriangle, CheckCircle, Loader2, Navigation2, FileDown, Shield, TrendingUp, Minus, ChevronDown, ChevronUp, Zap, Target } from 'lucide-react';
+import { renderToString } from 'react-dom/server';
+import { FaHospital, FaSchool, FaTree, FaMosque, FaPills, FaUniversity, FaMapMarkerAlt, FaShoppingBag, FaLandmark } from 'react-icons/fa';
+import { MdLocalPolice, MdLocalFireDepartment, MdLocalHospital } from 'react-icons/md';
+import { BsBank } from 'react-icons/bs';
 import { useMap } from '../context/MapContext';
 import mapsApi from '../services/mapsApi';
 import 'leaflet/dist/leaflet.css';
@@ -25,10 +29,10 @@ const MARKER_COLORS = {
 };
 
 const MARKER_ICONS = {
-  hospital: '🏥', clinic: '🏥', school: '🏫', university: '🎓',
-  park: '🌳', playground: '🎡', mosque: '🕌', religious: '⛪',
-  police: '🚔', fire_station: '🚒', pharmacy: '💊', bank: '🏦',
-  mall: '🛍️', government: '🏛️', other: '📍',
+  hospital: <FaHospital />, clinic: <MdLocalHospital />, school: <FaSchool />, university: <FaUniversity />,
+  park: <FaTree />, playground: <FaTree />, mosque: <FaMosque />, religious: <FaMosque />,
+  police: <MdLocalPolice />, fire_station: <MdLocalFireDepartment />, pharmacy: <FaPills />, bank: <BsBank />,
+  mall: <FaShoppingBag />, government: <FaLandmark />, other: <FaMapMarkerAlt />,
 };
 
 // Coverage radius for visualization (in meters)
@@ -38,10 +42,15 @@ const COVERAGE_RADII = {
 
 function createCustomIcon(type) {
   const color = MARKER_COLORS[type] || '#6b7280';
-  const emoji = MARKER_ICONS[type] || '📍';
+  const iconElement = MARKER_ICONS[type] || <FaMapMarkerAlt />;
+  const iconHtml = renderToString(
+    <div style={{ background: color, width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', color: 'white', border: '2px solid white', boxShadow: '0 2px 8px rgba(0,0,0,0.3)', cursor: 'pointer', transition: 'transform 0.2s' }}>
+      {iconElement}
+    </div>
+  );
   return L.divIcon({
     className: 'custom-marker',
-    html: `<div style="background:${color};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);cursor:pointer;transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.2)'" onmouseleave="this.style.transform='scale(1)'">${emoji}</div>`,
+    html: iconHtml,
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [0, -32],
@@ -197,15 +206,15 @@ export function Dashboard() {
   }
 
   const layerConfig = [
-    { key: 'hospitals', label: 'Hospitals', icon: '🏥', color: '#ef4444' },
-    { key: 'schools', label: 'Schools', icon: '🏫', color: '#3b82f6' },
-    { key: 'parks', label: 'Parks', icon: '🌳', color: '#22c55e' },
-    { key: 'mosques', label: 'Mosques', icon: '🕌', color: '#a855f7' },
-    { key: 'banks', label: 'Banks', icon: '🏦', color: '#eab308' },
-    { key: 'police', label: 'Police', icon: '🚔', color: '#1e40af' },
-    { key: 'pharmacies', label: 'Pharmacy', icon: '💊', color: '#06b6d4' },
-    { key: 'roads', label: 'Roads', icon: '🛣️', color: '#f97316' },
-    { key: 'coverageCircles', label: 'Coverage', icon: '⭕', color: '#0ea5e9' },
+    { key: 'hospitals', label: 'Hospitals', icon: <FaHospital />, color: '#ef4444' },
+    { key: 'schools', label: 'Schools', icon: <FaSchool />, color: '#3b82f6' },
+    { key: 'parks', label: 'Parks', icon: <FaTree />, color: '#22c55e' },
+    { key: 'mosques', label: 'Mosques', icon: <FaMosque />, color: '#a855f7' },
+    { key: 'banks', label: 'Banks', icon: <BsBank />, color: '#eab308' },
+    { key: 'police', label: 'Police', icon: <MdLocalPolice />, color: '#1e40af' },
+    { key: 'pharmacies', label: 'Pharmacy', icon: <FaPills />, color: '#06b6d4' },
+    { key: 'roads', label: 'Roads', icon: <Building2 />, color: '#f97316' },
+    { key: 'coverageCircles', label: 'Coverage', icon: <Target />, color: '#0ea5e9' },
   ];
 
   const toggleSection = (section) => {
@@ -390,8 +399,8 @@ export function Dashboard() {
                   positions={road.geometry}
                   pathOptions={{
                     color: road.type === 'motorway' || road.type === 'trunk' ? '#f59e0b' :
-                           road.type === 'primary' ? '#f97316' :
-                           road.type === 'secondary' ? '#8b5cf6' : '#6b7280',
+                      road.type === 'primary' ? '#f97316' :
+                        road.type === 'secondary' ? '#8b5cf6' : '#6b7280',
                     weight: road.type === 'motorway' ? 4 : road.type === 'primary' ? 3 : 2,
                     opacity: 0.7,
                   }}
@@ -413,13 +422,13 @@ export function Dashboard() {
             <div className="absolute bottom-4 left-4 z-[1000]">
               <div className="bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl px-4 py-3 flex gap-4">
                 {[
-                  { icon: '🏥', count: nearbyPlaces.filter((p) => p.type === 'hospital' || p.type === 'clinic').length, label: 'Hospitals' },
-                  { icon: '🏫', count: nearbyPlaces.filter((p) => p.type === 'school' || p.type === 'university').length, label: 'Schools' },
-                  { icon: '🌳', count: nearbyPlaces.filter((p) => p.type === 'park').length, label: 'Parks' },
-                  { icon: '🕌', count: nearbyPlaces.filter((p) => p.type === 'mosque' || p.type === 'religious').length, label: 'Mosques' },
+                  { icon: <FaHospital />, count: nearbyPlaces.filter((p) => p.type === 'hospital' || p.type === 'clinic').length, label: 'Hospitals' },
+                  { icon: <FaSchool />, count: nearbyPlaces.filter((p) => p.type === 'school' || p.type === 'university').length, label: 'Schools' },
+                  { icon: <FaTree />, count: nearbyPlaces.filter((p) => p.type === 'park').length, label: 'Parks' },
+                  { icon: <FaMosque />, count: nearbyPlaces.filter((p) => p.type === 'mosque' || p.type === 'religious').length, label: 'Mosques' },
                 ].map((s) => (
-                  <div key={s.label} className="text-center">
-                    <div className="text-sm">{s.icon}</div>
+                  <div key={s.label} className="text-center flex flex-col items-center">
+                    <div className="text-sm mb-1">{s.icon}</div>
                     <div className="text-lg font-bold">{s.count}</div>
                     <div className="text-[9px] text-white/40">{s.label}</div>
                   </div>
@@ -473,19 +482,17 @@ export function Dashboard() {
                     </div>
 
                     {/* Score — collapsible */}
-                    <div className={`rounded-xl border overflow-hidden transition-all ${
-                      analysis.score >= 70 ? 'bg-green-500/5 border-green-500/20' :
-                      analysis.score >= 50 ? 'bg-yellow-500/5 border-yellow-500/20' :
-                      'bg-red-500/5 border-red-500/20'
-                    }`}>
+                    <div className={`rounded-xl border overflow-hidden transition-all ${analysis.score >= 70 ? 'bg-green-500/5 border-green-500/20' :
+                        analysis.score >= 50 ? 'bg-yellow-500/5 border-yellow-500/20' :
+                          'bg-red-500/5 border-red-500/20'
+                      }`}>
                       <button onClick={() => toggleSection('score')} className="w-full p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className="text-3xl font-bold">{analysis.score}<span className="text-sm text-white/40">/100</span></div>
-                          <div className={`text-xs px-2 py-0.5 rounded-full ${
-                            analysis.score >= 70 ? 'bg-green-500/20 text-green-400' :
-                            analysis.score >= 50 ? 'bg-yellow-500/20 text-yellow-400' :
-                            'bg-red-500/20 text-red-400'
-                          }`}>{analysis.rating}</div>
+                          <div className={`text-xs px-2 py-0.5 rounded-full ${analysis.score >= 70 ? 'bg-green-500/20 text-green-400' :
+                              analysis.score >= 50 ? 'bg-yellow-500/20 text-yellow-400' :
+                                'bg-red-500/20 text-red-400'
+                            }`}>{analysis.rating}</div>
                         </div>
                         {expandedSection === 'score' ? <ChevronUp className="w-4 h-4 text-white/30" /> : <ChevronDown className="w-4 h-4 text-white/30" />}
                       </button>
@@ -496,10 +503,9 @@ export function Dashboard() {
                               initial={{ width: 0 }}
                               animate={{ width: `${analysis.score}%` }}
                               transition={{ duration: 1, ease: 'easeOut' }}
-                              className={`h-full rounded-full ${
-                                analysis.score >= 70 ? 'bg-green-500' :
-                                analysis.score >= 50 ? 'bg-yellow-500' : 'bg-red-500'
-                              }`}
+                              className={`h-full rounded-full ${analysis.score >= 70 ? 'bg-green-500' :
+                                  analysis.score >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                                }`}
                             />
                           </div>
                           {/* Score breakdown */}
@@ -552,9 +558,8 @@ export function Dashboard() {
                         {expandedSection === 'weaknesses' && (
                           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-3 pb-3 space-y-1.5">
                             {analysis.weaknesses.map((w, i) => (
-                              <div key={i} className={`text-xs p-2.5 rounded-lg border ${
-                                w.severity === 'critical' ? 'bg-red-500/5 border-red-500/15 text-red-300' : 'bg-amber-500/5 border-amber-500/15 text-amber-300'
-                              }`}>
+                              <div key={i} className={`text-xs p-2.5 rounded-lg border ${w.severity === 'critical' ? 'bg-red-500/5 border-red-500/15 text-red-300' : 'bg-amber-500/5 border-amber-500/15 text-amber-300'
+                                }`}>
                                 <span className="mr-1">{w.icon}</span> {w.message}
                               </div>
                             ))}
@@ -581,15 +586,13 @@ export function Dashboard() {
                                   <span className="text-white/40">{cov.count}</span>
                                   {cov.score !== undefined && (
                                     <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                                      <div className={`h-full rounded-full ${
-                                        cov.score >= 70 ? 'bg-green-400' : cov.score >= 40 ? 'bg-yellow-400' : 'bg-red-400'
-                                      }`} style={{ width: `${cov.score}%` }} />
+                                      <div className={`h-full rounded-full ${cov.score >= 70 ? 'bg-green-400' : cov.score >= 40 ? 'bg-yellow-400' : 'bg-red-400'
+                                        }`} style={{ width: `${cov.score}%` }} />
                                     </div>
                                   )}
-                                  <span className={`w-2 h-2 rounded-full ${
-                                    cov.status === 'excellent' || cov.status === 'good' ? 'bg-green-400' :
-                                    cov.status === 'poor' ? 'bg-yellow-400' : 'bg-red-400'
-                                  }`} />
+                                  <span className={`w-2 h-2 rounded-full ${cov.status === 'excellent' || cov.status === 'good' ? 'bg-green-400' :
+                                      cov.status === 'poor' ? 'bg-yellow-400' : 'bg-red-400'
+                                    }`} />
                                 </div>
                               </div>
                             ))}
@@ -615,11 +618,10 @@ export function Dashboard() {
                                 initial={{ opacity: 0, x: 10 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: i * 0.05 }}
-                                className={`text-xs p-2.5 rounded-lg border ${
-                                  rec.priority === 'critical' ? 'bg-red-500/5 border-red-500/15 text-red-300' :
-                                  rec.priority === 'high' ? 'bg-amber-500/5 border-amber-500/15 text-amber-300' :
-                                  'bg-blue-500/5 border-blue-500/15 text-blue-300'
-                                }`}
+                                className={`text-xs p-2.5 rounded-lg border ${rec.priority === 'critical' ? 'bg-red-500/5 border-red-500/15 text-red-300' :
+                                    rec.priority === 'high' ? 'bg-amber-500/5 border-amber-500/15 text-amber-300' :
+                                      'bg-blue-500/5 border-blue-500/15 text-blue-300'
+                                  }`}
                               >
                                 <span className="mr-1">{rec.icon}</span> {rec.message}
                               </motion.div>
@@ -651,7 +653,7 @@ export function Dashboard() {
                           <div className="px-3 pb-3 space-y-1 max-h-60 overflow-y-auto">
                             {nearbyPlaces.slice(0, 20).map((place, i) => (
                               <div key={`${place.id}-${i}`} className="flex items-center gap-2 text-xs p-2 rounded-lg hover:bg-white/5 transition-colors">
-                                <span className="flex-shrink-0 text-sm">{MARKER_ICONS[place.type] || '📍'}</span>
+                                <span className="flex-shrink-0 text-sm">{MARKER_ICONS[place.type] || <FaMapMarkerAlt />}</span>
                                 <div className="flex-1 min-w-0">
                                   <p className="font-medium truncate text-white/80">{place.name}</p>
                                   <p className="text-white/30 capitalize">{place.type}</p>

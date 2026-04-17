@@ -1,6 +1,9 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { renderToString } from 'react-dom/server';
+import { FaHospital, FaSchool, FaTree, FaMosque, FaMapMarkerAlt, FaUniversity } from 'react-icons/fa';
+import { MdLocalPolice, MdStoreMallDirectory, MdAccountBalance } from 'react-icons/md';
 import L from 'leaflet';
 import { GlassPanel } from '../components/GlassPanel';
 import { MapPin, Search, Plus, Loader2, Download, Filter, Globe, Trash2, RefreshCw, Database, Save, CheckCircle } from 'lucide-react';
@@ -17,25 +20,39 @@ L.Icon.Default.mergeOptions({
 });
 
 const LANDMARK_TYPES = [
-  { value: 'hospital', label: 'Hospital', emoji: '🏥', color: '#ef4444' },
-  { value: 'school', label: 'School', emoji: '🏫', color: '#3b82f6' },
-  { value: 'university', label: 'University', emoji: '🎓', color: '#6366f1' },
-  { value: 'park', label: 'Park', emoji: '🌳', color: '#22c55e' },
-  { value: 'religious', label: 'Religious', emoji: '🕌', color: '#a855f7' },
-  { value: 'commercial', label: 'Commercial', emoji: '🏪', color: '#ec4899' },
-  { value: 'government', label: 'Government', emoji: '🏛️', color: '#f59e0b' },
-  { value: 'other', label: 'Other', emoji: '📍', color: '#6b7280' },
+  { value: 'hospital', label: 'Hospital', icon: <FaHospital />, color: '#ef4444' },
+  { value: 'school', label: 'School', icon: <FaSchool />, color: '#3b82f6' },
+  { value: 'university', label: 'University', icon: <FaUniversity />, color: '#6366f1' },
+  { value: 'park', label: 'Park', icon: <FaTree />, color: '#22c55e' },
+  { value: 'religious', label: 'Religious', icon: <FaMosque />, color: '#a855f7' },
+  { value: 'commercial', label: 'Commercial', icon: <MdStoreMallDirectory />, color: '#ec4899' },
+  { value: 'government', label: 'Government', icon: <MdAccountBalance />, color: '#f59e0b' },
+  { value: 'other', label: 'Other', icon: <FaMapMarkerAlt />, color: '#6b7280' },
 ];
 
 function createIcon(type) {
   const lt = LANDMARK_TYPES.find((t) => t.value === type) || LANDMARK_TYPES[7];
+  const iconHtml = renderToString(
+    <div style={{ background: lt.color, width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', color: 'white', border: '2px solid white', boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
+      {lt.icon}
+    </div>
+  );
   return L.divIcon({
     className: 'custom-marker',
-    html: `<div style="background:${lt.color};width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);">${lt.emoji}</div>`,
+    html: iconHtml,
     iconSize: [28, 28],
     iconAnchor: [14, 28],
     popupAnchor: [0, -28],
   });
+}
+
+function MapClickHandler({ onMapClick, pickMode }) {
+  useMapEvents({
+    click(e) {
+      if (pickMode) onMapClick(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return null;
 }
 
 // Cities with larger radii for areas like NUST campus
@@ -66,6 +83,23 @@ export function LandmarksManager() {
   const [addingLandmark, setAddingLandmark] = useState(false);
   const [message, setMessage] = useState(null);
   const [fetchedFromOSM, setFetchedFromOSM] = useState(false);
+  const [pickMode, setPickMode] = useState(false);
+
+  const handleMapPick = useCallback(async (lat, lng) => {
+    setNewLandmark((prev) => ({ ...prev, lat, lng }));
+    setPickMode(false);
+    try {
+      const geoRes = await mapsApi.reverse(lat, lng);
+      if (geoRes && geoRes.data && geoRes.data.address) {
+        const city = geoRes.data.address.city || geoRes.data.address.town || geoRes.data.address.village || 'Unknown';
+        setNewLandmark((prev) => ({ ...prev, city }));
+        setMessage({ type: 'success', text: 'Location auto-detected!' });
+        setTimeout(() => setMessage(null), 3000);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   // Fetch landmarks for selected city — ALWAYS fetches fresh from OSM
   const fetchLandmarksForCity = async (forceRefresh = false) => {
@@ -257,9 +291,17 @@ export function LandmarksManager() {
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-green-500/50"
                 >
                   {LANDMARK_TYPES.map((t) => (
-                    <option key={t.value} value={t.value} className="bg-gray-900">{t.emoji} {t.label}</option>
+                    <option key={t.value} value={t.value} className="bg-gray-900">{t.label}</option>
                   ))}
                 </select>
+                
+                <button
+                  onClick={() => setPickMode(!pickMode)}
+                  className={`w-full py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${pickMode ? 'bg-cyan-500 text-white' : 'bg-white/10 text-white/60 hover:bg-white/20'}`}
+                >
+                  <MapPin className="w-3.5 h-3.5" /> {pickMode ? 'Click anywhere on map to pick location...' : 'Pick from Map'}
+                </button>
+
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="number" step="any" value={newLandmark.lat}
@@ -311,7 +353,7 @@ export function LandmarksManager() {
               >
                 <option value="" className="bg-gray-900">All Types</option>
                 {LANDMARK_TYPES.map((t) => (
-                  <option key={t.value} value={t.value} className="bg-gray-900">{t.emoji} {t.label}</option>
+                  <option key={t.value} value={t.value} className="bg-gray-900">{t.label}</option>
                 ))}
               </select>
               {/* Type breakdown */}
@@ -321,7 +363,7 @@ export function LandmarksManager() {
                   if (count === 0) return null;
                   return (
                     <div key={t.value} className="flex items-center justify-between text-xs py-1">
-                      <span className="text-white/60">{t.emoji} {t.label}</span>
+                      <span className="text-white/60 flex items-center gap-2">{t.icon} {t.label}</span>
                       <span className="text-white/80 font-medium">{count}</span>
                     </div>
                   );
@@ -370,6 +412,7 @@ export function LandmarksManager() {
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                   url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 />
+                <MapClickHandler onMapClick={handleMapPick} pickMode={pickMode} />
                 {filteredLandmarks.map((l, i) => {
                   const coords = getLandmarkCoords(l);
                   if (!coords.lat || !coords.lng) return null;
@@ -421,7 +464,7 @@ export function LandmarksManager() {
                         transition={{ delay: Math.min(i * 0.02, 0.5) }}
                         className="flex items-center gap-3 p-2.5 bg-white/5 rounded-xl hover:bg-white/8 transition-colors"
                       >
-                        <span className="flex-shrink-0 text-lg">{typeInfo.emoji}</span>
+                        <span className="flex-shrink-0 text-lg">{typeInfo.icon}</span>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-white/80 truncate">{l.name}</p>
                           <p className="text-[10px] text-white/30 capitalize">{l.type} • {coords.lat?.toFixed(4)}, {coords.lng?.toFixed(4)}</p>

@@ -33,7 +33,7 @@ export function Home() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-sm mb-6"
           >
             <Globe2 className="w-4 h-4" />
-            Powered by OpenStreetMap — 100% Free & Open Data
+           
           </motion.div>
 
           <h1 className="text-7xl font-bold mb-6 bg-gradient-to-r from-white via-cyan-100 to-blue-200 bg-clip-text text-transparent leading-tight">

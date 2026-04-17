@@ -19,8 +19,6 @@ const moreNavItems = [
   { path: '/landmarks', label: 'Landmarks', icon: MapPin },
   { path: '/projects', label: 'Projects', icon: FolderOpen },
   { path: '/compare', label: 'Compare', icon: GitCompare },
-  { path: '/infra-requests', label: 'Proposals', icon: AlertTriangle },
-  { path: '/bookmarks', label: 'Bookmarks', icon: Bookmark },
   { path: '/system-status', label: 'System Status', icon: Activity },
   { path: '/zones', label: 'Zones', icon: Map },
   { path: '/infrastructure', label: 'Infra', icon: Building2 },
