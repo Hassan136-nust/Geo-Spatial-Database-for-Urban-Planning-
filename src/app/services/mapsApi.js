@@ -110,6 +110,13 @@ const mapsApi = {
   getComparison: (id) => request('GET', `/comparisons/${id}`),
   deleteComparison: (id) => request('DELETE', `/comparisons/${id}`),
 
+  // ─── Zones (live OSM + DB) ──────────────────────────────
+  fetchOSMZones: (lat, lng, radius = 10000) =>
+    request('GET', `/zones/osm-fetch?lat=${lat}&lng=${lng}&radius=${radius}`),
+  saveOSMZone: (zoneData) => request('POST', '/zones/save-osm', zoneData),
+  getZones: (params = '') => request('GET', `/zones${params ? `?${params}` : ''}`),
+  deleteZone: (id) => request('DELETE', `/zones/${id}`),
+
 
   // ─── Map Layers ─────────────────────────────────────────
   createMapLayer: (name, layerType, data = {}) =>

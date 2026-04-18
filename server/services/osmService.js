@@ -343,6 +343,117 @@ export async function getDirections(originLat, originLng, destLat, destLng) {
 }
 
 // ─────────────────────────────────────────────────────────
+// ADMIN BOUNDARIES — Fetch zone polygons from Overpass
+// ─────────────────────────────────────────────────────────
+export async function getAdminBoundaries(lat, lng, radiusMeters = 10000) {
+  const cacheKey = getCacheKey('admin_bounds', lat, lng, radiusMeters);
+  const cachedData = getFromCache(cacheKey);
+  if (cachedData) return cachedData;
+
+  // Query for administrative boundaries and major suburbs/neighborhoods
+  const query = `
+    [out:json][timeout:30];
+    (
+      relation["boundary"="administrative"]["admin_level"~"^(8|9|10)$"](around:${radiusMeters},${lat},${lng});
+      relation["landuse"="residential"]["name"](around:${radiusMeters},${lat},${lng});
+      way["landuse"="residential"]["name"](around:${radiusMeters},${lat},${lng});
+      relation["place"~"suburb|neighbourhood"]["name"](around:${radiusMeters},${lat},${lng});
+      way["place"~"suburb|neighbourhood"]["name"](around:${radiusMeters},${lat},${lng});
+    );
+    out body geom;
+  `;
+
+  try {
+    const data = await fetchOverpassWithRetry(query, 35000, 2);
+    const boundaries = (data.elements || [])
+      .map(el => {
+        let rings = [];
+        
+        // Build polygon from relation's outer ways or from a single way
+        if (el.type === 'relation' && el.members) {
+          const outerMembers = el.members.filter(m => m.role === 'outer' && m.geometry);
+          if (outerMembers.length === 0) return null;
+          rings = outerMembers.map(m => m.geometry.map(pt => [pt.lon, pt.lat]));
+        } else if (el.type === 'way' && el.geometry) {
+          rings = [el.geometry.map(pt => [pt.lon, pt.lat])];
+        } else {
+          return null;
+        }
+
+        // Close the ring if not already closed
+        rings.forEach(ring => {
+          if (ring.length > 0) {
+            const first = ring[0];
+            const last = ring[ring.length - 1];
+            if (first[0] !== last[0] || first[1] !== last[1]) {
+              ring.push([...first]);
+            }
+          }
+        });
+
+        // Calculate centroid from first ring
+        const mainRing = rings[0] || [];
+        let cLat = 0, cLng = 0;
+        mainRing.forEach(([lon, la]) => { cLat += la; cLng += lon; });
+        if (mainRing.length > 0) { cLat /= mainRing.length; cLng /= mainRing.length; }
+
+        // Estimate area in sq km (rough bounding box approach)
+        let areaSqKm = 0;
+        if (mainRing.length > 2) {
+          const lats = mainRing.map(c => c[1]);
+          const lngs = mainRing.map(c => c[0]);
+          const latRange = Math.max(...lats) - Math.min(...lats);
+          const lngRange = Math.max(...lngs) - Math.min(...lngs);
+          areaSqKm = parseFloat((latRange * 111 * lngRange * 111 * Math.cos(cLat * Math.PI / 180) * 0.6).toFixed(2));
+        }
+
+        // Filter out tiny slivers (e.g., less than 0.1 sq km) unless they are specifically suburbs
+        if (areaSqKm < 0.1 && el.tags?.place !== 'suburb' && el.tags?.place !== 'neighbourhood') {
+           return null;
+        }
+
+        return {
+          osm_id: el.id,
+          name: el.tags?.name || el.tags?.['name:en'] || `Zone ${el.id}`,
+          admin_level: parseInt(el.tags?.admin_level) || (el.tags?.place === 'suburb' ? 9 : 10),
+          zone_type: classifyBoundaryType(el.tags),
+          description: [el.tags?.['name:en'], el.tags?.place || el.tags?.landuse || 'zone'].filter(Boolean).join(' · '),
+          center: { lat: cLat, lng: cLng },
+          area_sqkm: areaSqKm,
+          geometry: {
+            type: 'Polygon',
+            coordinates: rings.length > 0 ? [rings[0]] : [],
+          },
+          tags: el.tags || {},
+        };
+      })
+      .filter(Boolean)
+      .filter(b => b.geometry.coordinates.length > 0 && b.geometry.coordinates[0].length >= 4);
+
+    // Sort by area so major ones come first
+    boundaries.sort((a, b) => b.area_sqkm - a.area_sqkm);
+
+    console.log(`[OSM] getAdminBoundaries: ${boundaries.length} boundaries found for (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+    setCache(cacheKey, boundaries);
+    return boundaries;
+  } catch (err) {
+    console.error('[OSM] getAdminBoundaries error:', err.message);
+    return [];
+  }
+}
+
+function classifyBoundaryType(tags) {
+  if (!tags) return 'administrative';
+  const name = (tags.name || '').toLowerCase();
+  if (tags.landuse === 'residential' || name.includes('residential')) return 'residential';
+  if (tags.landuse === 'commercial' || name.includes('commercial') || name.includes('market')) return 'commercial';
+  if (tags.landuse === 'industrial' || name.includes('industrial')) return 'industrial';
+  if (tags.leisure === 'park' || tags.landuse === 'recreation_ground') return 'green';
+  if (name.includes('university') || name.includes('school') || name.includes('college')) return 'institutional';
+  return 'administrative';
+}
+
+// ─────────────────────────────────────────────────────────
 // HELPER FUNCTIONS
 // ─────────────────────────────────────────────────────────
 function haversineDistance(lat1, lng1, lat2, lng2) {
@@ -401,4 +512,5 @@ export default {
   getNearbyAllTypes,
   getRoads,
   getDirections,
+  getAdminBoundaries,
 };

@@ -17,6 +17,12 @@ import {
 // Smart rule-based analysis for user-placed elements
 // ─────────────────────────────────────────────────────────
 export function evaluateLayout(elements, centerLat, centerLng, evalRadius = 5) {
+  // Filter elements within the evaluation radius from centroid
+  const centroidLat = elements.reduce((s, e) => s + e.lat, 0) / elements.length;
+  const centroidLng = elements.reduce((s, e) => s + e.lng, 0) / elements.length;
+  const elementsInRadius = elements.filter(e => haversineDistance(centroidLat, centroidLng, e.lat, e.lng) <= evalRadius);
+  const elementsOutOfRadius = elements.filter(e => haversineDistance(centroidLat, centroidLng, e.lat, e.lng) > evalRadius);
+
   const houses = elements.filter((e) => e.type === 'house' || e.type === 'residential');
   const hospitals = elements.filter((e) => e.type === 'hospital');
   const schools = elements.filter((e) => e.type === 'school');
@@ -281,6 +287,22 @@ export function evaluateLayout(elements, centerLat, centerLng, evalRadius = 5) {
     });
   }
 
+  // ── Radius-aware out-of-bounds penalty ──
+  if (elementsOutOfRadius.length > 0) {
+    const outPct = (elementsOutOfRadius.length / elements.length) * 100;
+    const outPenalty = Math.min(15, Math.round(outPct / 5));
+    score -= outPenalty;
+    recommendations.push({
+      severity: outPct > 30 ? 'critical' : 'warning',
+      category: 'radius',
+      message: `${elementsOutOfRadius.length} element(s) (${outPct.toFixed(0)}%) are outside the ${evalRadius}km evaluation radius. Move them closer for better scoring.`,
+      icon: '📏',
+    });
+    if (outPct > 30) {
+      weaknesses.push({ type: 'radius', message: `Many elements placed outside ${evalRadius}km radius`, severity: 'warning', icon: '📏' });
+    }
+  }
+
   // ── Final score ──
   // Normalize to 0–100 scale from maxPossible, then cap at 95
   const normalizedScore = maxPossible > 0 ? Math.round((score / maxPossible) * 100) : 0;
@@ -312,8 +334,11 @@ export function evaluateLayout(elements, centerLat, centerLng, evalRadius = 5) {
     strengths,
     weaknesses,
     recommendations: uniqueRecs,
+    evaluationRadius: evalRadius,
     summary: {
       totalElements: elements.length,
+      elementsInRadius: elementsInRadius.length,
+      elementsOutOfRadius: elementsOutOfRadius.length,
       houses: houses.length,
       hospitals: hospitals.length,
       schools: schools.length,

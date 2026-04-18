@@ -61,6 +61,14 @@ const areaComparisonSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    winner_explanation: {
+      type: String,
+      default: '',
+    },
+    difference_analysis: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
   },
   { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
 );

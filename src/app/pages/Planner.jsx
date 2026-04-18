@@ -127,6 +127,7 @@ export function Planner() {
   const [radius, setRadius] = useState(5);
   const [showResults, setShowResults] = useState(true);
   const [mapCenter] = useState([33.6844, 73.0479]);
+  const mapRef = useRef(null);
   const [toast, setToast] = useState(null);
   const [expandedSection, setExpandedSection] = useState('score');
   const analyzeTimerRef = useRef(null);
@@ -183,7 +184,7 @@ export function Planner() {
     }
   }, [designName, elements, user, currentDesignId]);
 
-  // Auto-analyze on element changes (debounced)
+  // Auto-analyze on element or radius changes (debounced)
   useEffect(() => {
     if (elements.length < 2) {
       setAnalysis(null);
@@ -194,7 +195,7 @@ export function Planner() {
       runAnalysis();
     }, 800);
     return () => { if (analyzeTimerRef.current) clearTimeout(analyzeTimerRef.current); };
-  }, [elements]);
+  }, [elements, radius]);
 
   const runAnalysis = useCallback(async () => {
     if (elements.length < 2) return;
@@ -210,7 +211,7 @@ export function Planner() {
     } finally {
       setAnalyzing(false);
     }
-  }, [elements]);
+  }, [elements, radius]);
 
   // Placement feedback logic
   const getPlacementFeedback = useCallback((type, lat, lng) => {
@@ -291,6 +292,8 @@ export function Planner() {
   }, [currentDesignId]);
 
   const handleDelete = useCallback((id) => {
+    // Clear active tool to prevent ghost selection
+    setActiveTool(null);
     setElements((prev) => {
       const newElements = prev.filter((el) => el.id !== id);
       if (currentDesignId) {
@@ -298,11 +301,19 @@ export function Planner() {
       }
       return newElements;
     });
+    // Close any open popups to prevent ghost markers
+    if (mapRef.current) {
+      mapRef.current.closePopup();
+    }
   }, [currentDesignId]);
 
   const handleClear = useCallback(() => {
     setElements([]);
     setAnalysis(null);
+    setActiveTool(null);
+    if (mapRef.current) {
+      mapRef.current.closePopup();
+    }
   }, []);
 
   const handleExportGeoJSON = useCallback(() => {
@@ -510,7 +521,30 @@ export function Planner() {
             </motion.div>
           )}
 
-          <div className="mt-4 pt-3 border-t border-white/10 space-y-2">
+          {/* Radius Selector */}
+          <div className="mt-3 pt-3 border-t border-white/10">
+            <h4 className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <Shield className="w-3 h-3" /> Evaluation Radius
+            </h4>
+            <div className="grid grid-cols-3 gap-1">
+              {[5, 10, 15].map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setRadius(r)}
+                  className={`px-2 py-2 rounded-lg text-[10px] font-semibold transition-all ${
+                    radius === r
+                      ? 'bg-cyan-500/25 border border-cyan-400/50 text-cyan-300 ring-1 ring-cyan-500/30'
+                      : 'bg-white/5 border border-white/10 text-white/50 hover:bg-white/10'
+                  }`}
+                >
+                  {r} km
+                </button>
+              ))}
+            </div>
+            <p className="text-[9px] text-white/30 mt-1.5">Score adjusts based on radius</p>
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
             <div className="flex gap-2 text-[10px] text-white/50">
               <span className="bg-white/5 px-2 py-1 rounded">{elements.length} placed</span>
               {analyzing && <span className="px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 flex items-center gap-1"><Loader2 className="w-2.5 h-2.5 animate-spin" />analyzing</span>}
@@ -573,6 +607,7 @@ export function Planner() {
             className="h-full w-full"
             style={{ background: '#0a0a0f', cursor: activeTool ? 'crosshair' : 'grab' }}
             zoomControl={false}
+            ref={mapRef}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
@@ -629,6 +664,24 @@ export function Planner() {
                 }}
               />
             ))}
+
+            {/* Evaluation radius circle overlay */}
+            {elements.length >= 2 && (
+              <Circle
+                center={[
+                  elements.reduce((s, e) => s + e.lat, 0) / elements.length,
+                  elements.reduce((s, e) => s + e.lng, 0) / elements.length,
+                ]}
+                radius={radius * 1000}
+                pathOptions={{
+                  color: '#06b6d4',
+                  fillColor: '#06b6d4',
+                  fillOpacity: 0.04,
+                  weight: 1.5,
+                  dashArray: '10 6',
+                }}
+              />
+            )}
           </MapContainer>
         </div>
 
@@ -669,6 +722,14 @@ export function Planner() {
                     analysis.score >= 75 ? 'text-green-400' :
                     analysis.score >= 50 ? 'text-yellow-400' : 'text-red-400'
                   }`}>{analysis.rating}</div>
+                  {analysis.evaluationRadius && (
+                    <div className="mt-1.5 text-[10px] text-white/40 flex items-center gap-1">
+                      <Shield className="w-3 h-3" /> Evaluated at {analysis.evaluationRadius}km radius
+                      {analysis.summary?.elementsOutOfRadius > 0 && (
+                        <span className="text-amber-400 ml-1">({analysis.summary.elementsOutOfRadius} outside)</span>
+                      )}
+                    </div>
+                  )}
                   <div className="h-2 bg-white/10 rounded-full overflow-hidden mt-3">
                     <motion.div
                       initial={{ width: 0 }}

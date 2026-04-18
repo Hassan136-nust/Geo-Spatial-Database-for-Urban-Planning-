@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GlassPanel } from '../components/GlassPanel';
-import { GitCompare, Plus, Trash2, Loader2, Trophy, BarChart3, ChevronDown, ChevronUp } from 'lucide-react';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
+import { GitCompare, Plus, Trash2, Loader2, Trophy, BarChart3, ChevronDown, ChevronUp, ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 import { useAuth } from '../context/AuthContext';
 import mapsApi from '../services/mapsApi';
 
@@ -15,6 +15,7 @@ export function CompareAreas() {
   const [compName, setCompName] = useState('');
   const [creating, setCreating] = useState(false);
   const [expandedComp, setExpandedComp] = useState(null);
+  const [toast, setToast] = useState(null);
 
   const CHART_COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'];
 
@@ -25,6 +26,7 @@ export function CompareAreas() {
       { key: 'education', label: 'Education' },
       { key: 'green_space', label: 'Parks' },
       { key: 'safety', label: 'Safety' },
+      { key: 'connectivity', label: 'Connectivity' }
     ];
     return categories.map(cat => {
       const dataPoint = { subject: cat.label };
@@ -39,6 +41,11 @@ export function CompareAreas() {
     if (user) { loadComparisons(); loadAreas(); }
   }, [user]);
 
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 3500);
+  };
+
   const loadComparisons = async () => {
     try {
       const res = await mapsApi.getComparisons(); setComparisons(res.data || []);
@@ -52,17 +59,35 @@ export function CompareAreas() {
   };
 
   const toggleArea = (id) => {
-    setSelectedAreas((prev) => prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]);
+    if (selectedAreas.includes(id)) {
+      setSelectedAreas(selectedAreas.filter((a) => a !== id));
+    } else {
+      if (selectedAreas.length >= 4) {
+        showToast('warning', 'You can only compare up to 4 areas at a time');
+        return;
+      }
+      setSelectedAreas([...selectedAreas, id]);
+    }
   };
 
   const handleCompare = async () => {
     if (selectedAreas.length < 2) return;
+    const uniqueAreas = new Set(selectedAreas);
+    if (uniqueAreas.size !== selectedAreas.length) {
+      showToast('error', 'Cannot select the same area twice');
+      return;
+    }
     setCreating(true);
     try {
       const res = await mapsApi.createComparison(selectedAreas, compName);
       setComparisons([res.data, ...comparisons]);
       setSelectedAreas([]); setCompName('');
-    } catch (err) { console.error(err); } finally { setCreating(false); }
+      setExpandedComp(res.data._id);
+      showToast('success', 'Comparison generated successfully');
+    } catch (err) { 
+      console.error(err); 
+      showToast('error', err.response?.data?.message || 'Failed to generate comparison');
+    } finally { setCreating(false); }
   };
 
   const handleDelete = async (id) => {
@@ -74,6 +99,24 @@ export function CompareAreas() {
 
   return (
     <div className="min-h-screen pt-28 pb-20 px-8">
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -30, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -30, x: '-50%' }}
+            className={`fixed top-24 left-1/2 z-[2000] px-5 py-3 rounded-2xl text-sm font-medium backdrop-blur-xl border shadow-2xl ${
+              toast.type === 'success' ? 'bg-green-500/15 border-green-500/30 text-green-300' :
+              toast.type === 'warning' ? 'bg-amber-500/15 border-amber-500/30 text-amber-300' :
+              'bg-red-500/15 border-red-500/30 text-red-300'
+            }`}
+          >
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-6xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-300 to-teal-400 bg-clip-text text-transparent">Compare Areas</h1>
@@ -89,7 +132,7 @@ export function CompareAreas() {
               <div className="flex flex-wrap gap-2 mb-4">
                 {areas.slice(0, 10).map((area) => (
                   <button key={area._id} onClick={() => toggleArea(area._id)}
-                    className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${selectedAreas.includes(area._id) ? 'bg-teal-500/20 border-teal-500/40 text-teal-300' : 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10'}`}>
+                    className={`px-3 py-1.5 rounded-full text-xs border transition-all duration-300 ${selectedAreas.includes(area._id) ? 'bg-teal-500/20 border-teal-500/50 text-teal-300 shadow-[0_0_10px_rgba(20,184,166,0.3)]' : 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10'}`}>
                     {area.area_name} {area.last_analysis_score != null && `(${area.last_analysis_score})`}
                   </button>
                 ))}
@@ -123,10 +166,10 @@ export function CompareAreas() {
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
                     {comp.areas?.map((area, idx) => (
-                      <div key={area.area_id} className={`p-3 rounded-xl border relative overflow-hidden ${area.area_id === comp.winner_area_id?.toString() ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-white/5 border-white/10'}`}>
+                      <div key={area.area_id} className={`p-3 rounded-xl border relative overflow-hidden transition-all duration-300 ${area.area_id === comp.winner_area_id?.toString() ? 'bg-emerald-500/10 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-white/10'}`}>
                         <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
                         <div className="flex items-center gap-1 mb-1 pl-2">
-                          {area.area_id === comp.winner_area_id?.toString() && <Trophy className="w-3 h-3 text-amber-400" />}
+                          {area.area_id === comp.winner_area_id?.toString() && <Trophy className="w-4 h-4 text-amber-400 drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]" />}
                           <p className="text-xs font-medium truncate">{area.area_name}</p>
                         </div>
                         <p className={`text-2xl font-bold pl-2 ${area.score >= 70 ? 'text-green-400' : area.score >= 50 ? 'text-yellow-400' : 'text-red-400'}`}>{area.score}</p>
@@ -138,7 +181,18 @@ export function CompareAreas() {
                   <AnimatePresence>
                     {expandedComp === comp._id && (
                       <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-white/10 pt-4 mt-2">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        {/* Winner Explanation */}
+                        {comp.winner_explanation && (
+                          <div className="mb-4 p-4 bg-emerald-900/20 border border-emerald-500/20 rounded-xl text-sm text-emerald-100">
+                            <h5 className="font-bold flex items-center gap-2 mb-1">
+                              <Trophy className="w-4 h-4 text-emerald-400" /> Final Verdict
+                            </h5>
+                            <p>{comp.winner_explanation}</p>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                           {/* Radar Chart */}
                           <div className="h-64 bg-black/40 rounded-xl border border-white/5 p-2">
                             <ResponsiveContainer width="100%" height="100%">
@@ -149,24 +203,64 @@ export function CompareAreas() {
                                 {comp.areas?.map((area, idx) => (
                                   <Radar key={area.area_id} name={area.area_name} dataKey={area.area_name} stroke={CHART_COLORS[idx % CHART_COLORS.length]} fill={CHART_COLORS[idx % CHART_COLORS.length]} fillOpacity={0.3} />
                                 ))}
+                                <Legend wrapperStyle={{ fontSize: '10px' }} />
+                                <Tooltip contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '8px' }} />
                               </RadarChart>
                             </ResponsiveContainer>
                           </div>
                           
-                          {/* Notes / Explainability */}
-                          <div className="space-y-3 max-h-64 overflow-y-auto pr-2 text-sm text-white/70">
-                            <h5 className="font-semibold text-white flex items-center gap-2"><BarChart3 className="w-4 h-4 text-cyan-400" /> Comparison Insights</h5>
-                            <p className="text-xs">
-                              {comp.winner_area_id ? `The area winning the overall evaluation is ${comp.areas.find(a => a.area_id === comp.winner_area_id?.toString())?.area_name || 'unknown'}. ` : ''}
-                              Scores are calculated based on accessibility to healthcare, education, parks, and safety facilities.
-                            </p>
-                            {comp.notes && (
-                              <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-xs">
-                                <strong>Notes:</strong> {comp.notes}
-                              </div>
-                            )}
+                          {/* Bar Chart */}
+                          <div className="h-64 bg-black/40 rounded-xl border border-white/5 p-2">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={formatChartData(comp)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                                <XAxis dataKey="subject" tick={{ fill: '#888', fontSize: 10 }} axisLine={false} tickLine={false} />
+                                <YAxis tick={{ fill: '#888', fontSize: 10 }} axisLine={false} tickLine={false} />
+                                <Tooltip contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '8px' }} cursor={{ fill: '#222' }} />
+                                {comp.areas?.map((area, idx) => (
+                                  <Bar key={area.area_id} dataKey={area.area_name} fill={CHART_COLORS[idx % CHART_COLORS.length]} radius={[4, 4, 0, 0]} />
+                                ))}
+                              </BarChart>
+                            </ResponsiveContainer>
                           </div>
                         </div>
+
+                        {/* Difference Analysis / Metric Breakdown */}
+                        {comp.difference_analysis && (
+                          <div className="bg-black/40 rounded-xl border border-white/5 p-4">
+                            <h5 className="font-semibold text-white/80 flex items-center gap-2 mb-3 text-sm">
+                              <BarChart3 className="w-4 h-4 text-cyan-400" /> Metric Breakdown
+                            </h5>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {Object.entries(comp.difference_analysis).map(([metric, diff]) => {
+                                const metricNames = {
+                                  hospital: 'Healthcare', school: 'Education', park: 'Parks', police: 'Safety', pharmacy: 'Pharmacies', road: 'Connectivity'
+                                };
+                                const displayName = metricNames[metric] || metric;
+                                return (
+                                  <div key={metric} className="flex items-center justify-between p-2.5 bg-white/5 rounded-lg border border-white/10">
+                                    <span className="text-xs font-medium text-white/70 capitalize w-24">{displayName}</span>
+                                    <div className="flex-1 flex items-center justify-end gap-2">
+                                      {diff.leader !== 'Tie' ? (
+                                        <>
+                                          <span className="text-xs text-white/90 truncate max-w-[100px]">{diff.leader}</span>
+                                          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-green-500/20 text-green-400 flex items-center font-bold">
+                                            <ArrowUpRight className="w-3 h-3 mr-0.5" /> {diff.delta.toFixed(1)}
+                                          </span>
+                                        </>
+                                      ) : (
+                                        <span className="text-xs text-white/50 flex items-center gap-1">
+                                          <Minus className="w-3 h-3" /> Tie
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
                       </motion.div>
                     )}
                   </AnimatePresence>

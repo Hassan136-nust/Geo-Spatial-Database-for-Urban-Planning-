@@ -5,24 +5,41 @@ const zoneSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, 'Zone name is required'],
-      unique: true,
       trim: true,
     },
     zone_type: {
       type: String,
       required: true,
-      enum: ['residential', 'commercial', 'industrial', 'green', 'institutional', 'mixed'],
+      enum: ['residential', 'commercial', 'industrial', 'green', 'institutional', 'mixed', 'administrative'],
     },
     geometry: {
       type: {
         type: String,
-        enum: ['Polygon'],
+        enum: ['Polygon', 'MultiPolygon'],
         required: true,
       },
       coordinates: {
-        type: [[[Number]]],
+        type: mongoose.Schema.Types.Mixed,
         required: true,
       },
+    },
+    center: {
+      lat: { type: Number, default: 0 },
+      lng: { type: Number, default: 0 },
+    },
+    osm_id: {
+      type: Number,
+      default: null,
+      sparse: true,
+    },
+    admin_level: {
+      type: Number,
+      default: null,
+    },
+    source: {
+      type: String,
+      enum: ['manual', 'osm'],
+      default: 'manual',
     },
     population_density: {
       type: Number,
@@ -58,5 +75,6 @@ const zoneSchema = new mongoose.Schema(
 );
 
 zoneSchema.index({ geometry: '2dsphere' });
+zoneSchema.index({ osm_id: 1 }, { unique: true, sparse: true, partialFilterExpression: { osm_id: { $ne: null } } });
 
 export default mongoose.model('Zone', zoneSchema);
