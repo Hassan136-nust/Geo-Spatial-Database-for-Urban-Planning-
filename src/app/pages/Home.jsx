@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaf
 import L from 'leaflet';
 import { GlassPanel } from '../components/GlassPanel';
 import { Link } from 'react-router';
-import { MapPin, Building2, Route, ArrowRight, Globe2, Search, Compass, PenTool, BarChart3, FileDown } from 'lucide-react';
+import { MapPin, Building2, Route, ArrowRight, Globe2, Search, Compass, PenTool, FileDown, MapPinned, Radio, PencilRuler, BarChart } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 // Fix leaflet icons
@@ -30,19 +30,19 @@ export function Home() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-sm mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm mb-6 font-medium"
           >
             <Globe2 className="w-4 h-4" />
-           
+            <span>Global Urban Data Platform</span>
           </motion.div>
 
-          <h1 className="text-7xl font-bold mb-6 bg-gradient-to-r from-white via-cyan-100 to-blue-200 bg-clip-text text-transparent leading-tight">
+          <h1 className="text-7xl font-bold mb-6 text-foreground leading-tight">
             UrbanPulse
           </h1>
-          <p className="text-xl text-white/60 max-w-2xl mx-auto mb-4">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
             Dynamic Urban Planning Intelligence — Real-time map analytics, infrastructure analysis, and interactive planning tools
           </p>
-          <p className="text-sm text-white/40 max-w-xl mx-auto mb-10">
+          <p className="text-sm text-muted-foreground/80 max-w-xl mx-auto mb-10">
             Search any area worldwide • Real-time infrastructure data • Drag & Drop Planner • PDF Reports
           </p>
 
@@ -51,7 +51,7 @@ export function Home() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full text-white font-semibold flex items-center gap-2 shadow-lg shadow-cyan-500/25"
+                className="px-8 py-3 bg-primary rounded-full text-primary-foreground font-semibold flex items-center gap-2 shadow-lg"
               >
                 Open Map Dashboard
                 <ArrowRight className="w-4 h-4" />
@@ -61,7 +61,7 @@ export function Home() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 bg-white/5 border border-white/10 rounded-full text-white font-semibold hover:bg-white/10 transition-colors flex items-center gap-2"
+                className="px-8 py-3 bg-card border border-border rounded-full text-card-foreground font-semibold hover:bg-muted transition-colors flex items-center gap-2 shadow-sm"
               >
                 <PenTool className="w-4 h-4" />
                 Urban Planner
@@ -73,20 +73,19 @@ export function Home() {
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {[
-            { label: 'Interactive Map', value: '🗺️', desc: 'Search & explore any area', icon: Search, color: 'text-cyan-400', gradient: 'from-cyan-500/20 to-transparent', link: '/dashboard' },
-            { label: 'Live Data', value: '📡', desc: 'Real-time from OpenStreetMap', icon: Compass, color: 'text-emerald-400', gradient: 'from-emerald-500/20 to-transparent', link: '/dashboard' },
-            { label: 'Drag & Drop', value: '✏️', desc: 'Plan your own urban layout', icon: PenTool, color: 'text-amber-400', gradient: 'from-amber-500/20 to-transparent', link: '/planner' },
-            { label: 'PDF Reports', value: '📊', desc: 'Download planning analysis', icon: FileDown, color: 'text-purple-400', gradient: 'from-purple-500/20 to-transparent', link: '/analytics' },
+            { label: 'Interactive Map', desc: 'Search & explore any area', icon: MapPinned, link: '/dashboard' },
+            { label: 'Live Data', desc: 'Real-time from OpenStreetMap', icon: Radio, link: '/dashboard' },
+            { label: 'Drag & Drop', desc: 'Plan your own urban layout', icon: PencilRuler, link: '/planner' },
+            { label: 'PDF Reports', desc: 'Download planning analysis', icon: BarChart, link: '/analytics' },
           ].map((stat, index) => {
             const Icon = stat.icon;
             return (
               <Link key={stat.label} to={stat.link}>
                 <GlassPanel delay={0.1 * index}>
-                  <div className={`p-6 bg-gradient-to-b ${stat.gradient} rounded-2xl cursor-pointer`}>
-                    <Icon className={`w-8 h-8 ${stat.color} mb-4`} />
-                    <div className="text-4xl mb-2">{stat.value}</div>
-                    <div className="text-sm text-white/80 font-medium">{stat.label}</div>
-                    <div className="text-xs text-white/40 mt-1">{stat.desc}</div>
+                  <div className="p-6 bg-card border border-border rounded-2xl cursor-pointer hover:shadow-md transition-shadow">
+                    <Icon className="w-12 h-12 text-primary mb-4" />
+                    <div className="text-lg text-card-foreground font-semibold">{stat.label}</div>
+                    <div className="text-sm text-muted-foreground mt-1">{stat.desc}</div>
                   </div>
                 </GlassPanel>
               </Link>
@@ -117,9 +116,9 @@ export function Home() {
           </GlassPanel>
 
           <GlassPanel delay={0.6}>
-            <div className="p-8">
-              <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">How It Works</h3>
-              <div className="space-y-4">
+            <div className="p-8 bg-card border border-border rounded-2xl">
+              <h3 className="text-2xl font-bold mb-6 text-foreground">How It Works</h3>
+              <div className="space-y-6">
                 {[
                   { step: '1', title: 'Search Any Area', desc: 'Type any location worldwide — the system fetches real data from OpenStreetMap' },
                   { step: '2', title: 'Analyze Infrastructure', desc: 'Automatically detects hospitals, schools, parks, roads and calculates coverage scores' },
@@ -131,14 +130,14 @@ export function Home() {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.7 + i * 0.1 }}
-                    className="flex gap-3"
+                    className="flex gap-4"
                   >
-                    <div className="w-7 h-7 rounded-full bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center flex-shrink-0 text-xs font-bold text-cyan-400">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 text-sm font-bold text-primary">
                       {item.step}
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-white/80">{item.title}</div>
-                      <div className="text-xs text-white/40">{item.desc}</div>
+                      <div className="text-base font-semibold text-card-foreground">{item.title}</div>
+                      <div className="text-sm text-muted-foreground mt-1">{item.desc}</div>
                     </div>
                   </motion.div>
                 ))}

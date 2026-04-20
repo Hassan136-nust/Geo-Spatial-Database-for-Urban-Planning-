@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GlassPanel } from '../components/GlassPanel';
-import { FolderPlus, Trash2, Loader2, Plus, X, Folder, Calendar, Hash } from 'lucide-react';
+import { FolderPlus, Trash2, Loader2, Plus, X, Folder, Calendar, Hash, MapPin, PencilRuler, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import mapsApi from '../services/mapsApi';
 
@@ -66,10 +66,10 @@ export function Projects() {
       <div className="max-w-6xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-300 to-indigo-400 bg-clip-text text-transparent">Projects</h1>
-            <p className="text-white/50 mt-2">Organize areas, designs & reports into workspaces</p>
+            <h1 className="text-3xl font-bold text-foreground">Projects</h1>
+            <p className="text-muted-foreground mt-2">Organize areas, designs & reports into workspaces</p>
           </div>
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowCreate(true)} className="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg shadow-blue-500/25">
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowCreate(true)} className="px-4 py-2.5 bg-primary rounded-xl text-primary-foreground text-sm font-semibold flex items-center gap-2 shadow-sm">
             <Plus className="w-4 h-4" /> New Project
           </motion.button>
         </motion.div>
@@ -92,7 +92,7 @@ export function Projects() {
                       <button key={c} onClick={() => setNewColor(c)} className={`w-6 h-6 rounded-full border-2 transition-transform ${newColor === c ? 'border-white scale-125' : 'border-transparent'}`} style={{ background: c }} />
                     ))}
                   </div>
-                  <button onClick={handleCreate} disabled={creating || !newName.trim()} className="w-full py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
+                  <button onClick={handleCreate} disabled={creating || !newName.trim()} className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
                     {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <FolderPlus className="w-4 h-4" />} Create
                   </button>
                 </div>
@@ -128,9 +128,9 @@ export function Projects() {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex -space-x-1">
-                        {project.areas?.length > 0 && <span className="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-[10px]">📍</span>}
-                        {project.designs?.length > 0 && <span className="w-6 h-6 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-[10px]">📐</span>}
-                        {project.reports?.length > 0 && <span className="w-6 h-6 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-[10px]">📄</span>}
+                        {project.areas?.length > 0 && <span className="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400"><MapPin className="w-3 h-3" /></span>}
+                        {project.designs?.length > 0 && <span className="w-6 h-6 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400"><PencilRuler className="w-3 h-3" /></span>}
+                        {project.reports?.length > 0 && <span className="w-6 h-6 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400"><FileText className="w-3 h-3" /></span>}
                       </div>
                       <button onClick={() => handleDelete(project._id)} className="ml-auto px-2 py-1 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"><Trash2 className="w-3 h-3" /></button>
                     </div>

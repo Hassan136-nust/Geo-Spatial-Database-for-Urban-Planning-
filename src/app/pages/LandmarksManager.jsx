@@ -155,7 +155,7 @@ export function LandmarksManager() {
       const res = await mapsApi.saveLandmarksBulk(landmarks, city);
       setMessage({
         type: 'success',
-        text: `✅ ${res.saved} landmarks saved to database successfully!`,
+        text: `${res.saved} landmarks saved to database successfully!`,
       });
     } catch (err) {
       setMessage({ type: 'error', text: err.message || 'Failed to save to database' });
@@ -211,10 +211,10 @@ export function LandmarksManager() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-foreground">
             Landmarks Manager
           </h1>
-          <p className="text-white/50 mt-2">Fetch landmarks from OpenStreetMap, view on map, and save to database</p>
+          <p className="text-muted-foreground mt-2">Fetch landmarks from OpenStreetMap, view on map, and save to database</p>
         </motion.div>
 
         {/* Controls */}
@@ -253,7 +253,7 @@ export function LandmarksManager() {
                   whileTap={{ scale: 0.98 }}
                   onClick={() => fetchLandmarksForCity(false)}
                   disabled={fetching}
-                  className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50 hover:bg-primary/90"
                 >
                   {fetching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                   {fetching ? 'Fetching...' : 'Fetch Landmarks'}
@@ -321,7 +321,7 @@ export function LandmarksManager() {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleAddLandmark}
                   disabled={!newLandmark.name || !newLandmark.lat || !newLandmark.lng || addingLandmark}
-                  className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-3 bg-primary text-primary-foreground rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50 hover:bg-primary/90"
                 >
                   {addingLandmark ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                   Add to Database
@@ -375,7 +375,7 @@ export function LandmarksManager() {
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSaveToDatabase}
                 disabled={landmarks.length === 0 || saving}
-                className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-40 text-white"
+                className="w-full py-3 bg-primary text-primary-foreground rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-40 hover:bg-primary/90"
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
                 {saving ? 'Saving...' : `Save ${landmarks.length} to Database`}

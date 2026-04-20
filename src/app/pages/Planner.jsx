@@ -224,9 +224,9 @@ export function Planner() {
         const d = haversineDistance(lat, lng, h.lat, h.lng);
         return d < min.d ? { d } : min;
       }, { d: Infinity });
-      if (nearestHouse.d <= 2) return { type: 'success', message: '✅ Great! Hospital within ideal range of residential area' };
-      if (nearestHouse.d <= 5) return { type: 'info', message: '👍 Good placement — within acceptable range' };
-      return { type: 'warning', message: '⚠️ Hospital too far from residential areas!' };
+      if (nearestHouse.d <= 2) return { type: 'success', message: 'Great! Hospital within ideal range of residential area' };
+      if (nearestHouse.d <= 5) return { type: 'info', message: 'Good placement — within acceptable range' };
+      return { type: 'warning', message: 'Hospital too far from residential areas!' };
     }
 
     if (type === 'school' && houses.length > 0) {
@@ -234,9 +234,9 @@ export function Planner() {
         const d = haversineDistance(lat, lng, h.lat, h.lng);
         return d < min.d ? { d } : min;
       }, { d: Infinity });
-      if (nearestHouse.d <= 1) return { type: 'success', message: '✅ Perfect school placement near housing!' };
-      if (nearestHouse.d <= 3) return { type: 'info', message: '👍 School within acceptable range' };
-      return { type: 'warning', message: '⚠️ School too far from residential areas!' };
+      if (nearestHouse.d <= 1) return { type: 'success', message: 'Perfect school placement near housing!' };
+      if (nearestHouse.d <= 3) return { type: 'info', message: 'School within acceptable range' };
+      return { type: 'warning', message: 'School too far from residential areas!' };
     }
 
     if (type === 'industrial' && houses.length > 0) {
@@ -244,13 +244,13 @@ export function Planner() {
         const d = haversineDistance(lat, lng, h.lat, h.lng);
         return d < min.d ? { d } : min;
       }, { d: Infinity });
-      if (nearestHouse.d < 2) return { type: 'warning', message: '⚠️ Industrial zone too close to housing! Keep >2km away' };
-      return { type: 'success', message: '✅ Good — industrial zone is safely distanced from housing' };
+      if (nearestHouse.d < 2) return { type: 'warning', message: 'Industrial zone too close to housing! Keep >2km away' };
+      return { type: 'success', message: 'Good — industrial zone is safely distanced from housing' };
     }
 
     if (type === 'house') {
       if (hospitals.length === 0 && schools.length === 0) {
-        return { type: 'info', message: 'ℹ️ Add hospitals & schools near residential areas' };
+        return { type: 'info', message: 'Add hospitals & schools near residential areas' };
       }
     }
 
@@ -642,7 +642,7 @@ export function Planner() {
                     <strong>{line.type}</strong>: {line.distance.toFixed(2)} km
                     <br />
                     <span style={{ color: line.color }}>
-                      {line.color === '#22c55e' ? '✅ Ideal' : line.color === '#eab308' ? '⚠️ Acceptable' : '❌ Too far'}
+                      {line.color === '#22c55e' ? 'Ideal' : line.color === '#eab308' ? 'Acceptable' : 'Too far'}
                     </span>
                   </div>
                 </Popup>

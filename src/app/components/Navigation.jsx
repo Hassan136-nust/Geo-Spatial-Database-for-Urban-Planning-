@@ -79,13 +79,13 @@ export function Navigation() {
       transition={{ duration: 0.6, delay: 0.2 }}
       className="fixed top-6 left-1/2 -translate-x-1/2 z-50"
     >
-      <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-full px-4 py-2.5 shadow-2xl">
+      <div className="backdrop-blur-xl bg-sidebar/80 border border-border rounded-full px-4 py-2.5 shadow-2xl">
         <div className="flex items-center gap-1">
           {/* Logo */}
           <Link to="/">
             <div className="flex items-center gap-2 px-3 py-1.5 mr-2">
-              <Globe2 className="w-5 h-5 text-cyan-400" />
-              <span className="text-sm font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent hidden sm:inline">
+              <Globe2 className="w-5 h-5 text-primary" />
+              <span className="text-sm font-bold text-foreground hidden sm:inline">
                 UrbanPulse
               </span>
             </div>
@@ -140,7 +140,7 @@ export function Navigation() {
                     initial={{ opacity: 0, y: -5, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                    className="absolute top-full mt-2 right-0 bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl py-2 w-48 shadow-2xl"
+                    className="absolute top-full mt-2 right-0 bg-sidebar/95 backdrop-blur-xl border border-border rounded-2xl py-2 w-48 shadow-2xl"
                   >
                     {moreNavItems.map((item) => {
                       const Icon = item.icon;
@@ -184,7 +184,7 @@ export function Navigation() {
                     initial={{ opacity: 0, y: -5, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                    className="absolute top-full mt-2 right-0 bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl w-72 shadow-2xl overflow-hidden"
+                    className="absolute top-full mt-2 right-0 bg-sidebar/95 backdrop-blur-xl border border-border rounded-2xl w-72 shadow-2xl overflow-hidden"
                   >
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
                       <span className="text-xs font-bold text-white/60">Notifications</span>
