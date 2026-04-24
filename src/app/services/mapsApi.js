@@ -70,12 +70,14 @@ const mapsApi = {
   getAreaAnalytics: (areaId) => request('GET', `/analytics2/area/${areaId}`),
 
   // ─── Planner (save/load designs) ────────────────────────
-  saveDesign: (designName, elements, center, designId = null) =>
-    request('POST', '/planner/save', { design_name: designName, elements, center, designId }),
+  saveDesign: (designName, elements, center, radius = 5, designId = null) =>
+    request('POST', '/planner/save', { design_name: designName, elements, center, radius, designId }),
   getUserDesigns: () => request('GET', '/planner/user-designs'),
   getDesign: (id) => request('GET', `/planner/${id}`),
   updateDesign: (id, data) => request('PUT', `/planner/${id}`, data),
   deleteDesign: (id) => request('DELETE', `/planner/${id}`),
+  aiGenerateCity: (params) => request('POST', '/planner/ai-generate', params),
+
 
   // ─── Landmarks (with caching) ───────────────────────────
   fetchLandmarks: (lat, lng, radius = 5000, city = '', forceRefresh = false) =>

@@ -146,6 +146,7 @@ export const searchArea = async (req, res, next) => {
         area: savedArea || { lat, lng, displayName: area.displayName },
         analysis,
         places,
+        roads: roadData,
         roadCount,
         city: cityName,
         analyticsId: analyticsDoc?._id || null,

@@ -148,14 +148,18 @@ This will create 3 demo accounts you can use to log in:
 
 ### Step 5: Start the Development Servers
 
+**Option A: Using the Batch File (Windows Only - Recommended)**
+Simply double-click the `start.bat` file located in the root directory. This will automatically open two new command windows and start both the frontend and backend servers simultaneously.
+
+**Option B: Manual Start (Mac/Linux/Windows)**
 You will need **two separate terminals** to run both the frontend and backend at the same time.
 
 **Terminal 1 (Start the Backend Server):**
 ```bash
 cd server
-node server.js
+npm run dev
 ```
-*The backend should say: `🚀 UrbanPulse Server v2.0 running on port 5000`*
+*The backend should say: `✅ MongoDB Connected: 127.0.0.1`*
 
 **Terminal 2 (Start the Frontend React App):**
 ```bash

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { GlassPanel } from '../components/GlassPanel';
-import { Trash2, RotateCcw, Download, Lightbulb, AlertTriangle, CheckCircle, Loader2, GripVertical, FileDown, ChevronRight, X, ChevronDown, ChevronUp, Zap, Info, Shield, Save, FolderOpen } from 'lucide-react';
+import { Trash2, RotateCcw, Download, Lightbulb, AlertTriangle, CheckCircle, Loader2, GripVertical, FileDown, ChevronRight, X, ChevronDown, ChevronUp, Zap, Info, Shield, Save, FolderOpen, Bot, Wand2, Undo2 } from 'lucide-react';
 import { renderToString } from 'react-dom/server';
 import { FaHome, FaHospital, FaSchool, FaTree, FaRoad, FaMosque, FaShoppingBag, FaIndustry, FaMapMarkerAlt } from 'react-icons/fa';
 import { MdLocalPolice } from 'react-icons/md';
@@ -39,11 +39,13 @@ const DISTANCE_THRESHOLDS = {
   park: { ideal: 0.5, acceptable: 2 },
 };
 
-function createPlannerIcon(type) {
+function createPlannerIcon(type, deleteMode = false) {
   const item = PLANNER_ITEMS.find((i) => i.type === type) || PLANNER_ITEMS[0];
+  const bg = deleteMode ? '#ef4444' : item.color;
+  const cursor = deleteMode ? 'pointer' : 'grab';
   const iconHtml = renderToString(
-    <div style={{ background: item.color, width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', color: 'white', border: '3px solid white', boxShadow: '0 4px 12px rgba(0,0,0,0.4)', cursor: 'grab', transition: 'transform 0.2s' }}>
-      {item.icon}
+    <div style={{ background: bg, width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', color: 'white', border: deleteMode ? '3px solid #fca5a5' : '3px solid white', boxShadow: deleteMode ? '0 0 12px rgba(239,68,68,0.7)' : '0 4px 12px rgba(0,0,0,0.4)', cursor, transition: 'transform 0.2s' }}>
+      {deleteMode ? '✕' : item.icon}
     </div>
   );
   return L.divIcon({
@@ -78,16 +80,20 @@ function PlacementMode({ activeTool, onPlace }) {
 }
 
 // Draggable marker component
-function DraggableMarker({ element, onDragEnd, onDelete }) {
+function DraggableMarker({ element, onDragEnd, onDelete, deleteMode }) {
   const markerRef = useRef(null);
   return (
     <Marker
       ref={markerRef}
       position={[element.lat, element.lng]}
-      icon={createPlannerIcon(element.type)}
-      draggable={true}
+      icon={createPlannerIcon(element.type, deleteMode)}
+      draggable={!deleteMode}
       eventHandlers={{
+        click() {
+          if (deleteMode) onDelete(element.id);
+        },
         dragend() {
+          if (deleteMode) return;
           const marker = markerRef.current;
           if (marker) {
             const pos = marker.getLatLng();
@@ -96,25 +102,27 @@ function DraggableMarker({ element, onDragEnd, onDelete }) {
         },
       }}
     >
-      <Popup>
-        <div style={{ minWidth: 140 }}>
-          <h3 style={{ margin: '0 0 4px', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: '4px' }}>
-            {PLANNER_ITEMS.find((i) => i.type === element.type)?.icon} {PLANNER_ITEMS.find((i) => i.type === element.type)?.label}
-          </h3>
-          <p style={{ margin: '0 0 6px', color: '#666', fontSize: 11 }}>
-            {element.lat.toFixed(5)}, {element.lng.toFixed(5)}
-          </p>
-          <button
-            onClick={() => onDelete(element.id)}
-            style={{
-              background: '#ef4444', color: 'white', border: 'none', padding: '4px 10px',
-              borderRadius: 6, fontSize: 11, cursor: 'pointer', fontWeight: 600,
-            }}
-          >
-            Remove
-          </button>
-        </div>
-      </Popup>
+      {!deleteMode && (
+        <Popup>
+          <div style={{ minWidth: 140 }}>
+            <h3 style={{ margin: '0 0 4px', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {PLANNER_ITEMS.find((i) => i.type === element.type)?.icon} {element.label || PLANNER_ITEMS.find((i) => i.type === element.type)?.label}
+            </h3>
+            <p style={{ margin: '0 0 6px', color: '#666', fontSize: 11 }}>
+              {element.lat.toFixed(5)}, {element.lng.toFixed(5)}
+            </p>
+            <button
+              onClick={() => onDelete(element.id)}
+              style={{
+                background: '#ef4444', color: 'white', border: 'none', padding: '4px 10px',
+                borderRadius: 6, fontSize: 11, cursor: 'pointer', fontWeight: 600,
+              }}
+            >
+              Remove
+            </button>
+          </div>
+        </Popup>
+      )}
     </Marker>
   );
 }
@@ -122,10 +130,28 @@ function DraggableMarker({ element, onDragEnd, onDelete }) {
 export function Planner() {
   const [elements, setElements] = useState([]);
   const [activeTool, setActiveTool] = useState(null);
+  const [deleteMode, setDeleteMode] = useState(false);
+  const [showAiPanel, setShowAiPanel] = useState(false);
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiForm, setAiForm] = useState({
+    cityName: 'New City',
+    population: 50000,
+    houses: 10,
+    hospitals: 2,
+    schools: 3,
+    parks: 3,
+    mosques: 2,
+    malls: 1,
+    police: 1,
+    industrial: 1,
+    roads: 4,
+    radiusKm: 5,
+    additionalNotes: '',
+  });
   const [analysis, setAnalysis] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [radius, setRadius] = useState(5);
-  const [showResults, setShowResults] = useState(true);
+  const [showResults, setShowResults] = useState(false);
   const [mapCenter] = useState([33.6844, 73.0479]);
   const mapRef = useRef(null);
   const [toast, setToast] = useState(null);
@@ -139,6 +165,39 @@ export function Planner() {
   const [currentDesignId, setCurrentDesignId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const autoSaveTimerRef = useRef(null);
+
+  // Auto-save design to backend whenever elements change
+  useEffect(() => {
+    if (elements.length === 0 || !user) return;
+    
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    
+    autoSaveTimerRef.current = setTimeout(async () => {
+      try {
+        if (currentDesignId) {
+          // If we already have an ID, we just need to update it
+          await mapsApi.updateDesign(currentDesignId, { elements, radius });
+        } else {
+          // No ID yet? This is a new unsaved session. Auto-create a draft.
+          const center = {
+            lat: elements.reduce((s, e) => s + e.lat, 0) / elements.length,
+            lng: elements.reduce((s, e) => s + e.lng, 0) / elements.length,
+          };
+          const name = designName || `Auto-Saved City (${new Date().toLocaleDateString()})`;
+          const res = await mapsApi.saveDesign(name, elements, center, radius);
+          if (res.data && res.data._id) {
+            setCurrentDesignId(res.data._id);
+            if (!designName) setDesignName(name);
+          }
+        }
+      } catch (err) {
+        console.error('Auto-save error:', err);
+      }
+    }, 2000); // Wait 2 seconds after the last change before saving
+
+    return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
+  }, [elements, user, currentDesignId, designName]);
 
   // Auto-load design from URL ?load=designId
   useEffect(() => {
@@ -151,6 +210,7 @@ export function Planner() {
           setElements(design.elements.map((e) => ({ id: e.element_id, type: e.type, lat: e.lat, lng: e.lng })));
           setDesignName(design.design_name);
           setCurrentDesignId(design._id);
+          if (design.radius) setRadius(design.radius);
           setToast({ type: 'success', message: `Loaded "${design.design_name}"` });
           setTimeout(() => setToast(null), 3000);
         } catch (err) {
@@ -170,7 +230,7 @@ export function Planner() {
         lat: elements.reduce((s, e) => s + e.lat, 0) / elements.length || 33.6844,
         lng: elements.reduce((s, e) => s + e.lng, 0) / elements.length || 73.0479,
       };
-      const res = await mapsApi.saveDesign(designName, elements, center, currentDesignId);
+      const res = await mapsApi.saveDesign(designName, elements, center, radius, currentDesignId);
       setCurrentDesignId(res.data._id);
       setShowSaveDialog(false);
       setToast({ type: 'success', message: `Design "${designName}" saved!` });
@@ -184,19 +244,30 @@ export function Planner() {
     }
   }, [designName, elements, user, currentDesignId]);
 
-  // Auto-analyze on element or radius changes (debounced)
+  // Auto-analyze silently on element or radius changes (debounced)
+  // Does NOT open the sidebar — only updates the data in the background
   useEffect(() => {
     if (elements.length < 2) {
       setAnalysis(null);
       return;
     }
     if (analyzeTimerRef.current) clearTimeout(analyzeTimerRef.current);
-    analyzeTimerRef.current = setTimeout(() => {
-      runAnalysis();
+    analyzeTimerRef.current = setTimeout(async () => {
+      // Silent background analysis — no UI side-effects
+      try {
+        const centerLat = elements.reduce((sum, e) => sum + e.lat, 0) / elements.length;
+        const centerLng = elements.reduce((sum, e) => sum + e.lng, 0) / elements.length;
+        const result = await mapsApi.evaluateLayout(elements, centerLat, centerLng, radius);
+        setAnalysis(result.data);
+        // NOTE: setShowResults intentionally NOT called here
+      } catch (err) {
+        console.error('Background analysis error:', err);
+      }
     }, 800);
     return () => { if (analyzeTimerRef.current) clearTimeout(analyzeTimerRef.current); };
   }, [elements, radius]);
 
+  // Manual analysis — triggered by the Analyze button, opens the sidebar
   const runAnalysis = useCallback(async () => {
     if (elements.length < 2) return;
     setAnalyzing(true);
@@ -205,7 +276,7 @@ export function Planner() {
       const centerLng = elements.reduce((sum, e) => sum + e.lng, 0) / elements.length;
       const result = await mapsApi.evaluateLayout(elements, centerLat, centerLng, radius);
       setAnalysis(result.data);
-      setShowResults(true);
+      setShowResults(true); // Only opens sidebar when user explicitly presses Analyze
     } catch (err) {
       console.error('Analysis error:', err);
     } finally {
@@ -268,7 +339,7 @@ export function Planner() {
     setElements((prev) => {
       const newElements = [...prev, newElement];
       if (currentDesignId) {
-        mapsApi.updateDesign(currentDesignId, { elements: newElements }).catch(console.error);
+        mapsApi.updateDesign(currentDesignId, { elements: newElements, radius }).catch(console.error);
       }
       return newElements;
     });
@@ -285,23 +356,20 @@ export function Planner() {
     setElements((prev) => {
       const newElements = prev.map((el) => el.id === id ? { ...el, lat, lng } : el);
       if (currentDesignId) {
-        mapsApi.updateDesign(currentDesignId, { elements: newElements }).catch(console.error);
+        mapsApi.updateDesign(currentDesignId, { elements: newElements, radius }).catch(console.error);
       }
       return newElements;
     });
   }, [currentDesignId]);
 
   const handleDelete = useCallback((id) => {
-    // Clear active tool to prevent ghost selection
-    setActiveTool(null);
     setElements((prev) => {
       const newElements = prev.filter((el) => el.id !== id);
       if (currentDesignId) {
-        mapsApi.updateDesign(currentDesignId, { elements: newElements }).catch(console.error);
+        mapsApi.updateDesign(currentDesignId, { elements: newElements, radius }).catch(console.error);
       }
       return newElements;
     });
-    // Close any open popups to prevent ghost markers
     if (mapRef.current) {
       mapRef.current.closePopup();
     }
@@ -311,10 +379,58 @@ export function Planner() {
     setElements([]);
     setAnalysis(null);
     setActiveTool(null);
+    setDeleteMode(false);
     if (mapRef.current) {
       mapRef.current.closePopup();
     }
   }, []);
+
+  // Undo: removes last placed element
+  const handleUndoLast = useCallback(() => {
+    setElements((prev) => {
+      if (prev.length === 0) return prev;
+      const newElements = prev.slice(0, -1);
+      if (currentDesignId) {
+        mapsApi.updateDesign(currentDesignId, { elements: newElements, radius }).catch(console.error);
+      }
+      return newElements;
+    });
+    if (mapRef.current) mapRef.current.closePopup();
+  }, [currentDesignId]);
+
+  // AI City Generation
+  const handleAiGenerate = useCallback(async () => {
+    setAiGenerating(true);
+    try {
+      const result = await mapsApi.aiGenerateCity({
+        ...aiForm,
+        centerLat: mapRef.current?.getCenter()?.lat || 33.6844,
+        centerLng: mapRef.current?.getCenter()?.lng || 73.0479,
+      });
+      if (result.success && result.data?.elements) {
+        const newElements = result.data.elements;
+        setElements((prev) => [...prev, ...newElements]);
+        setShowAiPanel(false);
+        
+        // Auto-pan map to new city center
+        if (mapRef.current && newElements.length > 0) {
+          const avgLat = newElements.reduce((s, e) => s + e.lat, 0) / newElements.length;
+          const avgLng = newElements.reduce((s, e) => s + e.lng, 0) / newElements.length;
+          mapRef.current.flyTo([avgLat, avgLng], 14, { duration: 2 });
+        }
+
+        const engineLabel = result.data.engine === 'gemini' ? '🤖 Gemini AI' : '⚙️ Smart Planner';
+        setToast({ type: 'success', message: `✨ ${engineLabel} generated ${newElements.length} elements for ${aiForm.cityName}` });
+        setTimeout(() => setToast(null), 4000);
+      }
+    } catch (err) {
+      setToast({ type: 'error', message: err.message || 'AI generation failed. Check your GEMINI_API_KEY.' });
+      setTimeout(() => setToast(null), 5000);
+    } finally {
+      setAiGenerating(false);
+    }
+  }, [aiForm]);
+
 
   const handleExportGeoJSON = useCallback(() => {
     const geojson = {
@@ -429,7 +545,7 @@ export function Planner() {
   }, [elements]);
 
   return (
-    <div className="min-h-screen pt-20 relative" style={{ background: '#0a0a0f' }}>
+    <div className={`min-h-screen pt-20 relative ${deleteMode ? 'delete-mode-active' : ''}`} style={{ background: '#0a0a0f' }}>
       {/* Toast notification */}
       <AnimatePresence>
         {toast && (
@@ -477,6 +593,111 @@ export function Planner() {
               </GlassPanel>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── AI City Generator Modal ─────────────────────── */}
+      <AnimatePresence>
+        {showAiPanel && (
+          <div className="fixed inset-0 z-[3000] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.93, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.93, y: 20 }}
+              className="w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            >
+              <div className="bg-[#0d0d18] border border-violet-500/30 rounded-2xl shadow-2xl shadow-violet-900/40 p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <h2 className="text-lg font-bold bg-gradient-to-r from-violet-300 to-fuchsia-400 bg-clip-text text-transparent flex items-center gap-2">
+                      <Bot className="w-5 h-5 text-violet-400" /> AI City Generator
+                    </h2>
+                    <p className="text-[11px] text-white/40 mt-0.5">Smart urban planner · Works instantly · Gemini AI if key is configured</p>
+                  </div>
+                  <button onClick={() => setShowAiPanel(false)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
+                    <X className="w-5 h-5 text-white/40 hover:text-white/80" />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] font-semibold text-white/50 uppercase tracking-wider block mb-1.5">City Name</label>
+                      <input type="text" value={aiForm.cityName} onChange={(e) => setAiForm((f) => ({ ...f, cityName: e.target.value }))} placeholder="e.g. Islamabad East" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-violet-500/60 transition-colors text-white placeholder-white/20" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-semibold text-white/50 uppercase tracking-wider block mb-1.5">Population</label>
+                      <input type="number" value={aiForm.population} onChange={(e) => setAiForm((f) => ({ ...f, population: +e.target.value }))} min={1000} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-violet-500/60 transition-colors text-white" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-white/50 uppercase tracking-wider block mb-1.5">City Radius (km)</label>
+                    <div className="flex gap-2">
+                      {[3, 5, 8, 12].map((r) => (
+                        <button key={r} onClick={() => setAiForm((f) => ({ ...f, radiusKm: r }))} className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${aiForm.radiusKm === r ? 'bg-violet-500/25 border border-violet-400/50 text-violet-300' : 'bg-white/5 border border-white/10 text-white/50 hover:bg-white/10'}`}>{r} km</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-white/50 uppercase tracking-wider block mb-2">Element Counts</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { key: 'houses', label: '🏠 Houses' },
+                        { key: 'hospitals', label: '🏥 Hospitals' },
+                        { key: 'schools', label: '🏫 Schools' },
+                        { key: 'parks', label: '🌳 Parks' },
+                        { key: 'mosques', label: '🕌 Mosques' },
+                        { key: 'malls', label: '🛍️ Malls' },
+                        { key: 'police', label: '🚔 Police' },
+                        { key: 'industrial', label: '🏭 Industrial' },
+                        { key: 'roads', label: '🛣️ Roads' },
+                      ].map(({ key, label }) => (
+                        <div key={key} className="bg-white/5 border border-white/10 rounded-xl p-2.5">
+                          <div className="text-[10px] text-white/50 mb-1.5">{label}</div>
+                          <div className="flex items-center gap-1.5">
+                            <button onClick={() => setAiForm((f) => ({ ...f, [key]: Math.max(0, f[key] - 1) }))} className="w-6 h-6 rounded-lg bg-white/10 text-white/60 flex items-center justify-center text-sm hover:bg-white/20 transition-colors">−</button>
+                            <span className="flex-1 text-center text-sm font-bold text-white">{aiForm[key]}</span>
+                            <button onClick={() => setAiForm((f) => ({ ...f, [key]: f[key] + 1 }))} className="w-6 h-6 rounded-lg bg-white/10 text-white/60 flex items-center justify-center text-sm hover:bg-white/20 transition-colors">+</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-white/50 uppercase tracking-wider block mb-1.5">Additional Instructions (optional)</label>
+                    <textarea value={aiForm.additionalNotes} onChange={(e) => setAiForm((f) => ({ ...f, additionalNotes: e.target.value }))} placeholder="e.g. Keep industrial zones near the eastern border. Add a university near city center." rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-violet-500/60 transition-colors text-white placeholder-white/20 resize-none" />
+                  </div>
+                  <div className="bg-violet-500/8 border border-violet-500/20 rounded-xl p-3 text-[10px] text-violet-300/70 flex gap-2">
+                    <Bot className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                    <span>AI places elements around the <strong className="text-violet-300">current map center</strong>. Pan the map to your target location first. Existing elements are preserved — you can edit manually afterwards.</span>
+                  </div>
+                  <div className="flex gap-3 pt-1">
+                    <button onClick={() => setShowAiPanel(false)} className="flex-1 py-3 rounded-xl border border-white/10 text-sm font-medium text-white/50 hover:bg-white/5 transition-colors">Cancel</button>
+                    <button onClick={handleAiGenerate} disabled={aiGenerating || !aiForm.cityName.trim()} className="flex-1 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-violet-900/30">
+                      {aiGenerating ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating…</> : <><Wand2 className="w-4 h-4" /> Generate City</>}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Delete Mode Banner ──────────────────────────── */}
+      <AnimatePresence>
+        {deleteMode && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="fixed top-[4.5rem] left-1/2 -translate-x-1/2 z-[1500] px-5 py-2.5 rounded-2xl bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-semibold flex items-center gap-2 backdrop-blur-xl shadow-xl"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Delete Mode Active — Click any marker to remove it
+            <button onClick={() => setDeleteMode(false)} className="ml-2 text-red-300/60 hover:text-red-200 transition-colors">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -549,6 +770,16 @@ export function Planner() {
               <span className="bg-white/5 px-2 py-1 rounded">{elements.length} placed</span>
               {analyzing && <span className="px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 flex items-center gap-1"><Loader2 className="w-2.5 h-2.5 animate-spin" />analyzing</span>}
             </div>
+
+            {/* AI Generate Button */}
+            <button
+              onClick={() => { setShowAiPanel(true); setDeleteMode(false); setActiveTool(null); }}
+              className="w-full px-3 py-2.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-xl text-[10px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-lg shadow-violet-900/30"
+            >
+              <Bot className="w-3.5 h-3.5" /> AI City Generator ✨
+            </button>
+
+            {/* Delete / Undo / Analyze / Clear */}
             <div className="grid grid-cols-2 gap-1.5">
               <button
                 onClick={runAnalysis}
@@ -558,16 +789,32 @@ export function Planner() {
                 {analyzing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Lightbulb className="w-3 h-3" />}
                 Analyze
               </button>
-              <button onClick={handleClear} disabled={elements.length === 0} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 disabled:opacity-40 flex items-center justify-center gap-1">
+              <button
+                onClick={() => { setDeleteMode((d) => !d); setActiveTool(null); }}
+                disabled={elements.length === 0}
+                className={`px-3 py-2 rounded-lg text-[10px] font-semibold disabled:opacity-40 flex items-center justify-center gap-1 transition-all ${
+                  deleteMode
+                    ? 'bg-red-500/25 border border-red-400/50 text-red-300 ring-1 ring-red-500/30'
+                    : 'bg-white/5 border border-white/10 text-white/60 hover:bg-red-500/10 hover:text-red-300 hover:border-red-500/20'
+                }`}
+              >
+                <Trash2 className="w-3 h-3" /> {deleteMode ? 'Click to Del' : 'Delete'}
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5">
+              <button onClick={handleUndoLast} disabled={elements.length === 0} className="px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-amber-500/10 hover:text-amber-300 hover:border-amber-500/20 transition-all">
+                <Undo2 className="w-3 h-3" /> Undo
+              </button>
+              <button onClick={handleClear} disabled={elements.length === 0} className="px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-white/10 transition-all">
                 <RotateCcw className="w-3 h-3" /> Clear
+              </button>
+              <button onClick={handleExportGeoJSON} disabled={elements.length === 0} className="px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-white/10 transition-all">
+                <Download className="w-3 h-3" /> Export
               </button>
             </div>
             <div className="grid grid-cols-2 gap-1.5">
-              <button onClick={handleExportGeoJSON} disabled={elements.length === 0} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 disabled:opacity-40 flex items-center justify-center gap-1">
-                <Download className="w-3 h-3" /> Export
-              </button>
-              <label className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 cursor-pointer flex items-center justify-center gap-1 hover:bg-white/10">
-                <FileDown className="w-3 h-3" /> Import
+              <label className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 cursor-pointer flex items-center justify-center gap-1 hover:bg-white/10 col-span-2">
+                <FileDown className="w-3 h-3" /> Import GeoJSON
                 <input type="file" accept=".geojson,.json" onChange={handleImportGeoJSON} className="hidden" />
               </label>
             </div>
@@ -613,7 +860,7 @@ export function Planner() {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             />
-            <PlacementMode activeTool={activeTool} onPlace={handlePlace} />
+            <PlacementMode activeTool={deleteMode ? null : activeTool} onPlace={handlePlace} />
 
             {/* Placed elements */}
             {elements.map((el) => (
@@ -622,6 +869,7 @@ export function Planner() {
                 element={el}
                 onDragEnd={handleDragEnd}
                 onDelete={handleDelete}
+                deleteMode={deleteMode}
               />
             ))}
 

@@ -1,10 +1,13 @@
 import express from 'express';
-import { saveDesign, getUserDesigns, getDesign, updateDesign, deleteDesign } from '../controllers/plannerController.js';
-import { protect } from '../middleware/auth.js';
+import { saveDesign, getUserDesigns, getDesign, updateDesign, deleteDesign, aiGenerateCity } from '../controllers/plannerController.js';
+import { protect, optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.use(protect); // All planner routes require auth
+// AI generate — optionalAuth so logged-out users get a friendly message too
+router.post('/ai-generate', optionalAuth, aiGenerateCity);
+
+router.use(protect); // All other planner routes require auth
 
 router.post('/save', saveDesign);
 router.get('/user-designs', getUserDesigns);

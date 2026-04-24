@@ -84,7 +84,7 @@ async function fetchOverpassData(query, timeout = 30000) {
  * fetchOverpassWithRetry — wraps fetchOverpassData with automatic retry
  * on 429/504 errors. Will attempt up to `maxRetries` times with backoff.
  */
-async function fetchOverpassWithRetry(query, timeout = 30000, maxRetries = 2) {
+async function fetchOverpassWithRetry(query, timeout = 15000, maxRetries = 2) {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const data = await fetchOverpassData(query, timeout);
@@ -234,7 +234,7 @@ export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000) {
 
   // Use highly-optimized Regex queries for Overpass to prevent timeouts
   const query = `
-    [out:json][timeout:30];
+    [out:json][timeout:15];
     (
       node["amenity"~"^(hospital|clinic|school|university|pharmacy|bank|police|fire_station|place_of_worship|mosque|restaurant)$"](around:${radiusMeters},${lat},${lng});
       way["amenity"~"^(hospital|clinic|school|university|pharmacy|bank|police|fire_station|place_of_worship|mosque|restaurant)$"](around:${radiusMeters},${lat},${lng});
@@ -250,7 +250,7 @@ export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000) {
 
   try {
     // Use retry wrapper — this is the most critical query
-    const data = await fetchOverpassWithRetry(query, 35000, 2);
+    const data = await fetchOverpassWithRetry(query, 15000, 2);
 
     const results = (data.elements || []).map((el) => ({
       id: el.id,
@@ -281,7 +281,7 @@ export async function getRoads(lat, lng, radiusMeters = 3000) {
   if (cachedData) return cachedData;
 
   const query = `
-    [out:json][timeout:25];
+    [out:json][timeout:15];
     (
       way["highway"~"^(motorway|trunk|primary|secondary|tertiary|residential)$"](around:${radiusMeters},${lat},${lng});
     );
@@ -289,7 +289,7 @@ export async function getRoads(lat, lng, radiusMeters = 3000) {
   `;
 
   try {
-    const data = await fetchOverpassWithRetry(query, 30000, 1);
+    const data = await fetchOverpassWithRetry(query, 15000, 1);
 
     const resultRoads = (data.elements || []).map((el) => ({
       id: el.id,
@@ -352,7 +352,7 @@ export async function getAdminBoundaries(lat, lng, radiusMeters = 10000) {
 
   // Query for administrative boundaries and major suburbs/neighborhoods
   const query = `
-    [out:json][timeout:30];
+    [out:json][timeout:15];
     (
       relation["boundary"="administrative"]["admin_level"~"^(8|9|10)$"](around:${radiusMeters},${lat},${lng});
       relation["landuse"="residential"]["name"](around:${radiusMeters},${lat},${lng});
@@ -364,7 +364,7 @@ export async function getAdminBoundaries(lat, lng, radiusMeters = 10000) {
   `;
 
   try {
-    const data = await fetchOverpassWithRetry(query, 35000, 2);
+    const data = await fetchOverpassWithRetry(query, 15000, 2);
     const boundaries = (data.elements || [])
       .map(el => {
         let rings = [];

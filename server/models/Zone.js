@@ -30,7 +30,6 @@ const zoneSchema = new mongoose.Schema(
     osm_id: {
       type: Number,
       default: null,
-      sparse: true,
     },
     admin_level: {
       type: Number,

@@ -40,6 +40,10 @@ const plannerDesignSchema = new mongoose.Schema(
       lat: { type: Number, default: 33.6844 },
       lng: { type: Number, default: 73.0479 },
     },
+    radius: {
+      type: Number,
+      default: 5,
+    },
     elements: [plannerElementSchema],
     evaluation_score: {
       type: Number,

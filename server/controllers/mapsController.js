@@ -143,6 +143,7 @@ export const analyzeSelectedArea = async (req, res, next) => {
         areaName,
         analysis,
         places,
+        roads: roadData,
         roadCount: roadData.length,
       },
     });

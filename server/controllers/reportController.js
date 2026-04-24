@@ -36,9 +36,16 @@ export const generatePDFReport = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Provide lat and lng' });
     }
 
-    // Fetch places and analyze
-    const places = await osmService.getNearbyAllTypes(parseFloat(lat), parseFloat(lng), parseInt(radius));
-    const analysis = analyzeArea(places, parseFloat(lat), parseFloat(lng), parseInt(radius) / 1000);
+    // Fetch places, roads, and analyze
+    const parsedLat = parseFloat(lat);
+    const parsedLng = parseFloat(lng);
+    const parsedRadius = parseInt(radius);
+
+    const [places, roadData] = await Promise.all([
+      osmService.getNearbyAllTypes(parsedLat, parsedLng, parsedRadius),
+      osmService.getRoads(parsedLat, parsedLng, Math.min(parsedRadius, 3000))
+    ]);
+    const analysis = analyzeArea(places, parsedLat, parsedLng, parsedRadius / 1000, roadData.length);
 
     // Sanitize non-ASCII text for PDFKit (prevents crash on Arabic/Urdu fonts)
     const pdfSafeAreaName = areaName.replace(/[^\x00-\x7F]/g, '').trim() || 'Selected Area';
@@ -59,8 +66,12 @@ export const generatePDFReport = async (req, res, next) => {
     // Save PDF to disk and DB if user is authenticated
     if (req.user) {
       try {
+        const reportsDir = path.join(__dirname, '..', 'reports');
+        if (!fs.existsSync(reportsDir)) {
+          fs.mkdirSync(reportsDir, { recursive: true });
+        }
         const fileName = `report_${req.user.id}_${Date.now()}.pdf`;
-        const filePath = path.join(__dirname, '..', 'reports', fileName);
+        const filePath = path.join(reportsDir, fileName);
         fs.writeFileSync(filePath, pdfBuffer);
 
         const report = await Report.create({

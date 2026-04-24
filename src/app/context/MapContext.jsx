@@ -107,6 +107,7 @@ export function MapProvider({ children }) {
     try {
       const analysisResult = await mapsApi.analyzeArea(lat, lng, 5000, name);
       setNearbyPlaces(analysisResult.data?.places || []);
+      setRoads(analysisResult.data?.roads || []);
       setAnalysis(analysisResult.data?.analysis || null);
       setSelectedArea({ lat, lng, displayName: name });
       setMapCenter([lat, lng]);

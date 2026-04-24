@@ -44,6 +44,8 @@ export function calculateCategoryScore(nearest, count, threshold) {
   if (count === 0 || nearest === null || nearest === undefined) {
     return 0;
   }
+  // Round to 2 decimal places to prevent floating-point drift from changing scores
+  nearest = Math.round(nearest * 100) / 100;
 
   let distanceScore;
   if (nearest <= threshold.ideal) {
@@ -148,9 +150,7 @@ export function applyPenalties(baseScore, coverage) {
     }
   }
 
-  // Apply smoothing noise for realistic feel (+/- 2 points)
-  const noise = (hashCode(JSON.stringify(coverage)) % 5) - 2;
-  const finalScore = Math.max(0, Math.min(95, baseScore - penalty + noise));
+  const finalScore = Math.max(0, Math.min(95, baseScore - penalty));
 
   return {
     score: Math.round(finalScore),
@@ -369,16 +369,7 @@ function getTypeIcon(type) {
   return icons[type] || '📍';
 }
 
-// Simple deterministic hash for reproducible noise
-function hashCode(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
+
 
 export { THRESHOLDS, CATEGORY_WEIGHTS, ESSENTIAL_SERVICES };
 

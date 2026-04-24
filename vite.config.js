@@ -29,7 +29,11 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'http://localhost:5000',
+      '/api': {
+        target: 'http://localhost:5000',
+        timeout: 60000,
+        proxyTimeout: 60000,
+      },
     },
   },
   assetsInclude: ['**/*.svg', '**/*.csv'],

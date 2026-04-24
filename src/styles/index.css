@@ -63,3 +63,28 @@
 .leaflet-control-zoom a:hover {
   background: var(--muted) !important;
 }
+
+/* Delete Mode Cursor */
+.delete-mode-active .leaflet-container {
+  cursor: crosshair !important;
+}
+
+.delete-mode-active .planner-marker div {
+  cursor: pointer !important;
+}
+
+/* Custom Scrollbar for AI Modal */
+.max-h-\[90vh\]::-webkit-scrollbar {
+  width: 6px;
+}
+.max-h-\[90vh\]::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+.max-h-\[90vh\]::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 10px;
+}
+.max-h-\[90vh\]::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
+}
