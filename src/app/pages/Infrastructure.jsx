@@ -62,8 +62,20 @@ export function Infrastructure() {
   }
 
   return (
-    <div className="min-h-screen pt-28 pb-20 px-8">
-      <div className="max-w-7xl mx-auto">
+    <div 
+      className="min-h-screen pt-28 pb-20 px-8 relative"
+      style={{
+        backgroundImage: 'url(https://www.economist.com/cdn-cgi/image/width=1920,quality=95,format=auto/content-assets/images/20241221_STP001.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Subtle overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background/80" />
+      
+      <div className="max-w-7xl mx-auto relative z-10">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between mb-10">
           <div>
             <h1 className="text-5xl font-bold mb-3 bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent">Infrastructure</h1>

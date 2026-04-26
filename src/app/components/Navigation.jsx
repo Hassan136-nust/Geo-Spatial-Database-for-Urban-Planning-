@@ -79,13 +79,13 @@ export function Navigation() {
       transition={{ duration: 0.6, delay: 0.2 }}
       className="fixed top-6 left-1/2 -translate-x-1/2 z-50"
     >
-      <div className="backdrop-blur-xl bg-sidebar/80 border border-border rounded-full px-4 py-2.5 shadow-2xl">
+      <div className="backdrop-blur-xl bg-primary/95 border border-primary/30 rounded-full px-4 py-2.5 shadow-2xl">
         <div className="flex items-center gap-1">
           {/* Logo */}
           <Link to="/">
             <div className="flex items-center gap-2 px-3 py-1.5 mr-2">
-              <Globe2 className="w-5 h-5 text-primary" />
-              <span className="text-sm font-bold text-foreground hidden sm:inline">
+              <Globe2 className="w-5 h-5 text-amber" />
+              <span className="text-sm font-bold text-text-on-dark hidden sm:inline">
                 UrbanPulse
               </span>
             </div>
@@ -106,11 +106,11 @@ export function Navigation() {
                   {isActive && (
                     <motion.div
                       layoutId="activeNav"
-                      className="absolute inset-0 bg-white/20 rounded-full"
+                      className="absolute inset-0 bg-amber/30 rounded-full"
                       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                     />
                   )}
-                  <div className="relative flex items-center gap-1.5">
+                  <div className="relative flex items-center gap-1.5 text-text-on-dark">
                     <Icon className="w-4 h-4" />
                     <span className="text-xs font-medium hidden md:inline">{item.label}</span>
                   </div>
@@ -126,7 +126,7 @@ export function Navigation() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowMore(!showMore)}
-                className="relative px-3 py-1.5 rounded-full transition-colors hover:bg-white/10"
+                className="relative px-3 py-1.5 rounded-full transition-colors hover:bg-amber/20 text-text-on-dark"
               >
                 <div className="flex items-center gap-1">
                   <span className="text-xs font-medium">More</span>
@@ -140,14 +140,14 @@ export function Navigation() {
                     initial={{ opacity: 0, y: -5, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                    className="absolute top-full mt-2 right-0 bg-sidebar/95 backdrop-blur-xl border border-border rounded-2xl py-2 w-48 shadow-2xl"
+                    className="absolute top-full mt-2 right-0 bg-primary/95 backdrop-blur-xl border border-primary/30 rounded-2xl py-2 w-48 shadow-2xl"
                   >
                     {moreNavItems.map((item) => {
                       const Icon = item.icon;
                       const isActive = location.pathname === item.path;
                       return (
                         <Link key={item.path} to={item.path} onClick={() => setShowMore(false)}>
-                          <div className={`flex items-center gap-2.5 px-4 py-2 text-xs transition-colors ${isActive ? 'bg-white/10 text-cyan-400' : 'text-white/60 hover:bg-white/5 hover:text-white/90'}`}>
+                          <div className={`flex items-center gap-2.5 px-4 py-2 text-xs transition-colors ${isActive ? 'bg-amber/20 text-amber' : 'text-text-on-dark/80 hover:bg-amber/10 hover:text-text-on-dark'}`}>
                             <Icon className="w-3.5 h-3.5" />
                             {item.label}
                           </div>
@@ -161,7 +161,7 @@ export function Navigation() {
           )}
 
           {/* Divider */}
-          <div className="w-px h-6 bg-white/10 mx-1" />
+          <div className="w-px h-6 bg-text-on-dark/20 mx-1" />
 
           {/* Notification Bell */}
           {user && (
@@ -170,11 +170,11 @@ export function Navigation() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleNotifications}
-                className="relative px-2 py-1.5 rounded-full transition-colors hover:bg-white/10"
+                className="relative px-2 py-1.5 rounded-full transition-colors hover:bg-amber/20 text-text-on-dark"
               >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full text-[9px] font-bold flex items-center justify-center">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive rounded-full text-[9px] font-bold flex items-center justify-center text-white">{unreadCount > 9 ? '9+' : unreadCount}</span>
                 )}
               </motion.button>
 
@@ -184,22 +184,22 @@ export function Navigation() {
                     initial={{ opacity: 0, y: -5, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                    className="absolute top-full mt-2 right-0 bg-sidebar/95 backdrop-blur-xl border border-border rounded-2xl w-72 shadow-2xl overflow-hidden"
+                    className="absolute top-full mt-2 right-0 bg-primary/95 backdrop-blur-xl border border-primary/30 rounded-2xl w-72 shadow-2xl overflow-hidden"
                   >
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-                      <span className="text-xs font-bold text-white/60">Notifications</span>
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-text-on-dark/10">
+                      <span className="text-xs font-bold text-text-on-dark/80">Notifications</span>
                       {unreadCount > 0 && (
-                        <button onClick={markAllRead} className="text-[10px] text-cyan-400 hover:text-cyan-300">Mark all read</button>
+                        <button onClick={markAllRead} className="text-[10px] text-amber hover:text-amber/80">Mark all read</button>
                       )}
                     </div>
                     <div className="max-h-64 overflow-y-auto">
                       {notifications.length === 0 ? (
-                        <p className="text-xs text-white/30 text-center py-6">No notifications</p>
+                        <p className="text-xs text-text-on-dark/40 text-center py-6">No notifications</p>
                       ) : (
                         notifications.slice(0, 8).map((n) => (
-                          <div key={n._id} className={`px-4 py-2.5 border-b border-white/5 ${n.is_read ? '' : 'bg-cyan-500/5'}`}>
-                            <p className="text-xs font-medium text-white/80">{n.title}</p>
-                            <p className="text-[10px] text-white/40 mt-0.5 line-clamp-1">{n.message}</p>
+                          <div key={n._id} className={`px-4 py-2.5 border-b border-text-on-dark/10 ${n.is_read ? '' : 'bg-amber/10'}`}>
+                            <p className="text-xs font-medium text-text-on-dark">{n.title}</p>
+                            <p className="text-[10px] text-text-on-dark/60 mt-0.5 line-clamp-1">{n.message}</p>
                           </div>
                         ))
                       )}
@@ -217,10 +217,10 @@ export function Navigation() {
                 <Link to="/admin">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="relative px-3 py-1.5 rounded-full transition-colors">
                     {location.pathname === '/admin' && (
-                      <motion.div layoutId="activeNav" className="absolute inset-0 bg-white/20 rounded-full" transition={{ type: 'spring', stiffness: 380, damping: 30 }} />
+                      <motion.div layoutId="activeNav" className="absolute inset-0 bg-amber/30 rounded-full" transition={{ type: 'spring', stiffness: 380, damping: 30 }} />
                     )}
-                    <div className="relative flex items-center gap-1.5">
-                      <Shield className="w-4 h-4 text-amber-400" />
+                    <div className="relative flex items-center gap-1.5 text-text-on-dark">
+                      <Shield className="w-4 h-4 text-amber" />
                       <span className="text-xs font-medium hidden md:inline">Admin</span>
                     </div>
                   </motion.div>
@@ -229,10 +229,10 @@ export function Navigation() {
               <Link to="/profile">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="relative px-3 py-1.5 rounded-full transition-colors">
                   {location.pathname === '/profile' && (
-                    <motion.div layoutId="activeNav" className="absolute inset-0 bg-white/20 rounded-full" transition={{ type: 'spring', stiffness: 380, damping: 30 }} />
+                    <motion.div layoutId="activeNav" className="absolute inset-0 bg-amber/30 rounded-full" transition={{ type: 'spring', stiffness: 380, damping: 30 }} />
                   )}
-                  <div className="relative flex items-center gap-1.5">
-                    <UserCircle className="w-4 h-4 text-green-400" />
+                  <div className="relative flex items-center gap-1.5 text-text-on-dark">
+                    <UserCircle className="w-4 h-4 text-vegetation" />
                     <span className="text-xs font-medium hidden md:inline">{user.name.split(' ')[0]}</span>
                   </div>
                 </motion.div>
@@ -241,7 +241,7 @@ export function Navigation() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={logout}
-                className="px-3 py-1.5 rounded-full text-xs font-medium text-red-400 hover:bg-red-400/10 transition-colors"
+                className="px-3 py-1.5 rounded-full text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
               >
                 Logout
               </motion.button>
@@ -250,10 +250,10 @@ export function Navigation() {
             <Link to="/login">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="relative px-3 py-1.5 rounded-full transition-colors">
                 {location.pathname === '/login' && (
-                  <motion.div layoutId="activeNav" className="absolute inset-0 bg-white/20 rounded-full" transition={{ type: 'spring', stiffness: 380, damping: 30 }} />
+                  <motion.div layoutId="activeNav" className="absolute inset-0 bg-amber/30 rounded-full" transition={{ type: 'spring', stiffness: 380, damping: 30 }} />
                 )}
-                <div className="relative flex items-center gap-1.5">
-                  <LogIn className="w-4 h-4 text-cyan-400" />
+                <div className="relative flex items-center gap-1.5 text-text-on-dark">
+                  <LogIn className="w-4 h-4 text-water" />
                   <span className="text-xs font-medium">Login</span>
                 </div>
               </motion.div>
