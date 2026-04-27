@@ -67,13 +67,13 @@ function ScoreBar({ score }) {
 // ── Stats Card ────────────────────────────────────────────
 function StatCard({ icon: Icon, label, value, color }) {
   return (
-    <div className="rounded-2xl border border-white/8 bg-white/3 p-4 flex items-center gap-4">
+    <div className="rounded-2xl border border-gray-300/8 bg-white/3 p-4 flex items-center gap-4">
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
         <Icon className="w-5 h-5" />
       </div>
       <div>
-        <p className="text-white/40 text-xs">{label}</p>
-        <p className="text-white font-bold text-lg leading-none mt-0.5">{value}</p>
+        <p className="text-gray-500 text-xs">{label}</p>
+        <p className="text-gray-900 font-bold text-lg leading-none mt-0.5">{value}</p>
       </div>
     </div>
   );
@@ -160,15 +160,15 @@ export function SavedReports() {
     return (
       <div className="min-h-screen pt-28 pb-20 px-8 flex items-center justify-center">
         <div className="text-center">
-          <Shield className="w-12 h-12 text-white/20 mx-auto mb-4" />
-          <p className="text-white/50 text-lg">Please log in to view your saved reports</p>
+          <Shield className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-900/50 text-lg">Please log in to view your saved reports</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-20 px-6" style={{ background: '#0a0a0f' }}>
+    <div className="min-h-screen pt-24 pb-20 px-6" style={{ background: '#f4f7f6' }}>
       <div className="max-w-5xl mx-auto">
 
         {/* Header */}
@@ -178,7 +178,7 @@ export function SavedReports() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-300 via-orange-400 to-rose-400 bg-clip-text text-transparent">
                 Reports History
               </h1>
-              <p className="text-white/40 mt-2 text-sm">
+              <p className="text-gray-500 mt-2 text-sm">
                 All PDF reports generated from area analysis
               </p>
             </div>
@@ -187,7 +187,7 @@ export function SavedReports() {
               whileTap={{ scale: 0.95 }}
               onClick={() => loadReports(true)}
               disabled={refreshing}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white text-xs transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-gray-200 text-gray-600 hover:text-gray-900 text-xs transition-all"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
@@ -225,19 +225,19 @@ export function SavedReports() {
             className="flex flex-col sm:flex-row gap-3 mb-6"
           >
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search by area name..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/80 text-sm placeholder-white/20 focus:outline-none focus:border-amber-500/50 focus:bg-white/8 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-gray-200 text-gray-800 text-sm placeholder-white/20 focus:outline-none focus:border-amber-500/50 focus:bg-white/8 transition-all"
               />
             </div>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-white/5 border border-gray-200 text-gray-600 text-sm focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -251,29 +251,29 @@ export function SavedReports() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32">
             <Loader2 className="w-10 h-10 text-amber-400 animate-spin mb-4" />
-            <p className="text-white/40 text-sm">Loading your reports...</p>
+            <p className="text-gray-500 text-sm">Loading your reports...</p>
           </div>
         ) : reports.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="rounded-3xl border border-white/8 bg-white/3 p-16 text-center"
+            className="rounded-3xl border border-gray-300/8 bg-white/3 p-16 text-center"
           >
             <div className="w-20 h-20 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-6">
               <FileText className="w-10 h-10 text-amber-500/50" />
             </div>
-            <h3 className="text-xl font-semibold text-white/60 mb-2">No reports yet</h3>
-            <p className="text-white/30 text-sm max-w-xs mx-auto">
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">No reports yet</h3>
+            <p className="text-gray-400 text-sm max-w-xs mx-auto">
               Go to the <span className="text-amber-400">Analytics</span> page, search for an area, and download a PDF report. It will appear here automatically.
             </p>
           </motion.div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
-            <Search className="w-8 h-8 text-white/20 mx-auto mb-3" />
-            <p className="text-white/40 text-sm">No reports found matching "{search}"</p>
+            <Search className="w-8 h-8 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500 text-sm">No reports found matching "{search}"</p>
           </div>
         ) : (
           <div className="space-y-3">
-            <p className="text-white/30 text-xs mb-4">Showing {filtered.length} of {reports.length} reports</p>
+            <p className="text-gray-400 text-xs mb-4">Showing {filtered.length} of {reports.length} reports</p>
             <AnimatePresence>
               {filtered.map((report, i) => (
                 <motion.div
@@ -282,7 +282,7 @@ export function SavedReports() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, x: -20 }}
                   transition={{ delay: i * 0.04, duration: 0.3 }}
-                  className="group rounded-2xl border border-white/8 bg-white/3 hover:bg-white/5 hover:border-amber-500/20 transition-all duration-200 overflow-hidden"
+                  className="group rounded-2xl border border-gray-300/8 bg-white/3 hover:bg-white/5 hover:border-amber-500/20 transition-all duration-200 overflow-hidden"
                 >
                   <div className="p-5 flex items-center gap-5">
                     {/* Icon */}
@@ -293,13 +293,13 @@ export function SavedReports() {
                     {/* Main Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                        <h3 className="font-semibold text-white/90 truncate max-w-xs flex items-center gap-1.5">
+                        <h3 className="font-semibold text-gray-900/90 truncate max-w-xs flex items-center gap-1.5">
                           <MapPin className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
                           {report.area_name}
                         </h3>
                         <ScoreBadge score={report.score} />
                       </div>
-                      <div className="flex items-center gap-3 text-[11px] text-white/35 flex-wrap">
+                      <div className="flex items-center gap-3 text-[11px] text-gray-900/35 flex-wrap">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {formatDate(report.generated_at)} at {formatTime(report.generated_at)}

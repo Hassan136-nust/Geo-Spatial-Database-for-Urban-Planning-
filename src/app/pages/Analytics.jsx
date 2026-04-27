@@ -5,6 +5,7 @@ import L from 'leaflet';
 import { GlassPanel } from '../components/GlassPanel';
 import { BarChart3, AlertTriangle, Shield, TrendingUp, Stethoscope, GraduationCap, Trees, Search, Loader2, FileDown, MapPin, CheckCircle, Zap, Target, ChevronRight, Database, Save } from 'lucide-react';
 import mapsApi from '../services/mapsApi';
+import { MAP_TILE_URL, MAP_ATTRIBUTION } from '../config/mapTiler';
 import 'leaflet/dist/leaflet.css';
 
 // Fix leaflet icons
@@ -165,8 +166,8 @@ export function Analytics() {
           <h1 className="text-5xl font-bold mb-3 bg-gradient-to-r from-white via-purple-100 to-pink-200 bg-clip-text text-transparent">
             Reports & Analytics
           </h1>
-          <p className="text-lg text-white/50">Search any area or click the map to analyze infrastructure coverage</p>
-          <p className="text-xs text-white/25 mt-1 flex items-center gap-1">
+          <p className="text-lg text-gray-900/50">Search any area or click the map to analyze infrastructure coverage</p>
+          <p className="text-xs text-gray-900/25 mt-1 flex items-center gap-1">
             <Database className="w-3 h-3" /> Uses same data source as Map page — scores are always synchronized
           </p>
         </motion.div>
@@ -179,9 +180,9 @@ export function Analytics() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search area to analyze... (e.g. G-9 Islamabad, Karachi)"
-              className="w-full bg-white/5 border border-white/15 rounded-2xl px-5 py-3.5 pl-12 text-sm text-white placeholder-white/40 focus:outline-none focus:border-purple-500/50"
+              className="w-full bg-white/5 border border-gray-200 rounded-2xl px-5 py-3.5 pl-12 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-500/50"
             />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             {loading && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-400 animate-spin" />}
           </div>
         </form>
@@ -191,7 +192,7 @@ export function Analytics() {
           <GlassPanel delay={0.1}>
             <div className="p-2 h-80 rounded-2xl overflow-hidden">
               <MapContainer center={[33.6844, 73.0479]} zoom={12} className="h-full w-full rounded-xl" zoomControl={false}>
-                <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+                <TileLayer url={MAP_TILE_URL} attribution={MAP_ATTRIBUTION} />
                 <ClickHandler onClick={handleMapClick} />
                 {selectedPoint && (
                   <>
@@ -210,28 +211,28 @@ export function Analytics() {
             <div className="p-6 flex flex-col justify-center h-80">
               {!analysis && !loading && (
                 <div className="text-center">
-                  <MapPin className="w-12 h-12 text-white/15 mx-auto mb-3" />
-                  <p className="text-sm text-white/40">Search or click the map to analyze an area</p>
+                  <MapPin className="w-12 h-12 text-gray-900/15 mx-auto mb-3" />
+                  <p className="text-sm text-gray-500">Search or click the map to analyze an area</p>
                 </div>
               )}
               {loading && (
                 <div className="text-center">
                   <Loader2 className="w-10 h-10 text-purple-400 mx-auto mb-3 animate-spin" />
-                  <p className="text-sm text-white/40">Fetching real-time data...</p>
-                  <p className="text-xs text-white/20 mt-1">Analyzing infrastructure from OpenStreetMap</p>
+                  <p className="text-sm text-gray-500">Fetching real-time data...</p>
+                  <p className="text-xs text-gray-300 mt-1">Analyzing infrastructure via MapTiler</p>
                 </div>
               )}
               {analysis && !loading && (
                 <>
-                  <p className="text-xs text-white/40 mb-1">Analysis for</p>
-                  <h3 className="text-sm font-medium text-white/80 mb-4 line-clamp-2">{areaName}</h3>
+                  <p className="text-xs text-gray-500 mb-1">Analysis for</p>
+                  <h3 className="text-sm font-medium text-gray-800 mb-4 line-clamp-2">{areaName}</h3>
 
                   <div className="flex items-end gap-3 mb-4">
                     <span className={`text-6xl font-bold ${
                       analysis.score >= 70 ? 'text-green-400' :
                       analysis.score >= 50 ? 'text-yellow-400' : 'text-red-400'
                     }`}>{analysis.score}</span>
-                    <span className="text-lg text-white/30 pb-2">/100</span>
+                    <span className="text-lg text-gray-400 pb-2">/100</span>
                   </div>
 
                   <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold mb-4 ${
@@ -255,21 +256,21 @@ export function Analytics() {
                       }`}
                     />
                   </div>
-                  <p className="text-[10px] text-white/30 mt-2">{analysis.totalPlaces} facilities within 5km radius • {roadCount} roads</p>
+                  <p className="text-[10px] text-gray-400 mt-2">{analysis.totalPlaces} facilities within 5km radius • {roadCount} roads</p>
 
                   {/* Score breakdown */}
                   {analysis.scoring && (
                     <div className="flex gap-3 mt-3">
                       <div className="flex-1 bg-white/5 rounded-lg p-2 text-center">
-                        <div className="text-[9px] text-white/40">Roads</div>
+                        <div className="text-[9px] text-gray-500">Roads</div>
                         <div className="text-sm font-bold">{analysis.scoring.roadScore}</div>
                       </div>
                       <div className="flex-1 bg-white/5 rounded-lg p-2 text-center">
-                        <div className="text-[9px] text-white/40">Diversity</div>
+                        <div className="text-[9px] text-gray-500">Diversity</div>
                         <div className="text-sm font-bold">{analysis.scoring.diversityScore}</div>
                       </div>
                       <div className="flex-1 bg-white/5 rounded-lg p-2 text-center">
-                        <div className="text-[9px] text-white/40">Penalties</div>
+                        <div className="text-[9px] text-gray-500">Penalties</div>
                         <div className="text-sm font-bold text-red-400">{analysis.scoring.penalties?.length || 0}</div>
                       </div>
                     </div>
@@ -297,7 +298,7 @@ export function Analytics() {
                         <span className="ml-auto text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">{s.score}/100</span>
                       )}
                     </div>
-                    <p className="text-xs text-white/70">{s.message}</p>
+                    <p className="text-xs text-gray-700">{s.message}</p>
                   </div>
                 </GlassPanel>
               ))}
@@ -326,7 +327,7 @@ export function Analytics() {
                         w.severity === 'critical' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
                       }`}>{(w.severity || 'warning').toUpperCase()}</span>
                     </div>
-                    <p className="text-xs text-white/70">{w.message}</p>
+                    <p className="text-xs text-gray-700">{w.message}</p>
                   </div>
                 </GlassPanel>
               ))}
@@ -350,20 +351,20 @@ export function Analytics() {
                     <div className={`p-4 ${st.bg} border ${st.border} rounded-2xl`}>
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <Icon className={`w-5 h-5 ${typeInfo?.color || 'text-white/50'}`} />
+                          <Icon className={`w-5 h-5 ${typeInfo?.color || 'text-gray-900/50'}`} />
                           <span className="text-sm font-semibold capitalize">{type.replace('_', ' ')}</span>
                         </div>
                         <span className={`w-2.5 h-2.5 rounded-full ${st.dot}`} />
                       </div>
                       <div className="text-2xl font-bold mb-1">{cov.count}</div>
                       <div className="flex items-center justify-between text-xs mb-2">
-                        <span className="text-white/40">found</span>
+                        <span className="text-gray-500">found</span>
                         <span className={st.text}>{cov.nearest ? `${cov.nearest.toFixed(1)}km nearest` : 'none'}</span>
                       </div>
                       {cov.score !== undefined && (
                         <div className="mt-2">
                           <div className="flex items-center justify-between text-[10px] mb-1">
-                            <span className="text-white/40">Score</span>
+                            <span className="text-gray-500">Score</span>
                             <span className={st.text}>{cov.score}/100</span>
                           </div>
                           <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
@@ -418,9 +419,9 @@ export function Analytics() {
                         rec.priority === 'medium' ? 'bg-blue-500/20 text-blue-400' :
                         'bg-green-500/20 text-green-400'
                       }`}>{(rec.priority || 'medium').toUpperCase()}</span>
-                      <span className="text-xs text-white/40 capitalize">{rec.category}</span>
+                      <span className="text-xs text-gray-500 capitalize">{rec.category}</span>
                     </div>
-                    <p className="text-xs text-white/70 mt-1">{rec.message}</p>
+                    <p className="text-xs text-gray-700 mt-1">{rec.message}</p>
                   </motion.div>
                 ))}
               </div>
@@ -450,9 +451,9 @@ export function Analytics() {
                       <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
                         gap.severity === 'critical' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
                       }`}>{gap.severity.toUpperCase()}</span>
-                      <span className="text-xs text-white/40 capitalize">{gap.type}</span>
+                      <span className="text-xs text-gray-500 capitalize">{gap.type}</span>
                     </div>
-                    <p className="text-xs text-white/70 mt-1">{gap.message}</p>
+                    <p className="text-xs text-gray-700 mt-1">{gap.message}</p>
                   </motion.div>
                 ))}
               </div>
@@ -464,7 +465,7 @@ export function Analytics() {
           <GlassPanel delay={0.4}>
             <div className="p-8 text-center mt-6">
               <Shield className="w-12 h-12 mx-auto mb-3 text-green-400/40" />
-              <p className="text-sm text-white/50">All infrastructure categories have adequate coverage!</p>
+              <p className="text-sm text-gray-900/50">All infrastructure categories have adequate coverage!</p>
             </div>
           </GlassPanel>
         )}

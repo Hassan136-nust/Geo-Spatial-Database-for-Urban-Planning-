@@ -47,22 +47,22 @@ export function PerformanceStats() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 20 }}
-          className="fixed bottom-8 right-8 z-50 backdrop-blur-xl bg-black/50 border border-white/10 rounded-xl p-4 font-mono text-xs"
+          className="fixed bottom-8 right-8 z-50 backdrop-blur-xl bg-white/70 border border-gray-200 rounded-xl p-4 font-mono text-xs"
         >
           <div className="space-y-2">
             <div className="flex justify-between gap-4">
-              <span className="text-white/60">FPS:</span>
+              <span className="text-gray-600">FPS:</span>
               <span className={`font-bold ${stats.fps >= 55 ? 'text-green-400' : stats.fps >= 30 ? 'text-yellow-400' : 'text-red-400'}`}>
                 {stats.fps}
               </span>
             </div>
             {stats.memory > 0 && (
               <div className="flex justify-between gap-4">
-                <span className="text-white/60">Memory:</span>
+                <span className="text-gray-600">Memory:</span>
                 <span className="text-blue-400">{stats.memory} MB</span>
               </div>
             )}
-            <div className="mt-3 pt-3 border-t border-white/10 text-white/40 text-[10px]">
+            <div className="mt-3 pt-3 border-t border-gray-200 text-gray-500 text-[10px]">
               Press 'P' to toggle
             </div>
           </div>

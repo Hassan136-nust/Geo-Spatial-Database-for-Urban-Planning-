@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 
 export function LoadingFallback() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black">
+    <div className="fixed inset-0 flex items-center justify-center bg-white">
       <motion.div
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -20,7 +20,7 @@ export function LoadingFallback() {
           }}
           className="w-16 h-16 mx-auto mb-4 border-4 border-cyan-400 border-t-transparent rounded-full"
         />
-        <p className="text-white/60 text-sm">Initializing UrbanPulse Intelligence...</p>
+        <p className="text-gray-600 text-sm">Initializing UrbanPulse Intelligence...</p>
       </motion.div>
     </div>
   );

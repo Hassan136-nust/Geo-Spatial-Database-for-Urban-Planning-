@@ -1,11 +1,19 @@
 import axios from 'axios';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 // ═══════════════════════════════════════════════════════════
-// OpenStreetMap Service Layer — 100% Free APIs
-// Nominatim (Geocoding) + Overpass (Places) + OSRM (Routing)
+// Geospatial Service Layer — MapTiler (Geocoding) +
+// Overpass (POI Data) + OSRM (Routing)
 // ═══════════════════════════════════════════════════════════
 
-const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org';
+const MAPTILER_API_KEY = process.env.MAPTILER_API_KEY || '';
+const MAPTILER_GEOCODING_BASE = 'https://api.maptiler.com/geocoding';
 const OVERPASS_ENDPOINTS = [
   'https://lz4.overpass-api.de/api/interpreter',
   'https://overpass-api.de/api/interpreter',
@@ -102,71 +110,92 @@ async function fetchOverpassWithRetry(query, timeout = 15000, maxRetries = 2) {
   }
 }
 
-// Rate limiting helper (Nominatim requires max 1 req/sec)
-let lastNominatimCall = 0;
-async function throttleNominatim() {
-  const now = Date.now();
-  const diff = now - lastNominatimCall;
-  if (diff < 1100) {
-    await new Promise((resolve) => setTimeout(resolve, 1100 - diff));
-  }
-  lastNominatimCall = Date.now();
-}
-
 // ─────────────────────────────────────────────────────────
-// GEOCODING — Search for an area by name
+// GEOCODING — Search for an area by name (MapTiler API)
 // ─────────────────────────────────────────────────────────
 export async function searchArea(query) {
-  await throttleNominatim();
-  const { data } = await axios.get(`${NOMINATIM_BASE}/search`, {
+  const { data } = await axios.get(`${MAPTILER_GEOCODING_BASE}/${encodeURIComponent(query)}.json`, {
     params: {
-      q: query,
-      format: 'json',
-      addressdetails: 1,
+      key: MAPTILER_API_KEY,
       limit: 5,
-      polygon_geojson: 1,
+      language: 'en',
     },
     headers: { 'User-Agent': USER_AGENT },
   });
 
-  return data.map((item) => ({
-    displayName: item.display_name,
-    lat: parseFloat(item.lat),
-    lng: parseFloat(item.lon),
-    boundingBox: item.boundingbox?.map(Number), // [south, north, west, east]
-    type: item.type,
-    category: item.category,
-    address: item.address,
-    geojson: item.geojson,
-    importance: item.importance,
-  }));
+  return (data.features || []).map((feature) => {
+    const [lng, lat] = feature.center || feature.geometry?.coordinates || [0, 0];
+    const bbox = feature.bbox; // [west, south, east, north]
+    const props = feature.properties || {};
+
+    return {
+      displayName: feature.place_name || props.name || query,
+      lat: lat,
+      lng: lng,
+      boundingBox: bbox ? [bbox[1], bbox[3], bbox[0], bbox[2]] : null, // [south, north, west, east]
+      type: (feature.place_type || [])[0] || props.kind || 'place',
+      category: props.kind || 'place',
+      address: {
+        city: props.city || '',
+        state: props.state || '',
+        country: props.country || '',
+      },
+      geojson: feature.geometry || null,
+      importance: props.relevance || 0,
+    };
+  });
 }
 
 // ─────────────────────────────────────────────────────────
-// REVERSE GEOCODING — Coordinates to address
+// REVERSE GEOCODING — Coordinates to address (MapTiler API)
 // ─────────────────────────────────────────────────────────
 export async function reverseGeocode(lat, lng) {
-  await throttleNominatim();
-  const { data } = await axios.get(`${NOMINATIM_BASE}/reverse`, {
+  const { data } = await axios.get(`${MAPTILER_GEOCODING_BASE}/${lng},${lat}.json`, {
     params: {
-      lat,
-      lon: lng,
-      format: 'json',
-      addressdetails: 1,
+      key: MAPTILER_API_KEY,
+      language: 'en',
     },
     headers: { 'User-Agent': USER_AGENT },
   });
 
+  const feature = (data.features || [])[0];
+  if (!feature) {
+    return {
+      displayName: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+      address: {},
+      lat,
+      lng,
+    };
+  }
+
+  const props = feature.properties || {};
+  const [rLng, rLat] = feature.center || [lng, lat];
+
+  // Build address object from context array
+  const address = { city: '', state: '', country: '' };
+  if (feature.context) {
+    feature.context.forEach((ctx) => {
+      const ctxId = ctx.id || '';
+      if (ctxId.startsWith('place') || ctxId.startsWith('city')) address.city = ctx.text;
+      if (ctxId.startsWith('region') || ctxId.startsWith('state')) address.state = ctx.text;
+      if (ctxId.startsWith('country')) address.country = ctx.text;
+    });
+  }
+  // Also pull from properties if context didn't fill them
+  if (!address.city) address.city = props.city || '';
+  if (!address.state) address.state = props.state || '';
+  if (!address.country) address.country = props.country || '';
+
   return {
-    displayName: data.display_name,
-    address: data.address,
-    lat: parseFloat(data.lat),
-    lng: parseFloat(data.lon),
+    displayName: feature.place_name || props.name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+    address,
+    lat: rLat,
+    lng: rLng,
   };
 }
 
 // ─────────────────────────────────────────────────────────
-// NEARBY PLACES — Fetch from OpenStreetMap via Overpass
+// NEARBY PLACES — Fetch via Overpass API
 // ─────────────────────────────────────────────────────────
 const OSM_TYPE_MAP = {
   hospital: '["amenity"="hospital"]',

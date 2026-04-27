@@ -10,6 +10,7 @@ import { MdLocalPolice, MdLocalFireDepartment, MdLocalHospital } from 'react-ico
 import { BsBank } from 'react-icons/bs';
 import { useMap } from '../context/MapContext';
 import mapsApi from '../services/mapsApi';
+import { MAP_TILE_URL, MAP_ATTRIBUTION } from '../config/mapTiler';
 import 'leaflet/dist/leaflet.css';
 
 // Fix leaflet default icon issue
@@ -222,7 +223,7 @@ export function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen pt-20 relative" style={{ background: '#0a0a0f' }}>
+    <div className="min-h-screen pt-20 relative" style={{ background: '#f4f7f6' }}>
       {/* Search Bar */}
       <div className="absolute top-24 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-xl px-4">
         <form onSubmit={handleSearch}>
@@ -233,10 +234,10 @@ export function Dashboard() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search any area... (e.g. F-6 Islamabad, Lahore, New York)"
-              className="w-full bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl px-5 py-3.5 pl-12 text-sm text-white placeholder-white/40 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 shadow-2xl"
+              className="w-full bg-white/90 backdrop-blur-xl border border-gray-300 rounded-2xl px-5 py-3.5 pl-12 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 shadow-2xl"
               id="map-search-input"
             />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             {loading && (
               <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400 animate-spin" />
             )}
@@ -255,7 +256,7 @@ export function Dashboard() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowLayers(!showLayers)}
-          className="p-3 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl text-white shadow-2xl"
+          className="p-3 bg-white/90 backdrop-blur-xl border border-gray-300 rounded-xl text-gray-900 shadow-2xl"
         >
           <Layers className="w-5 h-5" />
         </motion.button>
@@ -266,9 +267,9 @@ export function Dashboard() {
               initial={{ opacity: 0, scale: 0.9, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: -10 }}
-              className="absolute top-14 right-0 bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl p-4 w-52 shadow-2xl"
+              className="absolute top-14 right-0 bg-white/95 backdrop-blur-xl border border-gray-300 rounded-2xl p-4 w-52 shadow-2xl"
             >
-              <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3">Map Layers</h4>
+              <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-3">Map Layers</h4>
               {layerConfig.map((layer) => (
                 <label
                   key={layer.key}
@@ -281,8 +282,8 @@ export function Dashboard() {
                     className="w-4 h-4 rounded accent-cyan-500"
                   />
                   <span className="text-sm">{layer.icon}</span>
-                  <span className="text-xs text-white/80">{layer.label}</span>
-                  <span className="ml-auto text-[10px] text-white/30">
+                  <span className="text-xs text-gray-800">{layer.label}</span>
+                  <span className="ml-auto text-[10px] text-gray-400">
                     {layer.key === 'coverageCircles' ? '' : nearbyPlaces.filter((p) => {
                       if (layer.key === 'hospitals') return p.type === 'hospital' || p.type === 'clinic';
                       if (layer.key === 'schools') return p.type === 'school' || p.type === 'university';
@@ -301,7 +302,7 @@ export function Dashboard() {
       {/* Sidebar Toggle */}
       <button
         onClick={() => setShowSidebar(!showSidebar)}
-        className="absolute top-1/2 right-0 z-[1000] p-2 bg-black/80 border border-white/10 rounded-l-xl text-white/60"
+        className="absolute top-1/2 right-0 z-[1000] p-2 bg-white/90 border border-gray-200 rounded-l-xl text-gray-600"
         style={{ display: showSidebar ? 'none' : 'block' }}
       >
         <ChevronRight className="w-4 h-4 rotate-180" />
@@ -314,12 +315,12 @@ export function Dashboard() {
             center={mapCenter}
             zoom={mapZoom}
             className="h-full w-full"
-            style={{ background: '#0a0a0f' }}
+            style={{ background: '#f4f7f6' }}
             zoomControl={false}
           >
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              attribution={MAP_ATTRIBUTION}
+              url={MAP_TILE_URL}
             />
             <MapController center={mapCenter} zoom={mapZoom} />
             <MapClickHandler onMapClick={handleMapClick} />
@@ -420,7 +421,7 @@ export function Dashboard() {
           {/* Quick stats overlay bottom-left */}
           {nearbyPlaces.length > 0 && (
             <div className="absolute bottom-4 left-4 z-[1000]">
-              <div className="bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl px-4 py-3 flex gap-4">
+              <div className="bg-white/90 backdrop-blur-xl border border-gray-200 rounded-2xl px-4 py-3 flex gap-4">
                 {[
                   { icon: <FaHospital />, count: nearbyPlaces.filter((p) => p.type === 'hospital' || p.type === 'clinic').length, label: 'Hospitals' },
                   { icon: <FaSchool />, count: nearbyPlaces.filter((p) => p.type === 'school' || p.type === 'university').length, label: 'Schools' },
@@ -430,7 +431,7 @@ export function Dashboard() {
                   <div key={s.label} className="text-center flex flex-col items-center">
                     <div className="text-sm mb-1">{s.icon}</div>
                     <div className="text-lg font-bold">{s.count}</div>
-                    <div className="text-[9px] text-white/40">{s.label}</div>
+                    <div className="text-[9px] text-gray-500">{s.label}</div>
                   </div>
                 ))}
               </div>
@@ -446,7 +447,7 @@ export function Dashboard() {
               animate={{ x: 0 }}
               exit={{ x: 400 }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed top-20 right-0 w-[380px] h-[calc(100vh-5rem)] bg-black/90 backdrop-blur-xl border-l border-white/10 z-[999] overflow-y-auto"
+              className="fixed top-20 right-0 w-[380px] h-[calc(100vh-5rem)] bg-white/95 backdrop-blur-xl border-l border-gray-200 z-[999] overflow-y-auto"
             >
               <div className="p-5">
                 <div className="flex items-center justify-between mb-5">
@@ -454,31 +455,31 @@ export function Dashboard() {
                     Area Analysis
                   </h2>
                   <button onClick={() => setShowSidebar(false)} className="p-1.5 hover:bg-white/10 rounded-lg">
-                    <X className="w-4 h-4 text-white/40" />
+                    <X className="w-4 h-4 text-gray-500" />
                   </button>
                 </div>
 
                 {!selectedArea && !loading && (
                   <div className="text-center py-12">
-                    <Navigation2 className="w-10 h-10 text-white/20 mx-auto mb-3" />
-                    <p className="text-sm text-white/40">Search for an area or click on the map to start analysis</p>
+                    <Navigation2 className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                    <p className="text-sm text-gray-500">Search for an area or click on the map to start analysis</p>
                   </div>
                 )}
 
                 {loading && (
                   <div className="text-center py-12">
                     <Loader2 className="w-8 h-8 text-cyan-400 mx-auto mb-3 animate-spin" />
-                    <p className="text-sm text-white/40">Analyzing area...</p>
-                    <p className="text-xs text-white/20 mt-1">Fetching real-time data from OpenStreetMap</p>
+                    <p className="text-sm text-gray-500">Analyzing area...</p>
+                    <p className="text-xs text-gray-300 mt-1">Fetching real-time geospatial data via MapTiler</p>
                   </div>
                 )}
 
                 {analysis && !loading && (
                   <div className="space-y-3">
                     {/* Area Name */}
-                    <div className="bg-white/5 rounded-xl p-3 border border-white/10">
-                      <p className="text-xs text-white/40 mb-1">Selected Area</p>
-                      <p className="text-sm font-medium text-white/90 line-clamp-2">{selectedArea?.displayName || 'Unknown'}</p>
+                    <div className="bg-white/5 rounded-xl p-3 border border-gray-200">
+                      <p className="text-xs text-gray-500 mb-1">Selected Area</p>
+                      <p className="text-sm font-medium text-gray-900/90 line-clamp-2">{selectedArea?.displayName || 'Unknown'}</p>
                     </div>
 
                     {/* Score — collapsible */}
@@ -488,13 +489,13 @@ export function Dashboard() {
                       }`}>
                       <button onClick={() => toggleSection('score')} className="w-full p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="text-3xl font-bold">{analysis.score}<span className="text-sm text-white/40">/100</span></div>
+                          <div className="text-3xl font-bold">{analysis.score}<span className="text-sm text-gray-500">/100</span></div>
                           <div className={`text-xs px-2 py-0.5 rounded-full ${analysis.score >= 70 ? 'bg-green-500/20 text-green-400' :
                               analysis.score >= 50 ? 'bg-yellow-500/20 text-yellow-400' :
                                 'bg-red-500/20 text-red-400'
                             }`}>{analysis.rating}</div>
                         </div>
-                        {expandedSection === 'score' ? <ChevronUp className="w-4 h-4 text-white/30" /> : <ChevronDown className="w-4 h-4 text-white/30" />}
+                        {expandedSection === 'score' ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
                       </button>
                       {expandedSection === 'score' && (
                         <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="px-4 pb-4">
@@ -512,11 +513,11 @@ export function Dashboard() {
                           {analysis.scoring && (
                             <div className="grid grid-cols-2 gap-2 text-xs">
                               <div className="bg-white/5 rounded-lg p-2">
-                                <span className="text-white/40">Roads</span>
+                                <span className="text-gray-500">Roads</span>
                                 <div className="font-bold">{analysis.scoring.roadScore}/100</div>
                               </div>
                               <div className="bg-white/5 rounded-lg p-2">
-                                <span className="text-white/40">Diversity</span>
+                                <span className="text-gray-500">Diversity</span>
                                 <div className="font-bold">{analysis.scoring.diversityScore}/100</div>
                               </div>
                             </div>
@@ -527,12 +528,12 @@ export function Dashboard() {
 
                     {/* Strengths */}
                     {analysis.strengths && analysis.strengths.length > 0 && (
-                      <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+                      <div className="bg-white/5 rounded-xl border border-gray-200 overflow-hidden">
                         <button onClick={() => toggleSection('strengths')} className="w-full p-3 flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider flex items-center gap-1.5">
+                          <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
                             <CheckCircle className="w-3.5 h-3.5 text-green-400" /> Strengths ({analysis.strengths.length})
                           </h4>
-                          {expandedSection === 'strengths' ? <ChevronUp className="w-3.5 h-3.5 text-white/30" /> : <ChevronDown className="w-3.5 h-3.5 text-white/30" />}
+                          {expandedSection === 'strengths' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
                         </button>
                         {expandedSection === 'strengths' && (
                           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-3 pb-3 space-y-1.5">
@@ -548,12 +549,12 @@ export function Dashboard() {
 
                     {/* Weaknesses */}
                     {analysis.weaknesses && analysis.weaknesses.length > 0 && (
-                      <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+                      <div className="bg-white/5 rounded-xl border border-gray-200 overflow-hidden">
                         <button onClick={() => toggleSection('weaknesses')} className="w-full p-3 flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider flex items-center gap-1.5">
+                          <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
                             <AlertTriangle className="w-3.5 h-3.5 text-red-400" /> Weaknesses ({analysis.weaknesses.length})
                           </h4>
-                          {expandedSection === 'weaknesses' ? <ChevronUp className="w-3.5 h-3.5 text-white/30" /> : <ChevronDown className="w-3.5 h-3.5 text-white/30" />}
+                          {expandedSection === 'weaknesses' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
                         </button>
                         {expandedSection === 'weaknesses' && (
                           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-3 pb-3 space-y-1.5">
@@ -570,20 +571,20 @@ export function Dashboard() {
 
                     {/* Coverage */}
                     {analysis.coverage && (
-                      <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+                      <div className="bg-white/5 rounded-xl border border-gray-200 overflow-hidden">
                         <button onClick={() => toggleSection('coverage')} className="w-full p-3 flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider flex items-center gap-1.5">
+                          <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
                             <Target className="w-3.5 h-3.5 text-cyan-400" /> Coverage
                           </h4>
-                          {expandedSection === 'coverage' ? <ChevronUp className="w-3.5 h-3.5 text-white/30" /> : <ChevronDown className="w-3.5 h-3.5 text-white/30" />}
+                          {expandedSection === 'coverage' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
                         </button>
                         {expandedSection === 'coverage' && (
                           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-3 pb-3 space-y-1.5">
                             {Object.entries(analysis.coverage).slice(0, 10).map(([type, cov]) => (
                               <div key={type} className="flex items-center justify-between text-xs py-1">
-                                <span className="capitalize text-white/70">{type.replace('_', ' ')}</span>
+                                <span className="capitalize text-gray-700">{type.replace('_', ' ')}</span>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-white/40">{cov.count}</span>
+                                  <span className="text-gray-500">{cov.count}</span>
                                   {cov.score !== undefined && (
                                     <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
                                       <div className={`h-full rounded-full ${cov.score >= 70 ? 'bg-green-400' : cov.score >= 40 ? 'bg-yellow-400' : 'bg-red-400'
@@ -603,12 +604,12 @@ export function Dashboard() {
 
                     {/* Recommendations */}
                     {analysis.recommendations && analysis.recommendations.length > 0 && (
-                      <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+                      <div className="bg-white/5 rounded-xl border border-gray-200 overflow-hidden">
                         <button onClick={() => toggleSection('recommendations')} className="w-full p-3 flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider flex items-center gap-1.5">
+                          <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
                             <Zap className="w-3.5 h-3.5 text-amber-400" /> Recommendations ({analysis.recommendations.length})
                           </h4>
-                          {expandedSection === 'recommendations' ? <ChevronUp className="w-3.5 h-3.5 text-white/30" /> : <ChevronDown className="w-3.5 h-3.5 text-white/30" />}
+                          {expandedSection === 'recommendations' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
                         </button>
                         {expandedSection === 'recommendations' && (
                           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-3 pb-3 space-y-1.5">
@@ -633,21 +634,21 @@ export function Dashboard() {
 
                     {/* Density */}
                     {analysis.density && (
-                      <div className="bg-white/5 rounded-xl p-3 border border-white/10">
-                        <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider mb-2">Density</h4>
-                        <p className="text-lg font-bold">{analysis.density.placesPerSqKm} <span className="text-xs text-white/40">facilities/km²</span></p>
-                        <p className="text-[10px] text-white/30 mt-1">Total: {analysis.totalPlaces} places within 5km</p>
+                      <div className="bg-white/5 rounded-xl p-3 border border-gray-200">
+                        <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Density</h4>
+                        <p className="text-lg font-bold">{analysis.density.placesPerSqKm} <span className="text-xs text-gray-500">facilities/km²</span></p>
+                        <p className="text-[10px] text-gray-400 mt-1">Total: {analysis.totalPlaces} places within 5km</p>
                       </div>
                     )}
 
                     {/* Nearby Places List */}
                     {nearbyPlaces.length > 0 && (
-                      <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+                      <div className="bg-white/5 rounded-xl border border-gray-200 overflow-hidden">
                         <button onClick={() => toggleSection('places')} className="w-full p-3 flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider">
+                          <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider">
                             Nearby ({nearbyPlaces.length})
                           </h4>
-                          {expandedSection === 'places' ? <ChevronUp className="w-3.5 h-3.5 text-white/30" /> : <ChevronDown className="w-3.5 h-3.5 text-white/30" />}
+                          {expandedSection === 'places' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
                         </button>
                         {expandedSection === 'places' && (
                           <div className="px-3 pb-3 space-y-1 max-h-60 overflow-y-auto">
@@ -655,8 +656,8 @@ export function Dashboard() {
                               <div key={`${place.id}-${i}`} className="flex items-center gap-2 text-xs p-2 rounded-lg hover:bg-white/5 transition-colors">
                                 <span className="flex-shrink-0 text-sm">{MARKER_ICONS[place.type] || <FaMapMarkerAlt />}</span>
                                 <div className="flex-1 min-w-0">
-                                  <p className="font-medium truncate text-white/80">{place.name}</p>
-                                  <p className="text-white/30 capitalize">{place.type}</p>
+                                  <p className="font-medium truncate text-gray-800">{place.name}</p>
+                                  <p className="text-gray-400 capitalize">{place.type}</p>
                                 </div>
                                 <span className="text-cyan-400 flex-shrink-0">{place.distance?.toFixed(1)}km</span>
                               </div>

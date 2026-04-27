@@ -10,6 +10,7 @@ import { MdLocalPolice } from 'react-icons/md';
 import { useAuth } from '../context/AuthContext';
 import mapsApi from '../services/mapsApi';
 import { useSearchParams } from 'react-router';
+import { MAP_TILE_URL, MAP_ATTRIBUTION } from '../config/mapTiler';
 import 'leaflet/dist/leaflet.css';
 
 // Fix leaflet icons
@@ -545,7 +546,7 @@ export function Planner() {
   }, [elements]);
 
   return (
-    <div className={`min-h-screen pt-20 relative ${deleteMode ? 'delete-mode-active' : ''}`} style={{ background: '#0a0a0f' }}>
+    <div className={`min-h-screen pt-20 relative ${deleteMode ? 'delete-mode-active' : ''}`} style={{ background: '#f4f7f6' }}>
       {/* Toast notification */}
       <AnimatePresence>
         {toast && (
@@ -567,24 +568,24 @@ export function Planner() {
       {/* Save Modal */}
       <AnimatePresence>
         {showSaveDialog && (
-          <div className="fixed inset-0 z-[3000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[3000] bg-white/80 backdrop-blur-sm flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full max-w-sm">
               <GlassPanel>
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-white/90">Save Design</h3>
-                    <button onClick={() => setShowSaveDialog(false)}><X className="w-5 h-5 text-white/40 hover:text-white/80 transition-colors" /></button>
+                    <h3 className="text-lg font-bold text-gray-900/90">Save Design</h3>
+                    <button onClick={() => setShowSaveDialog(false)}><X className="w-5 h-5 text-gray-500 hover:text-gray-800 transition-colors" /></button>
                   </div>
                   <input
                     type="text"
                     placeholder="E.g., Downtown Expansion"
                     value={designName}
                     onChange={(e) => setDesignName(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm mb-4 focus:outline-none focus:border-purple-500/50 transition-colors"
+                    className="w-full bg-white/5 border border-gray-200 rounded-xl px-4 py-3 text-sm mb-4 focus:outline-none focus:border-purple-500/50 transition-colors"
                     autoFocus
                   />
                   <div className="flex gap-3">
-                    <button onClick={() => setShowSaveDialog(false)} className="flex-1 py-2.5 rounded-xl border border-white/10 text-sm font-medium hover:bg-white/5 transition-colors">Cancel</button>
+                    <button onClick={() => setShowSaveDialog(false)} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium hover:bg-white/5 transition-colors">Cancel</button>
                     <button onClick={handleSaveDesign} disabled={saving || !designName.trim()} className="flex-1 py-2.5 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-colors">
                       {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save
                     </button>
@@ -599,46 +600,46 @@ export function Planner() {
       {/* ── AI City Generator Modal ─────────────────────── */}
       <AnimatePresence>
         {showAiPanel && (
-          <div className="fixed inset-0 z-[3000] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[3000] bg-green-900/30 backdrop-blur-sm flex items-start justify-center pt-20 px-4 pb-4 overflow-y-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.93, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.93, y: 20 }}
-              className="w-full max-w-lg max-h-[90vh] overflow-y-auto"
+              className="w-full max-w-lg"
             >
-              <div className="bg-[#0d0d18] border border-violet-500/30 rounded-2xl shadow-2xl shadow-violet-900/40 p-6">
+              <div className="bg-white border border-green-200 rounded-2xl shadow-2xl shadow-green-900/20 p-6">
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <h2 className="text-lg font-bold bg-gradient-to-r from-violet-300 to-fuchsia-400 bg-clip-text text-transparent flex items-center gap-2">
-                      <Bot className="w-5 h-5 text-violet-400" /> AI City Generator
+                    <h2 className="text-lg font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent flex items-center gap-2">
+                      <Bot className="w-5 h-5 text-violet-500" /> AI City Generator
                     </h2>
-                    <p className="text-[11px] text-white/40 mt-0.5">Smart urban planner · Works instantly · Gemini AI if key is configured</p>
+                    <p className="text-[11px] text-gray-500 mt-0.5">Smart urban planner · Works instantly · Gemini AI if key is configured</p>
                   </div>
-                  <button onClick={() => setShowAiPanel(false)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
-                    <X className="w-5 h-5 text-white/40 hover:text-white/80" />
+                  <button onClick={() => setShowAiPanel(false)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+                    <X className="w-5 h-5 text-gray-500 hover:text-gray-800" />
                   </button>
                 </div>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[10px] font-semibold text-white/50 uppercase tracking-wider block mb-1.5">City Name</label>
-                      <input type="text" value={aiForm.cityName} onChange={(e) => setAiForm((f) => ({ ...f, cityName: e.target.value }))} placeholder="e.g. Islamabad East" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-violet-500/60 transition-colors text-white placeholder-white/20" />
+                      <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider block mb-1.5">City Name</label>
+                      <input type="text" value={aiForm.cityName} onChange={(e) => setAiForm((f) => ({ ...f, cityName: e.target.value }))} placeholder="e.g. Islamabad East" className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-violet-500 transition-colors text-gray-900 placeholder-gray-400" />
                     </div>
                     <div>
-                      <label className="text-[10px] font-semibold text-white/50 uppercase tracking-wider block mb-1.5">Population</label>
-                      <input type="number" value={aiForm.population} onChange={(e) => setAiForm((f) => ({ ...f, population: +e.target.value }))} min={1000} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-violet-500/60 transition-colors text-white" />
+                      <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider block mb-1.5">Population</label>
+                      <input type="number" value={aiForm.population} onChange={(e) => setAiForm((f) => ({ ...f, population: +e.target.value }))} min={1000} className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-violet-500 transition-colors text-gray-900" />
                     </div>
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-white/50 uppercase tracking-wider block mb-1.5">City Radius (km)</label>
+                    <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider block mb-1.5">City Radius (km)</label>
                     <div className="flex gap-2">
                       {[3, 5, 8, 12].map((r) => (
-                        <button key={r} onClick={() => setAiForm((f) => ({ ...f, radiusKm: r }))} className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${aiForm.radiusKm === r ? 'bg-violet-500/25 border border-violet-400/50 text-violet-300' : 'bg-white/5 border border-white/10 text-white/50 hover:bg-white/10'}`}>{r} km</button>
+                        <button key={r} onClick={() => setAiForm((f) => ({ ...f, radiusKm: r }))} className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${aiForm.radiusKm === r ? 'bg-violet-600 border border-violet-600 text-white shadow-md' : 'bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200'}`}>{r} km</button>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-white/50 uppercase tracking-wider block mb-2">Element Counts</label>
+                    <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider block mb-2">Element Counts</label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         { key: 'houses', label: '🏠 Houses' },
@@ -651,28 +652,28 @@ export function Planner() {
                         { key: 'industrial', label: '🏭 Industrial' },
                         { key: 'roads', label: '🛣️ Roads' },
                       ].map(({ key, label }) => (
-                        <div key={key} className="bg-white/5 border border-white/10 rounded-xl p-2.5">
-                          <div className="text-[10px] text-white/50 mb-1.5">{label}</div>
+                        <div key={key} className="bg-gray-50 border border-gray-200 rounded-xl p-2.5">
+                          <div className="text-[10px] text-gray-600 mb-1.5 font-medium">{label}</div>
                           <div className="flex items-center gap-1.5">
-                            <button onClick={() => setAiForm((f) => ({ ...f, [key]: Math.max(0, f[key] - 1) }))} className="w-6 h-6 rounded-lg bg-white/10 text-white/60 flex items-center justify-center text-sm hover:bg-white/20 transition-colors">−</button>
-                            <span className="flex-1 text-center text-sm font-bold text-white">{aiForm[key]}</span>
-                            <button onClick={() => setAiForm((f) => ({ ...f, [key]: f[key] + 1 }))} className="w-6 h-6 rounded-lg bg-white/10 text-white/60 flex items-center justify-center text-sm hover:bg-white/20 transition-colors">+</button>
+                            <button onClick={() => setAiForm((f) => ({ ...f, [key]: Math.max(0, f[key] - 1) }))} className="w-6 h-6 rounded-lg bg-gray-200 text-gray-700 flex items-center justify-center text-sm hover:bg-gray-300 transition-colors font-bold">−</button>
+                            <span className="flex-1 text-center text-sm font-bold text-gray-900">{aiForm[key]}</span>
+                            <button onClick={() => setAiForm((f) => ({ ...f, [key]: f[key] + 1 }))} className="w-6 h-6 rounded-lg bg-gray-200 text-gray-700 flex items-center justify-center text-sm hover:bg-gray-300 transition-colors font-bold">+</button>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-white/50 uppercase tracking-wider block mb-1.5">Additional Instructions (optional)</label>
-                    <textarea value={aiForm.additionalNotes} onChange={(e) => setAiForm((f) => ({ ...f, additionalNotes: e.target.value }))} placeholder="e.g. Keep industrial zones near the eastern border. Add a university near city center." rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-violet-500/60 transition-colors text-white placeholder-white/20 resize-none" />
+                    <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider block mb-1.5">Additional Instructions (optional)</label>
+                    <textarea value={aiForm.additionalNotes} onChange={(e) => setAiForm((f) => ({ ...f, additionalNotes: e.target.value }))} placeholder="e.g. Keep industrial zones near the eastern border. Add a university near city center." rows={3} className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-violet-500 transition-colors text-gray-900 placeholder-gray-400 resize-none" />
                   </div>
-                  <div className="bg-violet-500/8 border border-violet-500/20 rounded-xl p-3 text-[10px] text-violet-300/70 flex gap-2">
-                    <Bot className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                    <span>AI places elements around the <strong className="text-violet-300">current map center</strong>. Pan the map to your target location first. Existing elements are preserved — you can edit manually afterwards.</span>
+                  <div className="bg-violet-50 border border-violet-200 rounded-xl p-3 text-[11px] text-violet-700 flex gap-2">
+                    <Bot className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-violet-500" />
+                    <span>AI places elements around the <strong className="text-violet-800">current map center</strong>. Pan the map to your target location first. Existing elements are preserved — you can edit manually afterwards.</span>
                   </div>
                   <div className="flex gap-3 pt-1">
-                    <button onClick={() => setShowAiPanel(false)} className="flex-1 py-3 rounded-xl border border-white/10 text-sm font-medium text-white/50 hover:bg-white/5 transition-colors">Cancel</button>
-                    <button onClick={handleAiGenerate} disabled={aiGenerating || !aiForm.cityName.trim()} className="flex-1 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-violet-900/30">
+                    <button onClick={() => setShowAiPanel(false)} className="flex-1 py-3 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Cancel</button>
+                    <button onClick={handleAiGenerate} disabled={aiGenerating || !aiForm.cityName.trim()} className="flex-1 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all shadow-lg shadow-violet-500/30">
                       {aiGenerating ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating…</> : <><Wand2 className="w-4 h-4" /> Generate City</>}
                     </button>
                   </div>
@@ -703,8 +704,8 @@ export function Planner() {
 
       {/* Tool Palette - Left Side */}
       <div className="absolute top-24 left-4 z-[1000] w-56">
-        <div className="bg-black/90 backdrop-blur-xl border border-white/15 rounded-2xl p-4 shadow-2xl">
-          <h3 className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 flex items-center gap-2">
+        <div className="bg-white/95 backdrop-blur-xl border border-gray-200 rounded-2xl p-4 shadow-2xl">
+          <h3 className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
             <GripVertical className="w-3.5 h-3.5" /> Planning Tools
           </h3>
           <div className="space-y-1.5">
@@ -716,14 +717,14 @@ export function Planner() {
                 onClick={() => setActiveTool(activeTool === item.type ? null : item.type)}
                 className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all text-xs ${
                   activeTool === item.type
-                    ? 'bg-cyan-500/20 border border-cyan-500/40 text-white ring-1 ring-cyan-500/30'
-                    : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10'
+                    ? 'bg-cyan-500/20 border border-cyan-500/40 text-gray-900 ring-1 ring-cyan-500/30'
+                    : 'bg-white/5 border border-gray-200 text-gray-700 hover:bg-white/10'
                 }`}
               >
                 <span className="text-base flex-shrink-0">{item.icon}</span>
                 <div className="flex-1">
                   <div className="font-semibold">{item.label}</div>
-                  <div className="text-[10px] text-white/40">{item.desc}</div>
+                  <div className="text-[10px] text-gray-500">{item.desc}</div>
                 </div>
                 {typeCounts[item.type] > 0 && (
                   <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded-full">{typeCounts[item.type]}</span>
@@ -743,8 +744,8 @@ export function Planner() {
           )}
 
           {/* Radius Selector */}
-          <div className="mt-3 pt-3 border-t border-white/10">
-            <h4 className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <h4 className="text-[10px] font-bold text-gray-900/50 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <Shield className="w-3 h-3" /> Evaluation Radius
             </h4>
             <div className="grid grid-cols-3 gap-1">
@@ -755,18 +756,18 @@ export function Planner() {
                   className={`px-2 py-2 rounded-lg text-[10px] font-semibold transition-all ${
                     radius === r
                       ? 'bg-cyan-500/25 border border-cyan-400/50 text-cyan-300 ring-1 ring-cyan-500/30'
-                      : 'bg-white/5 border border-white/10 text-white/50 hover:bg-white/10'
+                      : 'bg-white/5 border border-gray-200 text-gray-900/50 hover:bg-white/10'
                   }`}
                 >
                   {r} km
                 </button>
               ))}
             </div>
-            <p className="text-[9px] text-white/30 mt-1.5">Score adjusts based on radius</p>
+            <p className="text-[9px] text-gray-400 mt-1.5">Score adjusts based on radius</p>
           </div>
 
-          <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
-            <div className="flex gap-2 text-[10px] text-white/50">
+          <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
+            <div className="flex gap-2 text-[10px] text-gray-900/50">
               <span className="bg-white/5 px-2 py-1 rounded">{elements.length} placed</span>
               {analyzing && <span className="px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 flex items-center gap-1"><Loader2 className="w-2.5 h-2.5 animate-spin" />analyzing</span>}
             </div>
@@ -795,25 +796,25 @@ export function Planner() {
                 className={`px-3 py-2 rounded-lg text-[10px] font-semibold disabled:opacity-40 flex items-center justify-center gap-1 transition-all ${
                   deleteMode
                     ? 'bg-red-500/25 border border-red-400/50 text-red-300 ring-1 ring-red-500/30'
-                    : 'bg-white/5 border border-white/10 text-white/60 hover:bg-red-500/10 hover:text-red-300 hover:border-red-500/20'
+                    : 'bg-white/5 border border-gray-200 text-gray-600 hover:bg-red-500/10 hover:text-red-300 hover:border-red-500/20'
                 }`}
               >
                 <Trash2 className="w-3 h-3" /> {deleteMode ? 'Click to Del' : 'Delete'}
               </button>
             </div>
             <div className="grid grid-cols-3 gap-1.5">
-              <button onClick={handleUndoLast} disabled={elements.length === 0} className="px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-amber-500/10 hover:text-amber-300 hover:border-amber-500/20 transition-all">
+              <button onClick={handleUndoLast} disabled={elements.length === 0} className="px-2 py-2 bg-white/5 border border-gray-200 rounded-lg text-[10px] text-gray-600 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-amber-500/10 hover:text-amber-300 hover:border-amber-500/20 transition-all">
                 <Undo2 className="w-3 h-3" /> Undo
               </button>
-              <button onClick={handleClear} disabled={elements.length === 0} className="px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-white/10 transition-all">
+              <button onClick={handleClear} disabled={elements.length === 0} className="px-2 py-2 bg-white/5 border border-gray-200 rounded-lg text-[10px] text-gray-600 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-white/10 transition-all">
                 <RotateCcw className="w-3 h-3" /> Clear
               </button>
-              <button onClick={handleExportGeoJSON} disabled={elements.length === 0} className="px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-white/10 transition-all">
+              <button onClick={handleExportGeoJSON} disabled={elements.length === 0} className="px-2 py-2 bg-white/5 border border-gray-200 rounded-lg text-[10px] text-gray-600 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-white/10 transition-all">
                 <Download className="w-3 h-3" /> Export
               </button>
             </div>
             <div className="grid grid-cols-2 gap-1.5">
-              <label className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 cursor-pointer flex items-center justify-center gap-1 hover:bg-white/10 col-span-2">
+              <label className="px-3 py-2 bg-white/5 border border-gray-200 rounded-lg text-[10px] text-gray-600 cursor-pointer flex items-center justify-center gap-1 hover:bg-white/10 col-span-2">
                 <FileDown className="w-3 h-3" /> Import GeoJSON
                 <input type="file" accept=".geojson,.json" onChange={handleImportGeoJSON} className="hidden" />
               </label>
@@ -826,8 +827,8 @@ export function Planner() {
 
             {/* Line legend */}
             {elements.filter((e) => e.type === 'house').length > 0 && (
-              <div className="mt-2 pt-2 border-t border-white/5">
-                <p className="text-[9px] text-white/40 mb-1.5">Distance Lines</p>
+              <div className="mt-2 pt-2 border-t border-gray-100">
+                <p className="text-[9px] text-gray-500 mb-1.5">Distance Lines</p>
                 <div className="space-y-1">
                   <div className="flex items-center gap-1.5 text-[9px]">
                     <div className="w-4 h-0.5 bg-green-400 rounded" /> <span className="text-green-400">Ideal range</span>
@@ -852,13 +853,13 @@ export function Planner() {
             center={mapCenter}
             zoom={13}
             className="h-full w-full"
-            style={{ background: '#0a0a0f', cursor: activeTool ? 'crosshair' : 'grab' }}
+            style={{ background: '#f4f7f6', cursor: activeTool ? 'crosshair' : 'grab' }}
             zoomControl={false}
             ref={mapRef}
           >
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              attribution={MAP_ATTRIBUTION}
+              url={MAP_TILE_URL}
             />
             <PlacementMode activeTool={deleteMode ? null : activeTool} onPlace={handlePlace} />
 
@@ -941,7 +942,7 @@ export function Planner() {
               animate={{ x: 0 }}
               exit={{ x: 400 }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed top-20 right-0 w-[380px] h-[calc(100vh-5rem)] bg-black/90 backdrop-blur-xl border-l border-white/10 z-[999] overflow-y-auto"
+              className="fixed top-20 right-0 w-[380px] h-[calc(100vh-5rem)] bg-white/95 backdrop-blur-xl border-l border-gray-200 z-[999] overflow-y-auto"
             >
               <div className="p-5">
                 <div className="flex items-center justify-between mb-5">
@@ -949,7 +950,7 @@ export function Planner() {
                     Layout Analysis
                   </h2>
                   <button onClick={() => setShowResults(false)} className="p-1.5 hover:bg-white/10 rounded-lg">
-                    <X className="w-4 h-4 text-white/40" />
+                    <X className="w-4 h-4 text-gray-500" />
                   </button>
                 </div>
 
@@ -960,18 +961,18 @@ export function Planner() {
                   'bg-red-500/10 border-red-500/20'
                 }`}>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-white/50">Planning Score</span>
+                    <span className="text-xs text-gray-900/50">Planning Score</span>
                     {analysis.score >= 75 ? <CheckCircle className="w-5 h-5 text-green-400" /> :
                      analysis.score >= 50 ? <AlertTriangle className="w-5 h-5 text-yellow-400" /> :
                      <AlertTriangle className="w-5 h-5 text-red-400" />}
                   </div>
-                  <div className="text-4xl font-bold mb-1">{analysis.score}<span className="text-lg text-white/40">/100</span></div>
+                  <div className="text-4xl font-bold mb-1">{analysis.score}<span className="text-lg text-gray-500">/100</span></div>
                   <div className={`text-sm font-semibold ${
                     analysis.score >= 75 ? 'text-green-400' :
                     analysis.score >= 50 ? 'text-yellow-400' : 'text-red-400'
                   }`}>{analysis.rating}</div>
                   {analysis.evaluationRadius && (
-                    <div className="mt-1.5 text-[10px] text-white/40 flex items-center gap-1">
+                    <div className="mt-1.5 text-[10px] text-gray-500 flex items-center gap-1">
                       <Shield className="w-3 h-3" /> Evaluated at {analysis.evaluationRadius}km radius
                       {analysis.summary?.elementsOutOfRadius > 0 && (
                         <span className="text-amber-400 ml-1">({analysis.summary.elementsOutOfRadius} outside)</span>
@@ -992,8 +993,8 @@ export function Planner() {
                 </div>
 
                 {/* Summary counts */}
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10 mb-3">
-                  <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3">Elements Placed</h4>
+                <div className="bg-white/5 rounded-xl p-4 border border-gray-200 mb-3">
+                  <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-3">Elements Placed</h4>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     {[
                       { label: 'Houses', count: analysis.summary?.houses || 0, icon: <FaHome /> },
@@ -1006,7 +1007,7 @@ export function Planner() {
                       <div key={s.label} className="bg-white/5 rounded-lg p-2 flex flex-col items-center">
                         <div className="text-sm mb-1">{s.icon}</div>
                         <div className="text-lg font-bold">{s.count}</div>
-                        <div className="text-[9px] text-white/40">{s.label}</div>
+                        <div className="text-[9px] text-gray-500">{s.label}</div>
                       </div>
                     ))}
                   </div>
@@ -1014,12 +1015,12 @@ export function Planner() {
 
                 {/* Strengths */}
                 {analysis.strengths && analysis.strengths.length > 0 && (
-                  <div className="bg-white/5 rounded-xl border border-white/10 mb-3 overflow-hidden">
+                  <div className="bg-white/5 rounded-xl border border-gray-200 mb-3 overflow-hidden">
                     <button onClick={() => toggleSection('strengths')} className="w-full p-3 flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider flex items-center gap-1.5">
+                      <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
                         <CheckCircle className="w-3.5 h-3.5 text-green-400" /> Strengths ({analysis.strengths.length})
                       </h4>
-                      {expandedSection === 'strengths' ? <ChevronUp className="w-3.5 h-3.5 text-white/30" /> : <ChevronDown className="w-3.5 h-3.5 text-white/30" />}
+                      {expandedSection === 'strengths' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
                     </button>
                     {expandedSection === 'strengths' && (
                       <div className="px-3 pb-3 space-y-1.5">
@@ -1035,12 +1036,12 @@ export function Planner() {
 
                 {/* Weaknesses */}
                 {analysis.weaknesses && analysis.weaknesses.length > 0 && (
-                  <div className="bg-white/5 rounded-xl border border-white/10 mb-3 overflow-hidden">
+                  <div className="bg-white/5 rounded-xl border border-gray-200 mb-3 overflow-hidden">
                     <button onClick={() => toggleSection('weaknesses')} className="w-full p-3 flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider flex items-center gap-1.5">
+                      <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
                         <AlertTriangle className="w-3.5 h-3.5 text-red-400" /> Weaknesses ({analysis.weaknesses.length})
                       </h4>
-                      {expandedSection === 'weaknesses' ? <ChevronUp className="w-3.5 h-3.5 text-white/30" /> : <ChevronDown className="w-3.5 h-3.5 text-white/30" />}
+                      {expandedSection === 'weaknesses' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
                     </button>
                     {expandedSection === 'weaknesses' && (
                       <div className="px-3 pb-3 space-y-1.5">
@@ -1057,12 +1058,12 @@ export function Planner() {
                 )}
 
                 {/* Recommendations */}
-                <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+                <div className="bg-white/5 rounded-xl border border-gray-200 overflow-hidden">
                   <button onClick={() => toggleSection('recommendations')} className="w-full p-3 flex items-center justify-between">
-                    <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider flex items-center gap-1.5">
+                    <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
                       <Lightbulb className="w-3.5 h-3.5 text-amber-400" /> Recommendations ({(analysis.recommendations || []).length})
                     </h4>
-                    {expandedSection === 'recommendations' ? <ChevronUp className="w-3.5 h-3.5 text-white/30" /> : <ChevronDown className="w-3.5 h-3.5 text-white/30" />}
+                    {expandedSection === 'recommendations' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
                   </button>
                   {expandedSection === 'recommendations' && (
                     <div className="px-3 pb-3 space-y-1.5">

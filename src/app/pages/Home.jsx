@@ -5,6 +5,7 @@ import L from 'leaflet';
 import { GlassPanel } from '../components/GlassPanel';
 import { Link } from 'react-router';
 import { MapPin, Building2, Route, ArrowRight, Globe2, Search, Compass, PenTool, FileDown, MapPinned, Radio, PencilRuler, BarChart } from 'lucide-react';
+import { MAP_TILE_URL, MAP_ATTRIBUTION } from '../config/mapTiler';
 import 'leaflet/dist/leaflet.css';
 
 // Fix leaflet icons
@@ -86,7 +87,7 @@ export function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {[
             { label: 'Interactive Map', desc: 'Search & explore any area', icon: MapPinned, link: '/dashboard' },
-            { label: 'Live Data', desc: 'Real-time from OpenStreetMap', icon: Radio, link: '/dashboard' },
+            { label: 'Live Data', desc: 'Real-time geospatial data', icon: Radio, link: '/dashboard' },
             { label: 'Drag & Drop', desc: 'Plan your own urban layout', icon: PencilRuler, link: '/planner' },
             { label: 'PDF Reports', desc: 'Download planning analysis', icon: BarChart, link: '/analytics' },
           ].map((stat, index) => {
@@ -117,8 +118,8 @@ export function Home() {
                 scrollWheelZoom={false}
               >
                 <TileLayer
-                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                  attribution='&copy; OpenStreetMap'
+                  url={MAP_TILE_URL}
+                  attribution={MAP_ATTRIBUTION}
                 />
                 <Marker position={[33.6844, 73.0479]}>
                   <Popup><strong>Islamabad</strong><br/>Capital of Pakistan</Popup>
@@ -132,7 +133,7 @@ export function Home() {
               <h3 className="text-2xl font-bold mb-6 text-foreground">How It Works</h3>
               <div className="space-y-6">
                 {[
-                  { step: '1', title: 'Search Any Area', desc: 'Type any location worldwide — the system fetches real data from OpenStreetMap' },
+                  { step: '1', title: 'Search Any Area', desc: 'Type any location worldwide — the system fetches real geospatial data via MapTiler' },
                   { step: '2', title: 'Analyze Infrastructure', desc: 'Automatically detects hospitals, schools, parks, roads and calculates coverage scores' },
                   { step: '3', title: 'Plan & Design', desc: 'Use the drag-and-drop planner to design urban layouts with intelligent recommendations' },
                   { step: '4', title: 'Generate Reports', desc: 'Download professional PDF reports with analysis, gaps, and suggestions' },

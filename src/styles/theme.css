@@ -3,71 +3,76 @@
 :root {
   --font-size: 16px;
   
-  /* Earth-Tone Theme - Cream/Beige Palette */
-  --background: #FFF8F0; /* Soft Cream */
-  --foreground: #2C3E2E; /* Deep Forest Green */
+  /* Earth-Tone Theme - White and Green Palette */
+  --background: #F4F7F6; /* Soft Off-White */
+  --foreground: #1E3B27; /* Deep Forest Green */
   --card: #FFFFFF;
-  --card-foreground: #2C3E2E;
+  --card-foreground: #1E3B27;
   --popover: #FFFFFF;
-  --popover-foreground: #2C3E2E;
+  --popover-foreground: #1E3B27;
   
-  /* Primary - Warm Olive Green */
-  --primary: #4A6741;
-  --primary-foreground: #FFF8F0;
+  /* Primary - Earth Green */
+  --primary: #27AE60;
+  --primary-foreground: #FFFFFF;
   
-  /* Secondary - Light Cream */
-  --secondary: #F5EFE6;
-  --secondary-foreground: #2C3E2E;
+  /* Secondary - Light Green */
+  --secondary: #E8F5E9;
+  --secondary-foreground: #1E3B27;
   
-  /* Muted - Subtle Beige */
-  --muted: #F0EAE0;
-  --muted-foreground: #6B7566;
+  /* Muted - Very Light Gray/Green */
+  --muted: #E0E7E3;
+  --muted-foreground: #4A5A48;
   
-  /* Accent - Warm Amber */
-  --accent: #C9A961;
-  --accent-foreground: #2C3E2E;
+  /* Accent - Leaf Green */
+  --accent: #2ECC71;
+  --accent-foreground: #FFFFFF;
   
   /* Destructive */
-  --destructive: #C85A54;
+  --destructive: #E74C3C;
   --destructive-foreground: #FFFFFF;
   
   /* Borders & Inputs */
-  --border: #E8DFD0;
+  --border: #D1DED5;
   --input: transparent;
   --input-background: #FFFFFF;
-  --switch-background: #D9D0C0;
+  --switch-background: #B4C6BC;
   
   /* Typography */
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   
   /* Ring */
-  --ring: #4A6741;
+  --ring: #27AE60;
   
   /* Chart Colors - Earth Tones */
-  --chart-1: #4A6741;
-  --chart-2: #5A8F4F;
-  --chart-3: #C9A961;
-  --chart-4: #6B9BD1;
-  --chart-5: #7A8075;
+  --chart-1: #27AE60;
+  --chart-2: #2ECC71;
+  --chart-3: #82E0AA;
+  --chart-4: #F1C40F;
+  --chart-5: #3498DB;
   
   /* Map-specific Colors */
-  --water: #6B9BD1;
-  --vegetation: #5A8F4F;
-  --roads: #7A8075;
+  --water: #3498DB;
+  --vegetation: #27AE60;
+  --roads: #95A5A6;
   
   /* Radius */
   --radius: 0.625rem;
   
-  /* Sidebar - Warm Olive */
-  --sidebar: #4A6741;
-  --sidebar-foreground: #FFF8F0;
-  --sidebar-primary: #3D5536;
-  --sidebar-primary-foreground: #FFF8F0;
-  --sidebar-accent: #C9A961;
-  --sidebar-accent-foreground: #2C3E2E;
-  --sidebar-border: #3D5536;
-  --sidebar-ring: #C9A961;
+  /* Sidebar - Green */
+  --sidebar: #1E3B27;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #27AE60;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #2ECC71;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #2E4E36;
+  --sidebar-ring: #27AE60;
+
+  /* Magic fix for all hardcoded text-white and bg-white/5 in light mode */
+  /* We map white to a deep dark green so frosted glass effects look like dark shadows instead of disappearing */
+  --base-white: #064E3B; 
+  --base-black: #FFFFFF;
 }
 
 .dark {
@@ -127,11 +132,15 @@
   --sidebar-primary-foreground: #F5F1E8;
   --sidebar-accent: #C9A961;
   --sidebar-accent-foreground: #2C3E2E;
-  --sidebar-border: #3D5536;
   --sidebar-ring: #5A7A51;
+  
+  --base-white: #ffffff;
+  --base-black: #000000;
 }
 
 @theme inline {
+  --color-white: var(--base-white);
+  --color-black: var(--base-black);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

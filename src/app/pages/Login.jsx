@@ -54,7 +54,7 @@ export function Login() {
                 <Globe2 className="w-8 h-8 text-cyan-400" />
               </div>
               <h2 className="text-2xl font-bold">{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
-              <p className="text-sm text-white/50 mt-2">
+              <p className="text-sm text-gray-900/50 mt-2">
                 {isLogin ? 'Sign in to UrbanPulse Intelligence' : 'Join the UrbanPulse platform'}
               </p>
             </div>
@@ -74,14 +74,14 @@ export function Login() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
                 <div>
-                  <label className="text-xs text-white/60 mb-1.5 block">Full Name</label>
+                  <label className="text-xs text-gray-600 mb-1.5 block">Full Name</label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-3 text-sm focus:outline-none focus:border-cyan-500/50 transition-colors placeholder:text-white/30"
+                      className="w-full bg-white/5 border border-gray-200 rounded-xl px-10 py-3 text-sm focus:outline-none focus:border-cyan-500/50 transition-colors placeholder:text-gray-400"
                       placeholder="Enter your name"
                       required={!isLogin}
                     />
@@ -90,14 +90,14 @@ export function Login() {
               )}
 
               <div>
-                <label className="text-xs text-white/60 mb-1.5 block">Email Address</label>
+                <label className="text-xs text-gray-600 mb-1.5 block">Email Address</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-3 text-sm focus:outline-none focus:border-cyan-500/50 transition-colors placeholder:text-white/30"
+                    className="w-full bg-white/5 border border-gray-200 rounded-xl px-10 py-3 text-sm focus:outline-none focus:border-cyan-500/50 transition-colors placeholder:text-gray-400"
                     placeholder="you@example.com"
                     required
                   />
@@ -105,14 +105,14 @@ export function Login() {
               </div>
 
               <div>
-                <label className="text-xs text-white/60 mb-1.5 block">Password</label>
+                <label className="text-xs text-gray-600 mb-1.5 block">Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <input
                     type="password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-3 text-sm focus:outline-none focus:border-cyan-500/50 transition-colors placeholder:text-white/30"
+                    className="w-full bg-white/5 border border-gray-200 rounded-xl px-10 py-3 text-sm focus:outline-none focus:border-cyan-500/50 transition-colors placeholder:text-gray-400"
                     placeholder="••••••••"
                     required
                   />
@@ -121,11 +121,11 @@ export function Login() {
 
               {!isLogin && (
                 <div>
-                  <label className="text-xs text-white/60 mb-1.5 block">Role</label>
+                  <label className="text-xs text-gray-600 mb-1.5 block">Role</label>
                   <select
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500/50 transition-colors"
+                    className="w-full bg-white/5 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500/50 transition-colors"
                   >
                     <option value="viewer" className="bg-gray-900">Viewer</option>
                     <option value="planner" className="bg-gray-900">Planner</option>
@@ -139,10 +139,10 @@ export function Login() {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl text-white font-semibold flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl text-gray-900 font-semibold flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
-                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full" />
                 ) : (
                   <>
                     {isLogin ? <LogIn className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
@@ -163,9 +163,9 @@ export function Login() {
             </div>
 
             {/* Demo credentials */}
-            <div className="mt-6 pt-6 border-t border-white/10">
-              <p className="text-xs text-white/40 text-center mb-3">Demo Credentials</p>
-              <div className="space-y-1.5 text-xs text-white/50">
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <p className="text-xs text-gray-500 text-center mb-3">Demo Credentials</p>
+              <div className="space-y-1.5 text-xs text-gray-900/50">
                 <div className="flex justify-between px-2 py-1 bg-white/5 rounded-lg">
                   <span>Admin: admin@urbanpulse.pk</span>
                   <span>admin123</span>

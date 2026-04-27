@@ -19,7 +19,7 @@ export const searchArea = async (req, res, next) => {
   }
 };
 
-// @desc    Get nearby places from OpenStreetMap
+// @desc    Get nearby places via Overpass API
 // @route   GET /api/maps/nearby-places?lat=33.7&lng=73.05&radius=5000&type=hospital
 export const nearbyPlaces = async (req, res, next) => {
   try {
@@ -51,7 +51,7 @@ export const roads = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please provide lat and lng' });
     }
     const roadData = await osmService.getRoads(parseFloat(lat), parseFloat(lng), parseInt(radius));
-    res.json({ success: true, count: roadData.length, data: roadData });
+    res.json({ success: true, count: roadData?.length || 0, data: roadData || [] });
   } catch (error) {
     next(error);
   }
@@ -134,7 +134,7 @@ export const analyzeSelectedArea = async (req, res, next) => {
     }
 
     // Run analysis
-    const analysis = analyzeArea(places, parsedLat, parsedLng, parsedRadius / 1000, roadData.length);
+    const analysis = analyzeArea(places, parsedLat, parsedLng, parsedRadius / 1000, roadData?.length || 0);
     console.log(`[Maps/Analyze] Score: ${analysis.score}/100 (${analysis.rating})`);
 
     res.json({
@@ -143,8 +143,8 @@ export const analyzeSelectedArea = async (req, res, next) => {
         areaName,
         analysis,
         places,
-        roads: roadData,
-        roadCount: roadData.length,
+        roads: roadData || [],
+        roadCount: roadData?.length || 0,
       },
     });
   } catch (error) {

@@ -5,6 +5,7 @@ import { GlassPanel } from '../components/GlassPanel';
 import { Map, Search, Loader2, Save, Trash2, X, Download, ChevronDown, ChevronUp, MapPin, Layers, Database, CheckCircle2 } from 'lucide-react';
 import mapsApi from '../services/mapsApi';
 import { useAuth } from '../context/AuthContext';
+import { MAP_TILE_URL, MAP_ATTRIBUTION } from '../config/mapTiler';
 import 'leaflet/dist/leaflet.css';
 
 const ZONE_COLORS = {
@@ -204,7 +205,7 @@ export function Zones() {
   }, [activeTab, osmZones, savedZones]);
 
   return (
-    <div className="h-screen pt-16 relative flex flex-col" style={{ background: '#0a0a0f' }}>
+    <div className="h-screen pt-16 relative flex flex-col" style={{ background: '#f4f7f6' }}>
       {/* Toast */}
       <AnimatePresence>
         {toast && (
@@ -234,7 +235,7 @@ export function Zones() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="Search city for major zones..."
-              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-cyan-500/50 transition-colors"
+              className="flex-1 bg-white/5 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-cyan-500/50 transition-colors"
             />
             <button
               onClick={handleSearch}
@@ -258,12 +259,12 @@ export function Zones() {
           center={mapCenter}
           zoom={mapZoom}
           className="h-full w-full"
-          style={{ background: '#0a0a0f' }}
+          style={{ background: '#f4f7f6' }}
           zoomControl={false}
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            attribution={MAP_ATTRIBUTION}
+            url={MAP_TILE_URL}
           />
           <FlyToLocation center={mapCenter} zoom={mapZoom} />
 
@@ -316,11 +317,11 @@ export function Zones() {
         
         {/* Controls Row */}
         <div className="flex items-center justify-between">
-          <div className="flex gap-2 bg-black/80 backdrop-blur-md p-1.5 rounded-2xl border border-white/10 shadow-lg">
+          <div className="flex gap-2 bg-white/90 backdrop-blur-md p-1.5 rounded-2xl border border-gray-200 shadow-lg">
             <button
               onClick={() => setActiveTab('osm')}
               className={`px-4 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
-                activeTab === 'osm' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'text-white/50 hover:text-white/80'
+                activeTab === 'osm' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'text-gray-900/50 hover:text-gray-800'
               }`}
             >
               <Layers className="w-3.5 h-3.5" /> Live OSM ({osmZones.length})
@@ -328,7 +329,7 @@ export function Zones() {
             <button
               onClick={() => setActiveTab('saved')}
               className={`px-4 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
-                activeTab === 'saved' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-white/50 hover:text-white/80'
+                activeTab === 'saved' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-gray-900/50 hover:text-gray-800'
               }`}
             >
               <Database className="w-3.5 h-3.5" /> Saved DB ({savedZones.length})
@@ -339,7 +340,7 @@ export function Zones() {
             <button
               onClick={handleSaveAll}
               disabled={savingAll || osmZones.every(z => z.alreadySaved)}
-              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl text-xs font-bold text-white shadow-lg border border-white/10 disabled:opacity-50 flex items-center gap-2 hover:shadow-cyan-500/20 transition-all"
+              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl text-xs font-bold text-gray-900 shadow-lg border border-gray-200 disabled:opacity-50 flex items-center gap-2 hover:shadow-cyan-500/20 transition-all"
             >
               {savingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save All to DB
@@ -348,9 +349,9 @@ export function Zones() {
         </div>
 
         {/* Horizontal Tiles Container */}
-        <div className="w-full bg-black/60 backdrop-blur-xl border border-white/15 rounded-2xl shadow-2xl p-4 overflow-x-auto">
+        <div className="w-full bg-white/80 backdrop-blur-xl border border-gray-200 rounded-2xl shadow-2xl p-4 overflow-x-auto">
           {displayZones.length === 0 ? (
-            <div className="py-6 text-center text-white/40 flex flex-col items-center justify-center">
+            <div className="py-6 text-center text-gray-500 flex flex-col items-center justify-center">
               {activeTab === 'osm' ? (
                 <>
                   <MapPin className="w-6 h-6 mb-2 opacity-50" />
@@ -387,8 +388,8 @@ export function Zones() {
                     }}
                     className={`shrink-0 w-64 p-3 rounded-xl border transition-all cursor-pointer ${
                       isSelected 
-                        ? 'bg-white/10 border-white/30 shadow-lg' 
-                        : 'bg-white/5 border-white/10 hover:bg-white/10'
+                        ? 'bg-white/10 border-gray-300/30 shadow-lg' 
+                        : 'bg-white/5 border-gray-200 hover:bg-white/10'
                     }`}
                   >
                     <div className="flex justify-between items-start mb-2">
@@ -432,8 +433,8 @@ export function Zones() {
                       )}
                     </div>
                     
-                    <h4 className="text-sm font-semibold text-white/90 truncate mb-1" title={zone.name}>{zone.name}</h4>
-                    <div className="flex items-center gap-3 text-[11px] text-white/50">
+                    <h4 className="text-sm font-semibold text-gray-900/90 truncate mb-1" title={zone.name}>{zone.name}</h4>
+                    <div className="flex items-center gap-3 text-[11px] text-gray-900/50">
                       {zone.area_sqkm > 0 && <span>{zone.area_sqkm} km²</span>}
                       {zone.admin_level && <span>Level {zone.admin_level}</span>}
                     </div>

@@ -103,7 +103,7 @@ export function CompareAreas() {
     } catch (err) { console.error(err); }
   };
 
-  if (!user) return <div className="min-h-screen pt-28 pb-20 px-8 text-center"><p className="text-white/50">Please login</p></div>;
+  if (!user) return <div className="min-h-screen pt-28 pb-20 px-8 text-center"><p className="text-gray-900/50">Please login</p></div>;
 
   return (
     <div 
@@ -141,18 +141,18 @@ export function CompareAreas() {
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-300 to-teal-400 bg-clip-text text-transparent">Compare Areas</h1>
-            <p className="text-white/50 mt-2">Side-by-side analysis of multiple areas</p>
+            <p className="text-gray-900/50 mt-2">Side-by-side analysis of multiple areas</p>
           </motion.div>
 
           {/* Create Comparison */}
           <GlassPanel>
             <div className="p-6">
-              <h3 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-4">New Comparison</h3>
+              <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4">New Comparison</h3>
               <input 
                 value={compName} 
                 onChange={(e) => setCompName(e.target.value)} 
                 placeholder="Comparison name (optional)" 
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-teal-500/50" 
+                className="w-full bg-white/5 border border-gray-200 rounded-xl px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-teal-500/50" 
               />
               {areas.length > 0 ? (
                 <div className="flex flex-wrap gap-2 mb-4">
@@ -160,13 +160,13 @@ export function CompareAreas() {
                     <button 
                       key={area._id} 
                       onClick={() => toggleArea(area._id)}
-                      className={`px-3 py-1.5 rounded-full text-xs border transition-all duration-300 ${selectedAreas.includes(area._id) ? 'bg-teal-500/20 border-teal-500/50 text-teal-300 shadow-[0_0_10px_rgba(20,184,166,0.3)]' : 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10'}`}>
+                      className={`px-3 py-1.5 rounded-full text-xs border transition-all duration-300 ${selectedAreas.includes(area._id) ? 'bg-teal-500/20 border-teal-500/50 text-teal-300 shadow-[0_0_10px_rgba(20,184,166,0.3)]' : 'bg-white/5 border-gray-200 text-gray-900/50 hover:bg-white/10'}`}>
                       {area.area_name} {area.last_analysis_score != null && `(${area.last_analysis_score})`}
                     </button>
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-white/30 mb-4">Search areas on the Dashboard first to compare them.</p>
+                <p className="text-xs text-gray-400 mb-4">Search areas on the Dashboard first to compare them.</p>
               )}
               <button 
                 onClick={handleCompare} 
@@ -183,16 +183,16 @@ export function CompareAreas() {
             <div className="text-center py-10"><Loader2 className="w-6 h-6 text-teal-400 mx-auto animate-spin" /></div>
           ) : comparisons.length > 0 && (
             <div className="mt-6 space-y-4">
-              <h3 className="text-sm font-bold text-white/40 uppercase tracking-wider">Previous Comparisons</h3>
+              <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Previous Comparisons</h3>
               {comparisons.map((comp) => (
                 <GlassPanel key={comp._id}>
                   <div className="p-5">
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-white/90">{comp.name}</h4>
+                      <h4 className="font-semibold text-gray-900/90">{comp.name}</h4>
                       <div className="flex items-center gap-2">
                         <button 
                           onClick={() => setExpandedComp(expandedComp === comp._id ? null : comp._id)} 
-                          className="text-white/40 hover:bg-white/10 p-1 rounded">
+                          className="text-gray-500 hover:bg-white/10 p-1 rounded">
                           {expandedComp === comp._id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                         </button>
                         <button 
@@ -206,7 +206,7 @@ export function CompareAreas() {
                       {comp.areas?.map((area, idx) => (
                         <div 
                           key={area.area_id} 
-                          className={`p-3 rounded-xl border relative overflow-hidden transition-all duration-300 ${area.area_id === comp.winner_area_id?.toString() ? 'bg-emerald-500/10 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-white/10'}`}>
+                          className={`p-3 rounded-xl border relative overflow-hidden transition-all duration-300 ${area.area_id === comp.winner_area_id?.toString() ? 'bg-emerald-500/10 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-gray-200'}`}>
                           <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
                           <div className="flex items-center gap-1 mb-1 pl-2">
                             {area.area_id === comp.winner_area_id?.toString() && <Trophy className="w-4 h-4 text-amber-400 drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]" />}
@@ -224,7 +224,7 @@ export function CompareAreas() {
                           initial={{ height: 0, opacity: 0 }} 
                           animate={{ height: 'auto', opacity: 1 }} 
                           exit={{ height: 0, opacity: 0 }} 
-                          className="overflow-hidden border-t border-white/10 pt-4 mt-2">
+                          className="overflow-hidden border-t border-gray-200 pt-4 mt-2">
                           
                           {/* Winner Explanation */}
                           {comp.winner_explanation && (
@@ -238,7 +238,7 @@ export function CompareAreas() {
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                             {/* Radar Chart */}
-                            <div className="h-64 bg-black/40 rounded-xl border border-white/5 p-2">
+                            <div className="h-64 bg-white/60 rounded-xl border border-gray-100 p-2">
                               <ResponsiveContainer width="100%" height="100%">
                                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={formatChartData(comp)}>
                                   <PolarGrid stroke="#333" />
@@ -260,7 +260,7 @@ export function CompareAreas() {
                             </div>
                             
                             {/* Bar Chart */}
-                            <div className="h-64 bg-black/40 rounded-xl border border-white/5 p-2">
+                            <div className="h-64 bg-white/60 rounded-xl border border-gray-100 p-2">
                               <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={formatChartData(comp)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                   <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
@@ -281,8 +281,8 @@ export function CompareAreas() {
 
                           {/* Difference Analysis / Metric Breakdown */}
                           {comp.difference_analysis && (
-                            <div className="bg-black/40 rounded-xl border border-white/5 p-4">
-                              <h5 className="font-semibold text-white/80 flex items-center gap-2 mb-3 text-sm">
+                            <div className="bg-white/60 rounded-xl border border-gray-100 p-4">
+                              <h5 className="font-semibold text-gray-800 flex items-center gap-2 mb-3 text-sm">
                                 <BarChart3 className="w-4 h-4 text-cyan-400" /> Metric Breakdown
                               </h5>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -292,18 +292,18 @@ export function CompareAreas() {
                                   };
                                   const displayName = metricNames[metric] || metric;
                                   return (
-                                    <div key={metric} className="flex items-center justify-between p-2.5 bg-white/5 rounded-lg border border-white/10">
-                                      <span className="text-xs font-medium text-white/70 capitalize w-24">{displayName}</span>
+                                    <div key={metric} className="flex items-center justify-between p-2.5 bg-white/5 rounded-lg border border-gray-200">
+                                      <span className="text-xs font-medium text-gray-700 capitalize w-24">{displayName}</span>
                                       <div className="flex-1 flex items-center justify-end gap-2">
                                         {diff.leader !== 'Tie' ? (
                                           <>
-                                            <span className="text-xs text-white/90 truncate max-w-[100px]">{diff.leader}</span>
+                                            <span className="text-xs text-gray-900/90 truncate max-w-[100px]">{diff.leader}</span>
                                             <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-green-500/20 text-green-400 flex items-center font-bold">
                                               <ArrowUpRight className="w-3 h-3 mr-0.5" /> {diff.delta.toFixed(1)}
                                             </span>
                                           </>
                                         ) : (
-                                          <span className="text-xs text-white/50 flex items-center gap-1">
+                                          <span className="text-xs text-gray-900/50 flex items-center gap-1">
                                             <Minus className="w-3 h-3" /> Tie
                                           </span>
                                         )}

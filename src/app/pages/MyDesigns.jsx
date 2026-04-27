@@ -49,7 +49,7 @@ export function MyDesigns() {
   if (!user) {
     return (
       <div className="min-h-screen pt-28 pb-20 px-8 text-center">
-        <p className="text-white/50">Please login to view your designs</p>
+        <p className="text-gray-900/50">Please login to view your designs</p>
       </div>
     );
   }
@@ -73,7 +73,7 @@ export function MyDesigns() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-300 to-pink-400 bg-clip-text text-transparent">
             My Designs
           </h1>
-          <p className="text-white/50 mt-2">Your saved urban planning layouts</p>
+          <p className="text-gray-900/50 mt-2">Your saved urban planning layouts</p>
         </motion.div>
 
         {loading ? (
@@ -83,9 +83,9 @@ export function MyDesigns() {
         ) : designs.length === 0 ? (
           <GlassPanel>
             <div className="text-center py-16">
-              <PenTool className="w-12 h-12 text-white/20 mx-auto mb-4" />
-              <p className="text-white/40">No saved designs yet</p>
-              <p className="text-white/30 text-sm mt-1">Create a layout in the Planner and save it</p>
+              <PenTool className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">No saved designs yet</p>
+              <p className="text-gray-400 text-sm mt-1">Create a layout in the Planner and save it</p>
               <button onClick={() => navigate('/planner')} className="mt-4 px-6 py-2 bg-purple-500/20 border border-purple-500/30 rounded-xl text-purple-400 text-sm hover:bg-purple-500/30 transition-colors">
                 Open Planner
               </button>
@@ -106,19 +106,19 @@ export function MyDesigns() {
                     <div className="p-5">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-white/90 truncate flex items-center gap-2">
+                          <h3 className="font-semibold text-gray-900/90 truncate flex items-center gap-2">
                             <PenTool className="w-4 h-4 text-purple-400 flex-shrink-0" />
                             {design.design_name}
                           </h3>
                         </div>
                         {design.evaluation_score != null && (
                           <div className={`text-xl font-bold ml-2 ${design.evaluation_score >= 70 ? 'text-green-400' : design.evaluation_score >= 50 ? 'text-yellow-400' : 'text-red-400'}`}>
-                            {design.evaluation_score}<span className="text-xs text-white/30">/100</span>
+                            {design.evaluation_score}<span className="text-xs text-gray-400">/100</span>
                           </div>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-3 text-xs text-white/40 mb-4">
+                      <div className="flex items-center gap-3 text-xs text-gray-500 mb-4">
                         <span className="flex items-center gap-1"><Hash className="w-3 h-3" />{design.element_count} elements</span>
                         <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(design.created_at).toLocaleDateString()}</span>
                       </div>

@@ -99,14 +99,14 @@ export function SystemStatus() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
               System Status
             </h1>
-            <p className="text-white/50 mt-2">Database collections, server health, and activity monitoring</p>
+            <p className="text-gray-900/50 mt-2">Database collections, server health, and activity monitoring</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleRefresh}
             disabled={refreshing}
-            className="px-4 py-2.5 bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl text-sm text-white/70 flex items-center gap-2 transition-colors"
+            className="px-4 py-2.5 bg-white/10 hover:bg-white/15 border border-gray-200 rounded-xl text-sm text-gray-700 flex items-center gap-2 transition-colors"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
@@ -121,7 +121,7 @@ export function SystemStatus() {
                 <CheckCircle className="w-6 h-6 text-green-400" />
               </div>
               <div>
-                <p className="text-xs text-white/40">Server Status</p>
+                <p className="text-xs text-gray-500">Server Status</p>
                 <p className="text-lg font-bold text-green-400">{health?.success ? 'Online' : 'Offline'}</p>
               </div>
             </div>
@@ -133,7 +133,7 @@ export function SystemStatus() {
                 <Database className="w-6 h-6 text-cyan-400" />
               </div>
               <div>
-                <p className="text-xs text-white/40">Database</p>
+                <p className="text-xs text-gray-500">Database</p>
                 <p className="text-lg font-bold">{stats?.dbName || 'urbanpulse'}</p>
               </div>
             </div>
@@ -145,7 +145,7 @@ export function SystemStatus() {
                 <Layers className="w-6 h-6 text-purple-400" />
               </div>
               <div>
-                <p className="text-xs text-white/40">Collections</p>
+                <p className="text-xs text-gray-500">Collections</p>
                 <p className="text-lg font-bold">{stats?.totalCollections || 0}</p>
               </div>
             </div>
@@ -157,7 +157,7 @@ export function SystemStatus() {
                 <HardDrive className="w-6 h-6 text-amber-400" />
               </div>
               <div>
-                <p className="text-xs text-white/40">Total Documents</p>
+                <p className="text-xs text-gray-500">Total Documents</p>
                 <p className="text-lg font-bold">{totalDocs.toLocaleString()}</p>
               </div>
             </div>
@@ -169,9 +169,9 @@ export function SystemStatus() {
                 <Activity className="w-6 h-6 text-blue-400" />
               </div>
               <div>
-                <p className="text-xs text-white/40">Memory & Uptime</p>
+                <p className="text-xs text-gray-500">Memory & Uptime</p>
                 <p className="text-lg font-bold">
-                  {health?.memoryMB ? `${health.memoryMB}MB` : 'N/A'} <span className="text-sm font-normal text-white/50">({health?.uptime ? `${Math.floor(health.uptime / 60)}m` : '0m'})</span>
+                  {health?.memoryMB ? `${health.memoryMB}MB` : 'N/A'} <span className="text-sm font-normal text-gray-900/50">({health?.uptime ? `${Math.floor(health.uptime / 60)}m` : '0m'})</span>
                 </p>
               </div>
             </div>
@@ -180,7 +180,7 @@ export function SystemStatus() {
 
         {/* Collection Grid */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-          <h2 className="text-lg font-bold mb-4 text-white/70">Collection Details</h2>
+          <h2 className="text-lg font-bold mb-4 text-gray-700">Collection Details</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-8">
             {stats?.counts && Object.entries(stats.counts).sort((a, b) => b[1] - a[1]).map(([name, count], i) => {
               const meta = COLLECTION_META[name] || { icon: Database, color: '#6b7280', label: name };
@@ -198,7 +198,7 @@ export function SystemStatus() {
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: meta.color + '15' }}>
                           <Icon className="w-4 h-4" style={{ color: meta.color }} />
                         </div>
-                        <span className="text-xs text-white/50 truncate">{meta.label}</span>
+                        <span className="text-xs text-gray-900/50 truncate">{meta.label}</span>
                       </div>
                       <div className="text-2xl font-bold">{count.toLocaleString()}</div>
                       <div className="mt-2 h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -222,7 +222,7 @@ export function SystemStatus() {
         {activityFeed.length > 0 && (
           <GlassPanel>
             <div className="p-5">
-              <h3 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Activity className="w-4 h-4 text-cyan-400" /> Recent Activity
               </h3>
               <div className="space-y-2 max-h-80 overflow-y-auto">
@@ -232,8 +232,8 @@ export function SystemStatus() {
                       <Activity className="w-3.5 h-3.5 text-cyan-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white/70 truncate">{a.action?.replace(/_/g, ' ')}</p>
-                      <p className="text-white/30">{a.resource_type} • {new Date(a.createdAt || a.created_at).toLocaleString()}</p>
+                      <p className="text-gray-700 truncate">{a.action?.replace(/_/g, ' ')}</p>
+                      <p className="text-gray-400">{a.resource_type} • {new Date(a.createdAt || a.created_at).toLocaleString()}</p>
                     </div>
                   </div>
                 ))}
@@ -244,7 +244,7 @@ export function SystemStatus() {
 
         {/* API Version Info */}
         <div className="mt-6 text-center">
-          <p className="text-xs text-white/20">
+          <p className="text-xs text-gray-300">
             UrbanPulse API v{health?.version || '2.0'} • {stats?.totalCollections || 18} collections • Last refreshed {new Date().toLocaleTimeString()}
           </p>
         </div>

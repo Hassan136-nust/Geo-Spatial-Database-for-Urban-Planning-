@@ -211,22 +211,22 @@ export function Earth({ scrollRotation, onRotationChange }) {
 
               {isMarkerActive && (
                 <Html distanceFactor={10} center zIndexRange={[100, 0]}>
-                  <div className="bg-black/80 backdrop-blur-md border border-cyan-500/50 rounded-lg p-3 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)] pointer-events-none w-48 transition-all duration-300">
+                  <div className="bg-white/90 backdrop-blur-md border border-cyan-500/50 rounded-lg p-3 text-gray-900 shadow-[0_0_15px_rgba(6,182,212,0.3)] pointer-events-none w-48 transition-all duration-300">
                     <div className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-1">{marker.name}</div>
-                    <div className="flex justify-between items-center text-[10px] text-white/70">
+                    <div className="flex justify-between items-center text-[10px] text-gray-700">
                       <span className="capitalize">{marker.type}</span>
                       <span className={`${marker.status === 'operational' ? 'text-green-400' : 'text-amber-400'}`}>
                         {marker.status || 'Active'}
                       </span>
                     </div>
                     {(marker.capacity || marker.service_radius_km) && (
-                      <div className="mt-2 pt-2 border-t border-white/10 grid grid-cols-2 gap-2 text-[9px]">
+                      <div className="mt-2 pt-2 border-t border-gray-200 grid grid-cols-2 gap-2 text-[9px]">
                         <div>
-                          <div className="text-white/40">CAPACITY</div>
+                          <div className="text-gray-500">CAPACITY</div>
                           <div>{marker.capacity || 'N/A'}</div>
                         </div>
                         <div>
-                          <div className="text-white/40">RADIUS</div>
+                          <div className="text-gray-500">RADIUS</div>
                           <div>{marker.service_radius_km ? `${marker.service_radius_km}km` : 'N/A'}</div>
                         </div>
                       </div>

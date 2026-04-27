@@ -43,7 +43,7 @@ async function seedDatabase() {
     console.log(`   Users:      ${users.length}`);
     console.log('═══════════════════════════════════════════════');
     console.log('📝 Note: The MERN dynamic engine now fetches, caches,');
-    console.log('         and dynamically saves map data from OpenStreetMap.');
+    console.log('         and dynamically saves map data via MapTiler + Overpass.');
     console.log('         Legacy static mock records are removed.');
     console.log('═══════════════════════════════════════════════');
     console.log('');

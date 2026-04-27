@@ -27,7 +27,7 @@ export function Scene() {
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.2,
         }}
-        style={{ background: '#000000' }}
+        style={{ background: '#f4f7f6' }}
       >
         <Suspense fallback={null}>
           {/* Camera */}

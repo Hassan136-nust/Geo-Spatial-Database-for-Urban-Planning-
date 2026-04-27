@@ -19,9 +19,9 @@ export function Profile() {
       <div className="min-h-screen pt-32 flex items-center justify-center">
         <GlassPanel>
           <div className="p-8 text-center">
-            <UserCircle className="w-16 h-16 mx-auto mb-4 text-white/30" />
+            <UserCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
             <h2 className="text-xl font-bold mb-2">Not Logged In</h2>
-            <p className="text-white/50 text-sm">Please sign in to view your profile.</p>
+            <p className="text-gray-900/50 text-sm">Please sign in to view your profile.</p>
           </div>
         </GlassPanel>
       </div>
@@ -60,7 +60,7 @@ export function Profile() {
       <div className="max-w-3xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <h1 className="text-5xl font-bold mb-3 bg-gradient-to-r from-white via-green-100 to-emerald-200 bg-clip-text text-transparent">Profile</h1>
-          <p className="text-lg text-white/50">Manage your account settings</p>
+          <p className="text-lg text-gray-900/50">Manage your account settings</p>
         </motion.div>
 
         {/* User Info */}
@@ -73,7 +73,7 @@ export function Profile() {
               <div>
                 <h2 className="text-xl font-bold">{user.name}</h2>
                 <div className="flex items-center gap-3 mt-1">
-                  <span className="text-sm text-white/50">{user.email}</span>
+                  <span className="text-sm text-gray-900/50">{user.email}</span>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${roleColors[user.role] || roleColors.viewer}`}>{user.role}</span>
                 </div>
               </div>
@@ -81,15 +81,15 @@ export function Profile() {
 
             <form onSubmit={handleSaveProfile} className="space-y-4">
               <div>
-                <label className="text-xs text-white/60 mb-1 block">Name</label>
-                <div className="relative"><UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-3 text-sm focus:outline-none focus:border-cyan-500/50" />
+                <label className="text-xs text-gray-600 mb-1 block">Name</label>
+                <div className="relative"><UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-white/5 border border-gray-200 rounded-xl px-10 py-3 text-sm focus:outline-none focus:border-cyan-500/50" />
                 </div>
               </div>
               <div>
-                <label className="text-xs text-white/60 mb-1 block">Email</label>
-                <div className="relative"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-3 text-sm focus:outline-none focus:border-cyan-500/50" />
+                <label className="text-xs text-gray-600 mb-1 block">Email</label>
+                <div className="relative"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white/5 border border-gray-200 rounded-xl px-10 py-3 text-sm focus:outline-none focus:border-cyan-500/50" />
                 </div>
               </div>
               {message && <p className={`text-sm ${message.includes('updated') ? 'text-green-400' : 'text-red-400'}`}>{message}</p>}
@@ -106,10 +106,10 @@ export function Profile() {
             <div className="p-6">
               <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Lock className="w-5 h-5 text-amber-400" /> Change Password</h3>
               <form onSubmit={handleChangePassword} className="space-y-4">
-                <input type="password" placeholder="Current Password" value={passwordData.currentPassword} onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50" required />
+                <input type="password" placeholder="Current Password" value={passwordData.currentPassword} onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })} className="w-full bg-white/5 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50" required />
                 <div className="grid grid-cols-2 gap-3">
-                  <input type="password" placeholder="New Password" value={passwordData.newPassword} onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })} className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50" required />
-                  <input type="password" placeholder="Confirm Password" value={passwordData.confirmPassword} onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })} className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50" required />
+                  <input type="password" placeholder="New Password" value={passwordData.newPassword} onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })} className="bg-white/5 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50" required />
+                  <input type="password" placeholder="Confirm Password" value={passwordData.confirmPassword} onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })} className="bg-white/5 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50" required />
                 </div>
                 {passwordMsg && <p className={`text-sm ${passwordMsg.includes('success') ? 'text-green-400' : 'text-red-400'}`}>{passwordMsg}</p>}
                 <button type="submit" className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl text-sm font-semibold flex items-center gap-2">

@@ -174,7 +174,7 @@ export function Navigation() {
               >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive rounded-full text-[9px] font-bold flex items-center justify-center text-white">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive rounded-full text-[9px] font-bold flex items-center justify-center text-gray-900">{unreadCount > 9 ? '9+' : unreadCount}</span>
                 )}
               </motion.button>
 

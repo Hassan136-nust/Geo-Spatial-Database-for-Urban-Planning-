@@ -9,6 +9,7 @@ import { GlassPanel } from '../components/GlassPanel';
 import { MapPin, Search, Plus, Loader2, Download, Filter, Globe, Trash2, RefreshCw, Database, Save, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import mapsApi from '../services/mapsApi';
+import { MAP_TILE_URL, MAP_ATTRIBUTION } from '../config/mapTiler';
 import 'leaflet/dist/leaflet.css';
 
 // Fix leaflet icons
@@ -201,7 +202,7 @@ export function LandmarksManager() {
   if (!user) {
     return (
       <div className="min-h-screen pt-28 pb-20 px-8 text-center">
-        <p className="text-white/50">Please login to manage landmarks</p>
+        <p className="text-gray-900/50">Please login to manage landmarks</p>
       </div>
     );
   }
@@ -214,7 +215,7 @@ export function LandmarksManager() {
           <h1 className="text-3xl font-bold text-foreground">
             Landmarks Manager
           </h1>
-          <p className="text-muted-foreground mt-2">Fetch landmarks from OpenStreetMap, view on map, and save to database</p>
+          <p className="text-muted-foreground mt-2">Fetch landmarks via MapTiler, view on map, and save to database</p>
         </motion.div>
 
         {/* Controls */}
@@ -222,7 +223,7 @@ export function LandmarksManager() {
           {/* City Selector */}
           <GlassPanel>
             <div className="p-5">
-              <h3 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Globe className="w-4 h-4 text-cyan-400" /> Select City
               </h3>
               <div className="grid grid-cols-2 gap-2 mb-3">
@@ -233,7 +234,7 @@ export function LandmarksManager() {
                     className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                       selectedCity.name === city.name && !customCity
                         ? 'bg-cyan-500/20 border border-cyan-500/30 text-cyan-400'
-                        : 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10'
+                        : 'bg-white/5 border border-gray-200 text-gray-600 hover:bg-white/10'
                     }`}
                   >
                     {city.name}
@@ -245,7 +246,7 @@ export function LandmarksManager() {
                 value={customCity}
                 onChange={(e) => setCustomCity(e.target.value)}
                 placeholder="Or type any city/area name..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-cyan-500/50 mb-3"
+                className="w-full bg-white/5 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder-white/30 focus:outline-none focus:border-cyan-500/50 mb-3"
               />
               <div className="flex gap-2">
                 <motion.button
@@ -263,8 +264,8 @@ export function LandmarksManager() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => fetchLandmarksForCity(true)}
                   disabled={fetching}
-                  title="Force refresh from OSM (bypass cache)"
-                  className="py-3 px-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl text-white/60 disabled:opacity-30"
+                  title="Force refresh (bypass cache)"
+                  className="py-3 px-3 bg-white/10 hover:bg-white/15 border border-gray-200 rounded-xl text-gray-600 disabled:opacity-30"
                 >
                   <RefreshCw className={`w-4 h-4 ${fetching ? 'animate-spin' : ''}`} />
                 </motion.button>
@@ -275,7 +276,7 @@ export function LandmarksManager() {
           {/* Add Custom Landmark */}
           <GlassPanel>
             <div className="p-5">
-              <h3 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Plus className="w-4 h-4 text-green-400" /> Add Custom Landmark
               </h3>
               <div className="space-y-3">
@@ -283,12 +284,12 @@ export function LandmarksManager() {
                   type="text" value={newLandmark.name}
                   onChange={(e) => setNewLandmark({ ...newLandmark, name: e.target.value })}
                   placeholder="Landmark name (e.g. NUST University)"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-green-500/50"
+                  className="w-full bg-white/5 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder-white/30 focus:outline-none focus:border-green-500/50"
                 />
                 <select
                   value={newLandmark.type}
                   onChange={(e) => setNewLandmark({ ...newLandmark, type: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-green-500/50"
+                  className="w-full bg-white/5 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-green-500/50"
                 >
                   {LANDMARK_TYPES.map((t) => (
                     <option key={t.value} value={t.value} className="bg-gray-900">{t.label}</option>
@@ -297,7 +298,7 @@ export function LandmarksManager() {
                 
                 <button
                   onClick={() => setPickMode(!pickMode)}
-                  className={`w-full py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${pickMode ? 'bg-cyan-500 text-white' : 'bg-white/10 text-white/60 hover:bg-white/20'}`}
+                  className={`w-full py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${pickMode ? 'bg-cyan-500 text-gray-900' : 'bg-white/10 text-gray-600 hover:bg-white/20'}`}
                 >
                   <MapPin className="w-3.5 h-3.5" /> {pickMode ? 'Click anywhere on map to pick location...' : 'Pick from Map'}
                 </button>
@@ -307,13 +308,13 @@ export function LandmarksManager() {
                     type="number" step="any" value={newLandmark.lat}
                     onChange={(e) => setNewLandmark({ ...newLandmark, lat: e.target.value })}
                     placeholder="Latitude"
-                    className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-green-500/50"
+                    className="bg-white/5 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder-white/30 focus:outline-none focus:border-green-500/50"
                   />
                   <input
                     type="number" step="any" value={newLandmark.lng}
                     onChange={(e) => setNewLandmark({ ...newLandmark, lng: e.target.value })}
                     placeholder="Longitude"
-                    className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-green-500/50"
+                    className="bg-white/5 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder-white/30 focus:outline-none focus:border-green-500/50"
                   />
                 </div>
                 <motion.button
@@ -333,23 +334,23 @@ export function LandmarksManager() {
           {/* Stats, Filters & Save */}
           <GlassPanel>
             <div className="p-5">
-              <h3 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Filter className="w-4 h-4 text-amber-400" /> Filter & Stats
               </h3>
               <div className="grid grid-cols-2 gap-2 mb-4">
                 <div className="bg-white/5 rounded-xl p-3 text-center">
                   <div className="text-2xl font-bold text-cyan-400">{landmarks.length}</div>
-                  <div className="text-xs text-white/40">Total</div>
+                  <div className="text-xs text-gray-500">Total</div>
                 </div>
                 <div className="bg-white/5 rounded-xl p-3 text-center">
                   <div className="text-2xl font-bold text-green-400">{filteredLandmarks.length}</div>
-                  <div className="text-xs text-white/40">Showing</div>
+                  <div className="text-xs text-gray-500">Showing</div>
                 </div>
               </div>
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/50 mb-3"
+                className="w-full bg-white/5 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-amber-500/50 mb-3"
               >
                 <option value="" className="bg-gray-900">All Types</option>
                 {LANDMARK_TYPES.map((t) => (
@@ -363,8 +364,8 @@ export function LandmarksManager() {
                   if (count === 0) return null;
                   return (
                     <div key={t.value} className="flex items-center justify-between text-xs py-1">
-                      <span className="text-white/60 flex items-center gap-2">{t.icon} {t.label}</span>
-                      <span className="text-white/80 font-medium">{count}</span>
+                      <span className="text-gray-600 flex items-center gap-2">{t.icon} {t.label}</span>
+                      <span className="text-gray-800 font-medium">{count}</span>
                     </div>
                   );
                 })}
@@ -407,10 +408,10 @@ export function LandmarksManager() {
           {/* Map */}
           <GlassPanel>
             <div className="rounded-2xl overflow-hidden" style={{ height: 480 }}>
-              <MapContainer center={mapCenter} zoom={12} className="h-full w-full" style={{ background: '#0a0a0f' }}>
+              <MapContainer center={mapCenter} zoom={12} className="h-full w-full" style={{ background: '#f4f7f6' }}>
                 <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                  attribution={MAP_ATTRIBUTION}
+                  url={MAP_TILE_URL}
                 />
                 <MapClickHandler onMapClick={handleMapPick} pickMode={pickMode} />
                 {filteredLandmarks.map((l, i) => {
@@ -436,20 +437,20 @@ export function LandmarksManager() {
           {/* Table */}
           <GlassPanel>
             <div className="p-4">
-              <h3 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-cyan-400" /> Landmarks ({filteredLandmarks.length})
               </h3>
               {loading || fetching ? (
                 <div className="text-center py-16">
                   <Loader2 className="w-8 h-8 text-cyan-400 mx-auto animate-spin" />
-                  <p className="text-white/40 text-sm mt-3">Loading landmarks...</p>
+                  <p className="text-gray-500 text-sm mt-3">Loading landmarks...</p>
                 </div>
               ) : filteredLandmarks.length === 0 ? (
                 <div className="text-center py-16">
-                  <MapPin className="w-12 h-12 text-white/10 mx-auto mb-4" />
-                  <p className="text-white/40 text-sm">No landmarks found</p>
-                  <p className="text-white/25 text-xs mt-1">Select a city and click "Fetch Landmarks" to get started</p>
-                  <p className="text-white/20 text-xs mt-1">Try clicking ↻ to force refresh from OSM</p>
+                  <MapPin className="w-12 h-12 text-gray-900/10 mx-auto mb-4" />
+                  <p className="text-gray-500 text-sm">No landmarks found</p>
+                  <p className="text-gray-900/25 text-xs mt-1">Select a city and click "Fetch Landmarks" to get started</p>
+                  <p className="text-gray-300 text-xs mt-1">Try clicking ↻ to force refresh from OSM</p>
                 </div>
               ) : (
                 <div className="space-y-1.5 max-h-[400px] overflow-y-auto pr-1">
@@ -466,8 +467,8 @@ export function LandmarksManager() {
                       >
                         <span className="flex-shrink-0 text-lg">{typeInfo.icon}</span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-white/80 truncate">{l.name}</p>
-                          <p className="text-[10px] text-white/30 capitalize">{l.type} • {coords.lat?.toFixed(4)}, {coords.lng?.toFixed(4)}</p>
+                          <p className="text-xs font-medium text-gray-800 truncate">{l.name}</p>
+                          <p className="text-[10px] text-gray-400 capitalize">{l.type} • {coords.lat?.toFixed(4)}, {coords.lng?.toFixed(4)}</p>
                         </div>
                         <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${
                           l.source === 'user' ? 'bg-green-500/10 text-green-400' : 'bg-blue-500/10 text-blue-400'
@@ -478,7 +479,7 @@ export function LandmarksManager() {
                     );
                   })}
                   {filteredLandmarks.length > 150 && (
-                    <p className="text-center text-xs text-white/30 py-2">Showing first 150 of {filteredLandmarks.length} landmarks</p>
+                    <p className="text-center text-xs text-gray-400 py-2">Showing first 150 of {filteredLandmarks.length} landmarks</p>
                   )}
                 </div>
               )}
