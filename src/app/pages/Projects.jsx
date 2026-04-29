@@ -1,4 +1,4 @@
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GlassPanel } from '../components/GlassPanel';
 import { PenTool, Loader2, Calendar, Hash, Star, X, RotateCcw, Maximize2, ChevronRight } from 'lucide-react';
@@ -8,6 +8,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Sky } from '@react-three/drei';
 import { useNavigate } from 'react-router';
 import { Building3D, TYPE_COLOR } from '../components/City3DBuildings';
+import * as THREE from 'three';
 
 // ── Coordinate → 3D ───────────────────────────────────────
 function toXZ(lat, lng, cLat, cLng, radius) {
@@ -16,10 +17,12 @@ function toXZ(lat, lng, cLat, cLng, radius) {
   return [(lng - cLng) * 111000 * cosLat * s, -(lat - cLat) * 111000 * s];
 }
 
-// ── Auto-rotate camera for preview ────────────────────────
+// ── Auto-rotate camera ────────────────────────────────────
+// Uses a ref-based timer instead of deprecated THREE.Clock
 function AutoRotate() {
+  const startTime = useRef(performance.now());
   useFrame((state) => {
-    const t = state.clock.elapsedTime * 0.2;
+    const t = ((performance.now() - startTime.current) / 1000) * 0.2;
     state.camera.position.x = Math.sin(t) * 16;
     state.camera.position.z = Math.cos(t) * 16;
     state.camera.lookAt(0, 1, 0);
@@ -81,6 +84,72 @@ function CityScene({ design, interactive }) {
   );
 }
 
+// ── Lightweight CSS preview for design cards ──────────────
+// Avoids creating a WebGL context per card (browsers only allow ~8-16)
+function CardPreview({ design }) {
+  const elements = design.elements || [];
+  const typeCounts = elements.reduce((acc, el) => {
+    acc[el.type] = (acc[el.type] || 0) + 1;
+    return acc;
+  }, {});
+  const topTypes = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const totalElements = elements.length;
+
+  return (
+    <div className="relative h-52 bg-gradient-to-br from-amber-50 via-emerald-50 to-sky-50 overflow-hidden">
+      {/* Grid lines */}
+      <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+        {[20, 40, 60, 80].map(p => (
+          <g key={p}>
+            <line x1={`${p}%`} y1="0" x2={`${p}%`} y2="100%" stroke="#d4c9a8" strokeWidth="0.5" opacity="0.4" />
+            <line x1="0" y1={`${p}%`} x2="100%" y2={`${p}%`} stroke="#d4c9a8" strokeWidth="0.5" opacity="0.4" />
+          </g>
+        ))}
+      </svg>
+      {/* Element dots placed based on actual coordinates */}
+      {elements.slice(0, 40).map((el, i) => {
+        const center = design.center || {};
+        const cLat = center.lat || 33.68;
+        const cLng = center.lng || 73.05;
+        const radius = design.radius || 5;
+        const scale = 40 / (radius * 2);
+        const x = 50 + (el.lng - cLng) * 111 * Math.cos(cLat * Math.PI / 180) * scale;
+        const y = 50 - (el.lat - cLat) * 111 * scale;
+        const color = TYPE_COLOR[el.type] || '#6b7280';
+        return (
+          <div
+            key={el.element_id || i}
+            className="absolute rounded-full shadow-sm"
+            style={{
+              left: `${Math.max(5, Math.min(95, x))}%`,
+              top: `${Math.max(5, Math.min(95, y))}%`,
+              width: el.type === 'road' ? 6 : 8,
+              height: el.type === 'road' ? 6 : 8,
+              backgroundColor: color,
+              border: '1.5px solid white',
+              transform: 'translate(-50%, -50%)',
+              opacity: 0.85,
+            }}
+          />
+        );
+      })}
+      {/* Center label */}
+      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+        <div className="flex gap-1">
+          {topTypes.slice(0, 3).map(([type, count]) => (
+            <span key={type} className="text-[9px] px-1.5 py-0.5 rounded-full bg-white/70 border border-gray-200 text-gray-600 font-medium backdrop-blur-sm">
+              {count}× {type}
+            </span>
+          ))}
+        </div>
+        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-white/70 text-gray-500 backdrop-blur-sm">
+          {totalElements} total
+        </span>
+      </div>
+    </div>
+  );
+}
+
 // ── Design Card ────────────────────────────────────────────
 function DesignCard({ design, index, onExpand }) {
   const navigate = useNavigate();
@@ -93,14 +162,9 @@ function DesignCard({ design, index, onExpand }) {
       className="group"
     >
       <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white/5 hover:border-indigo-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10">
-        {/* 3D preview */}
-        <div className="relative h-52 cursor-pointer" onClick={() => onExpand(design)}>
-          <Canvas shadows gl={{ antialias: true }}>
-            <PerspectiveCamera makeDefault position={[14, 11, 14]} fov={44} />
-            <Suspense fallback={null}>
-              <CityScene design={design} interactive={false} />
-            </Suspense>
-          </Canvas>
+        {/* Lightweight CSS preview — no WebGL context created */}
+        <div className="relative cursor-pointer" onClick={() => onExpand(design)}>
+          <CardPreview design={design} />
           <button
             onClick={(e) => { e.stopPropagation(); onExpand(design); }}
             className="absolute top-3 right-3 p-1.5 rounded-lg bg-white/60 border border-gray-200 text-gray-700 hover:text-gray-900 transition-all opacity-0 group-hover:opacity-100"
@@ -118,11 +182,11 @@ function DesignCard({ design, index, onExpand }) {
         </div>
         {/* Info */}
         <div className="p-4">
-          <h3 className="font-semibold text-gray-900/90 truncate flex items-center gap-2 mb-1">
+          <h3 className="font-semibold text-pure-white truncate flex items-center gap-2 mb-1">
             <PenTool className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
             {design.design_name}
           </h3>
-          <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+          <div className="flex items-center gap-3 text-xs text-pure-white/50 mb-3">
             <span className="flex items-center gap-1"><Hash className="w-3 h-3" />{design.element_count || design.elements?.length || 0} elements</span>
             <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(design.created_at).toLocaleDateString()}</span>
           </div>
@@ -140,7 +204,7 @@ function DesignCard({ design, index, onExpand }) {
               <RotateCcw className="w-3 h-3" /> Explore 3D
             </button>
             <button onClick={() => navigate(`/planner?load=${design._id}`)}
-              className="py-2 px-3 text-xs rounded-xl bg-white/5 border border-gray-200 text-gray-900/50 hover:text-gray-900 hover:bg-white/10 transition-colors flex items-center gap-1">
+              className="py-2 px-3 text-xs rounded-xl bg-white/5 border border-pure-white/10 text-pure-white/60 hover:text-pure-white hover:bg-white/10 transition-colors flex items-center gap-1">
               Edit <ChevronRight className="w-3 h-3" />
             </button>
           </div>
@@ -190,7 +254,7 @@ function CityModal({ design, onClose }) {
         </div>
         {/* 3D */}
         <div className="flex-1 relative">
-          <Canvas shadows gl={{ antialias: true }}>
+          <Canvas shadows={{ type: THREE.PCFShadowMap }} gl={{ antialias: true }}>
             <PerspectiveCamera makeDefault position={[18, 14, 18]} fov={48} />
             <Suspense fallback={null}>
               <CityScene design={design} interactive={true} />

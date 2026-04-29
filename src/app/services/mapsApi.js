@@ -17,7 +17,17 @@ async function request(method, endpoint, body = null) {
   if (body) config.body = JSON.stringify(body);
 
   const res = await fetch(`${API_BASE}${endpoint}`, config);
-  const data = await res.json();
+
+  // Safely parse JSON — handle empty or non-JSON responses
+  let data;
+  try {
+    const text = await res.text();
+    data = text ? JSON.parse(text) : {};
+  } catch (parseErr) {
+    // Server returned non-JSON response (e.g., proxy error, empty body)
+    throw { status: res.status, message: `Server error (${res.status}): Invalid response` };
+  }
+
   if (!res.ok) throw { status: res.status, message: data.message || 'Request failed' };
   return data;
 }

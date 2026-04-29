@@ -455,31 +455,31 @@ export function Dashboard() {
                     Area Analysis
                   </h2>
                   <button onClick={() => setShowSidebar(false)} className="p-1.5 hover:bg-white/10 rounded-lg">
-                    <X className="w-4 h-4 text-gray-500" />
+                    <X className="w-4 h-4 text-pure-white/70" />
                   </button>
                 </div>
 
                 {!selectedArea && !loading && (
                   <div className="text-center py-12">
-                    <Navigation2 className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                    <p className="text-sm text-gray-500">Search for an area or click on the map to start analysis</p>
+                    <Navigation2 className="w-10 h-10 text-pure-white/30 mx-auto mb-3" />
+                    <p className="text-sm text-pure-white/70">Search for an area or click on the map to start analysis</p>
                   </div>
                 )}
 
                 {loading && (
                   <div className="text-center py-12">
                     <Loader2 className="w-8 h-8 text-cyan-400 mx-auto mb-3 animate-spin" />
-                    <p className="text-sm text-gray-500">Analyzing area...</p>
-                    <p className="text-xs text-gray-300 mt-1">Fetching real-time geospatial data via MapTiler</p>
+                    <p className="text-sm text-pure-white/70">Analyzing area...</p>
+                    <p className="text-xs text-pure-white/40 mt-1">Fetching real-time geospatial data via MapTiler</p>
                   </div>
                 )}
 
                 {analysis && !loading && (
                   <div className="space-y-3">
                     {/* Area Name */}
-                    <div className="bg-white/5 rounded-xl p-3 border border-gray-200">
-                      <p className="text-xs text-gray-500 mb-1">Selected Area</p>
-                      <p className="text-sm font-medium text-gray-900/90 line-clamp-2">{selectedArea?.displayName || 'Unknown'}</p>
+                    <div className="bg-white/5 rounded-xl p-3 border border-pure-white/10">
+                      <p className="text-xs text-pure-white/50 mb-1">Selected Area</p>
+                      <p className="text-sm font-medium text-pure-white line-clamp-2">{selectedArea?.displayName || 'Unknown'}</p>
                     </div>
 
                     {/* Score — collapsible */}
@@ -489,7 +489,7 @@ export function Dashboard() {
                       }`}>
                       <button onClick={() => toggleSection('score')} className="w-full p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="text-3xl font-bold">{analysis.score}<span className="text-sm text-gray-500">/100</span></div>
+                          <div className="text-3xl font-bold text-pure-white">{analysis.score}<span className="text-sm text-pure-white/50">/100</span></div>
                           <div className={`text-xs px-2 py-0.5 rounded-full ${analysis.score >= 70 ? 'bg-green-500/20 text-green-400' :
                               analysis.score >= 50 ? 'bg-yellow-500/20 text-yellow-400' :
                                 'bg-red-500/20 text-red-400'
@@ -513,12 +513,12 @@ export function Dashboard() {
                           {analysis.scoring && (
                             <div className="grid grid-cols-2 gap-2 text-xs">
                               <div className="bg-white/5 rounded-lg p-2">
-                                <span className="text-gray-500">Roads</span>
-                                <div className="font-bold">{analysis.scoring.roadScore}/100</div>
+                                <span className="text-pure-white/50">Roads</span>
+                                <div className="font-bold text-pure-white">{analysis.scoring.roadScore}/100</div>
                               </div>
                               <div className="bg-white/5 rounded-lg p-2">
-                                <span className="text-gray-500">Diversity</span>
-                                <div className="font-bold">{analysis.scoring.diversityScore}/100</div>
+                                <span className="text-pure-white/50">Diversity</span>
+                                <div className="font-bold text-pure-white">{analysis.scoring.diversityScore}/100</div>
                               </div>
                             </div>
                           )}
@@ -530,7 +530,7 @@ export function Dashboard() {
                     {analysis.strengths && analysis.strengths.length > 0 && (
                       <div className="bg-white/5 rounded-xl border border-gray-200 overflow-hidden">
                         <button onClick={() => toggleSection('strengths')} className="w-full p-3 flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
+                          <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider flex items-center gap-1.5">
                             <CheckCircle className="w-3.5 h-3.5 text-green-400" /> Strengths ({analysis.strengths.length})
                           </h4>
                           {expandedSection === 'strengths' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
@@ -551,7 +551,7 @@ export function Dashboard() {
                     {analysis.weaknesses && analysis.weaknesses.length > 0 && (
                       <div className="bg-white/5 rounded-xl border border-gray-200 overflow-hidden">
                         <button onClick={() => toggleSection('weaknesses')} className="w-full p-3 flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
+                          <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider flex items-center gap-1.5">
                             <AlertTriangle className="w-3.5 h-3.5 text-red-400" /> Weaknesses ({analysis.weaknesses.length})
                           </h4>
                           {expandedSection === 'weaknesses' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
@@ -573,7 +573,7 @@ export function Dashboard() {
                     {analysis.coverage && (
                       <div className="bg-white/5 rounded-xl border border-gray-200 overflow-hidden">
                         <button onClick={() => toggleSection('coverage')} className="w-full p-3 flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
+                          <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider flex items-center gap-1.5">
                             <Target className="w-3.5 h-3.5 text-cyan-400" /> Coverage
                           </h4>
                           {expandedSection === 'coverage' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
@@ -582,9 +582,9 @@ export function Dashboard() {
                           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-3 pb-3 space-y-1.5">
                             {Object.entries(analysis.coverage).slice(0, 10).map(([type, cov]) => (
                               <div key={type} className="flex items-center justify-between text-xs py-1">
-                                <span className="capitalize text-gray-700">{type.replace('_', ' ')}</span>
+                                <span className="capitalize text-pure-white/80">{type.replace('_', ' ')}</span>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-gray-500">{cov.count}</span>
+                                  <span className="text-pure-white/50">{cov.count}</span>
                                   {cov.score !== undefined && (
                                     <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
                                       <div className={`h-full rounded-full ${cov.score >= 70 ? 'bg-green-400' : cov.score >= 40 ? 'bg-yellow-400' : 'bg-red-400'
@@ -606,7 +606,7 @@ export function Dashboard() {
                     {analysis.recommendations && analysis.recommendations.length > 0 && (
                       <div className="bg-white/5 rounded-xl border border-gray-200 overflow-hidden">
                         <button onClick={() => toggleSection('recommendations')} className="w-full p-3 flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
+                          <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider flex items-center gap-1.5">
                             <Zap className="w-3.5 h-3.5 text-amber-400" /> Recommendations ({analysis.recommendations.length})
                           </h4>
                           {expandedSection === 'recommendations' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
@@ -635,9 +635,9 @@ export function Dashboard() {
                     {/* Density */}
                     {analysis.density && (
                       <div className="bg-white/5 rounded-xl p-3 border border-gray-200">
-                        <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Density</h4>
-                        <p className="text-lg font-bold">{analysis.density.placesPerSqKm} <span className="text-xs text-gray-500">facilities/km²</span></p>
-                        <p className="text-[10px] text-gray-400 mt-1">Total: {analysis.totalPlaces} places within 5km</p>
+                        <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider mb-2">Density</h4>
+                        <p className="text-lg font-bold text-pure-white">{analysis.density.placesPerSqKm} <span className="text-xs text-pure-white/50">facilities/km²</span></p>
+                        <p className="text-[10px] text-pure-white/40 mt-1">Total: {analysis.totalPlaces} places within 5km</p>
                       </div>
                     )}
 
@@ -645,7 +645,7 @@ export function Dashboard() {
                     {nearbyPlaces.length > 0 && (
                       <div className="bg-white/5 rounded-xl border border-gray-200 overflow-hidden">
                         <button onClick={() => toggleSection('places')} className="w-full p-3 flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+                          <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider">
                             Nearby ({nearbyPlaces.length})
                           </h4>
                           {expandedSection === 'places' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
@@ -656,8 +656,8 @@ export function Dashboard() {
                               <div key={`${place.id}-${i}`} className="flex items-center gap-2 text-xs p-2 rounded-lg hover:bg-white/5 transition-colors">
                                 <span className="flex-shrink-0 text-sm">{MARKER_ICONS[place.type] || <FaMapMarkerAlt />}</span>
                                 <div className="flex-1 min-w-0">
-                                  <p className="font-medium truncate text-gray-800">{place.name}</p>
-                                  <p className="text-gray-400 capitalize">{place.type}</p>
+                                  <p className="font-medium truncate text-pure-white">{place.name}</p>
+                                  <p className="text-pure-white/50 capitalize">{place.type}</p>
                                 </div>
                                 <span className="text-cyan-400 flex-shrink-0">{place.distance?.toFixed(1)}km</span>
                               </div>

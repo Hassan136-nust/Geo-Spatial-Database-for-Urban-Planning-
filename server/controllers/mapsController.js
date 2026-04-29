@@ -103,52 +103,93 @@ export const analyzeSelectedArea = async (req, res, next) => {
 
     const parsedLat = parseFloat(lat);
     const parsedLng = parseFloat(lng);
-    const parsedRadius = parseInt(radius);
+    const parsedRadius = parseInt(radius) || 5000;
+
+    if (isNaN(parsedLat) || isNaN(parsedLng)) {
+      return res.status(400).json({ success: false, message: 'Invalid coordinates provided' });
+    }
 
     console.log(`[Maps/Analyze] Analyzing: "${areaName}" at (${parsedLat.toFixed(4)}, ${parsedLng.toFixed(4)})`);
 
     // Fetch places first
-    let places = await osmService.getNearbyAllTypes(parsedLat, parsedLng, parsedRadius);
+    let places = [];
+    try {
+      places = await osmService.getNearbyAllTypes(parsedLat, parsedLng, parsedRadius);
+    } catch (placeErr) {
+      console.error('[Maps/Analyze] Places fetch error:', placeErr.message);
+    }
 
     // Wait before roads call to prevent 429
-    await delay(2500);
+    await delay(2000);
 
-    const roadData = await osmService.getRoads(parsedLat, parsedLng, Math.min(parsedRadius, 3000));
+    let roadData = [];
+    try {
+      roadData = await osmService.getRoads(parsedLat, parsedLng, Math.min(parsedRadius, 3000));
+    } catch (roadErr) {
+      console.error('[Maps/Analyze] Roads fetch error:', roadErr.message);
+    }
 
     // VALIDATION: If 0 places but roads exist, retry places after delay
     if (places.length === 0 && roadData.length > 0) {
-      console.warn(`[Maps/Analyze] ⚠️ 0 places but ${roadData.length} roads — retrying places in 4s...`);
-      await delay(4000);
-      places = await osmService.getNearbyAllTypes(parsedLat, parsedLng, parsedRadius);
-      console.log(`[Maps/Analyze] Retry result: ${places.length} places`);
+      console.warn(`[Maps/Analyze] ⚠️ 0 places but ${roadData.length} roads — retrying places in 3s...`);
+      await delay(3000);
+      try {
+        places = await osmService.getNearbyAllTypes(parsedLat, parsedLng, parsedRadius);
+        console.log(`[Maps/Analyze] Retry result: ${places.length} places`);
+      } catch (retryErr) {
+        console.error('[Maps/Analyze] Retry places error:', retryErr.message);
+      }
     }
 
     console.log(`[Maps/Analyze] Final: ${places.length} places, ${roadData.length} roads`);
 
     // Save to cache (non-blocking)
-    try {
-      await cacheService.saveLandmarksFromOSM(places, '', null);
-      await cacheService.saveRoadsFromOSM(roadData, '', null);
-    } catch (saveErr) {
-      console.error('[Maps/Analyze] Cache save error (non-fatal):', saveErr.message);
+    if (places.length > 0 || roadData.length > 0) {
+      cacheService.saveLandmarksFromOSM(places, '', null).catch(err => 
+        console.error('[Maps/Analyze] Cache save landmarks error:', err.message)
+      );
+      cacheService.saveRoadsFromOSM(roadData, '', null).catch(err => 
+        console.error('[Maps/Analyze] Cache save roads error:', err.message)
+      );
     }
 
     // Run analysis
-    const analysis = analyzeArea(places, parsedLat, parsedLng, parsedRadius / 1000, roadData?.length || 0);
-    console.log(`[Maps/Analyze] Score: ${analysis.score}/100 (${analysis.rating})`);
+    let analysis = null;
+    try {
+      analysis = analyzeArea(places, parsedLat, parsedLng, parsedRadius / 1000, roadData?.length || 0);
+      console.log(`[Maps/Analyze] Score: ${analysis.score}/100 (${analysis.rating})`);
+    } catch (analysisErr) {
+      console.error('[Maps/Analyze] Analysis engine error:', analysisErr.message);
+      throw new Error('Internal analysis engine failed');
+    }
+
+    // Trim places to essential fields only (reduce payload size)
+    const trimmedPlaces = places.map(p => ({
+      id: p.id,
+      name: p.name,
+      type: p.type,
+      lat: p.lat,
+      lng: p.lng,
+      distance: p.distance,
+      address: p.address || '',
+    }));
 
     res.json({
       success: true,
       data: {
         areaName,
         analysis,
-        places,
-        roads: roadData || [],
+        places: trimmedPlaces,
         roadCount: roadData?.length || 0,
       },
     });
   } catch (error) {
-    console.error('[Maps/Analyze] Error:', error.message);
-    next(error);
+    console.error('[Maps/Analyze] Final Error:', error.message);
+    if (!res.headersSent) {
+      res.status(error.status || 500).json({ 
+        success: false, 
+        message: error.message || 'Analysis failed due to server error' 
+      });
+    }
   }
 };

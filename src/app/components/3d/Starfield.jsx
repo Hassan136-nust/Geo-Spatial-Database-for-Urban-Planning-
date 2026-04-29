@@ -28,9 +28,12 @@ export function Starfield() {
     return [positions, colors];
   }, []);
 
-  useFrame((state) => {
+  const startTime = useRef(performance.now());
+
+  useFrame(() => {
     if (starsRef.current) {
-      starsRef.current.rotation.y = state.clock.elapsedTime * 0.01;
+      const elapsed = (performance.now() - startTime.current) / 1000;
+      starsRef.current.rotation.y = elapsed * 0.01;
     }
   });
 

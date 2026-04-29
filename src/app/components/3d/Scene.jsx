@@ -21,7 +21,7 @@ export function Scene() {
   return (
     <div className="fixed inset-0 w-full h-full -z-10">
       <Canvas
-        shadows
+        shadows={{ type: THREE.PCFShadowMap }}
         gl={{
           antialias: true,
           toneMapping: THREE.ACESFilmicToneMapping,

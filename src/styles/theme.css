@@ -69,6 +69,10 @@
   --sidebar-border: #2E4E36;
   --sidebar-ring: #27AE60;
 
+  /* Force absolute white for sidebar text to ensure maximum contrast */
+  --sidebar-text: #FFFFFF;
+  --sidebar-text-muted: #E0E7E3;
+
   /* Magic fix for all hardcoded text-white and bg-white/5 in light mode */
   /* We map white to a deep dark green so frosted glass effects look like dark shadows instead of disappearing */
   --base-white: #064E3B; 
@@ -127,11 +131,11 @@
   
   /* Sidebar */
   --sidebar: #2C3E2E;
-  --sidebar-foreground: #F5F1E8;
+  --sidebar-foreground: #FFFFFF;
   --sidebar-primary: #4A6741;
-  --sidebar-primary-foreground: #F5F1E8;
+  --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #C9A961;
-  --sidebar-accent-foreground: #2C3E2E;
+  --sidebar-accent-foreground: #FFFFFF;
   --sidebar-ring: #5A7A51;
   
   --base-white: #ffffff;
@@ -191,7 +195,8 @@
   --color-text-primary: #2C3E2E;
   --color-text-secondary: #4A5A48;
   --color-text-muted: #6B7566;
-  --color-text-on-dark: #FFF8F0;
+  --color-pure-white: #FFFFFF;
+  --color-text-on-dark: #FFFFFF;
 }
 
 @layer base {

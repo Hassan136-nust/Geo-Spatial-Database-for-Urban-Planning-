@@ -91,6 +91,8 @@ export function Earth({ scrollRotation, onRotationChange }) {
     };
   }, [isDragging, dragStart]);
 
+  const startTime = useRef(performance.now());
+
   // Animation loop
   useFrame((state, delta) => {
     if (!meshRef.current || !atmosphereRef.current) return;
@@ -119,10 +121,11 @@ export function Earth({ scrollRotation, onRotationChange }) {
     atmosphereRef.current.rotation.x = rotationRef.current.x;
     atmosphereRef.current.rotation.y = rotationRef.current.y;
 
-    // Subtle atmosphere pulse
+    // Subtle atmosphere pulse (using ref-based timer instead of deprecated THREE.Clock)
+    const elapsed = (performance.now() - startTime.current) / 1000;
     if (atmosphereRef.current.material instanceof THREE.ShaderMaterial) {
       atmosphereRef.current.material.uniforms.glowIntensity.value =
-        0.8 + Math.sin(state.clock.elapsedTime * 0.5) * 0.2;
+        0.8 + Math.sin(elapsed * 0.5) * 0.2;
     }
 
     // Hover glow effect

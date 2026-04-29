@@ -141,7 +141,7 @@ export function Admin() {
             <GlassPanel key={s.label} delay={0.03 * i}>
               <div className="p-3 text-center">
                 <div className="text-xl font-bold" style={{ color: s.color }}>{s.value.toLocaleString()}</div>
-                <div className="text-[10px] text-gray-500 mt-1">{s.label}</div>
+                <div className="text-[10px] text-pure-white/40 mt-1">{s.label}</div>
               </div>
             </GlassPanel>
           ))}
@@ -158,7 +158,7 @@ export function Admin() {
                 className={`px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all ${
                   activeTab === tab.key
                     ? 'bg-cyan-500/20 border border-cyan-500/30 text-cyan-400'
-                    : 'bg-white/5 border border-gray-200 text-gray-900/50 hover:bg-white/10'
+                    : 'bg-white/5 border border-pure-white/10 text-pure-white/50 hover:bg-white/10'
                 }`}
               >
                 <Icon className="w-4 h-4" />

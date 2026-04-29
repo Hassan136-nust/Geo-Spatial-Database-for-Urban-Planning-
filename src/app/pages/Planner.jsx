@@ -950,7 +950,7 @@ export function Planner() {
                     Layout Analysis
                   </h2>
                   <button onClick={() => setShowResults(false)} className="p-1.5 hover:bg-white/10 rounded-lg">
-                    <X className="w-4 h-4 text-gray-500" />
+                    <X className="w-4 h-4 text-pure-white/70" />
                   </button>
                 </div>
 
@@ -961,18 +961,18 @@ export function Planner() {
                   'bg-red-500/10 border-red-500/20'
                 }`}>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-gray-900/50">Planning Score</span>
+                    <span className="text-xs text-pure-white/50">Planning Score</span>
                     {analysis.score >= 75 ? <CheckCircle className="w-5 h-5 text-green-400" /> :
                      analysis.score >= 50 ? <AlertTriangle className="w-5 h-5 text-yellow-400" /> :
                      <AlertTriangle className="w-5 h-5 text-red-400" />}
                   </div>
-                  <div className="text-4xl font-bold mb-1">{analysis.score}<span className="text-lg text-gray-500">/100</span></div>
+                  <div className="text-4xl font-bold mb-1 text-pure-white">{analysis.score}<span className="text-lg text-pure-white/50">/100</span></div>
                   <div className={`text-sm font-semibold ${
                     analysis.score >= 75 ? 'text-green-400' :
                     analysis.score >= 50 ? 'text-yellow-400' : 'text-red-400'
                   }`}>{analysis.rating}</div>
                   {analysis.evaluationRadius && (
-                    <div className="mt-1.5 text-[10px] text-gray-500 flex items-center gap-1">
+                    <div className="mt-1.5 text-[10px] text-pure-white/40 flex items-center gap-1">
                       <Shield className="w-3 h-3" /> Evaluated at {analysis.evaluationRadius}km radius
                       {analysis.summary?.elementsOutOfRadius > 0 && (
                         <span className="text-amber-400 ml-1">({analysis.summary.elementsOutOfRadius} outside)</span>
@@ -993,8 +993,8 @@ export function Planner() {
                 </div>
 
                 {/* Summary counts */}
-                <div className="bg-white/5 rounded-xl p-4 border border-gray-200 mb-3">
-                  <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-3">Elements Placed</h4>
+                <div className="bg-white/5 rounded-xl p-4 border border-pure-white/10 mb-3">
+                  <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider mb-3">Elements Placed</h4>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     {[
                       { label: 'Houses', count: analysis.summary?.houses || 0, icon: <FaHome /> },
@@ -1005,9 +1005,9 @@ export function Planner() {
                       { label: 'Total', count: analysis.summary?.totalElements || 0, icon: <FaMapMarkerAlt /> },
                     ].map((s) => (
                       <div key={s.label} className="bg-white/5 rounded-lg p-2 flex flex-col items-center">
-                        <div className="text-sm mb-1">{s.icon}</div>
-                        <div className="text-lg font-bold">{s.count}</div>
-                        <div className="text-[9px] text-gray-500">{s.label}</div>
+                        <div className="text-sm mb-1 text-pure-white">{s.icon}</div>
+                        <div className="text-lg font-bold text-pure-white">{s.count}</div>
+                        <div className="text-[9px] text-pure-white/40">{s.label}</div>
                       </div>
                     ))}
                   </div>
@@ -1017,7 +1017,7 @@ export function Planner() {
                 {analysis.strengths && analysis.strengths.length > 0 && (
                   <div className="bg-white/5 rounded-xl border border-gray-200 mb-3 overflow-hidden">
                     <button onClick={() => toggleSection('strengths')} className="w-full p-3 flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
+                      <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider flex items-center gap-1.5">
                         <CheckCircle className="w-3.5 h-3.5 text-green-400" /> Strengths ({analysis.strengths.length})
                       </h4>
                       {expandedSection === 'strengths' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
@@ -1038,7 +1038,7 @@ export function Planner() {
                 {analysis.weaknesses && analysis.weaknesses.length > 0 && (
                   <div className="bg-white/5 rounded-xl border border-gray-200 mb-3 overflow-hidden">
                     <button onClick={() => toggleSection('weaknesses')} className="w-full p-3 flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
+                      <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider flex items-center gap-1.5">
                         <AlertTriangle className="w-3.5 h-3.5 text-red-400" /> Weaknesses ({analysis.weaknesses.length})
                       </h4>
                       {expandedSection === 'weaknesses' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
@@ -1060,7 +1060,7 @@ export function Planner() {
                 {/* Recommendations */}
                 <div className="bg-white/5 rounded-xl border border-gray-200 overflow-hidden">
                   <button onClick={() => toggleSection('recommendations')} className="w-full p-3 flex items-center justify-between">
-                    <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
+                    <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider flex items-center gap-1.5">
                       <Lightbulb className="w-3.5 h-3.5 text-amber-400" /> Recommendations ({(analysis.recommendations || []).length})
                     </h4>
                     {expandedSection === 'recommendations' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}

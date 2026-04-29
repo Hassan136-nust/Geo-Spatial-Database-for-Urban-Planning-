@@ -62,13 +62,14 @@ export const searchArea = async (req, res, next) => {
 
     console.log(`[Areas] Final data: ${places.length} landmarks, ${roadCount} roads`);
 
-    // 7. Save fetched data to DB cache
-    try {
-      const savedLandmarks = await cacheService.saveLandmarksFromOSM(places, cityName, null);
-      const savedRoads = await cacheService.saveRoadsFromOSM(roadData, cityName, null);
-      console.log(`[Areas] Saved to DB cache: ${savedLandmarks} landmarks, ${savedRoads} roads`);
-    } catch (saveErr) {
-      console.error('[Areas] DB cache save error (non-fatal):', saveErr.message);
+    // 7. Save fetched data to DB cache (non-blocking)
+    if (places.length > 0 || roadData.length > 0) {
+      cacheService.saveLandmarksFromOSM(places, cityName, null).catch(err => 
+        console.error('[Areas] DB cache landmarks save error:', err.message)
+      );
+      cacheService.saveRoadsFromOSM(roadData, cityName, null).catch(err => 
+        console.error('[Areas] DB cache roads save error:', err.message)
+      );
     }
 
     // 8. Run analysis
@@ -140,13 +141,23 @@ export const searchArea = async (req, res, next) => {
       console.log('[Areas] Anonymous user — skipping DB persistence');
     }
 
+    // Trim places to essential fields only (reduces 900KB → ~50KB response)
+    const trimmedPlaces = places.map(p => ({
+      id: p.id,
+      name: p.name,
+      type: p.type,
+      lat: p.lat,
+      lng: p.lng,
+      distance: p.distance,
+      address: p.address || '',
+    }));
+
     res.json({
       success: true,
       data: {
         area: savedArea || { lat, lng, displayName: area.displayName },
         analysis,
-        places,
-        roads: roadData,
+        places: trimmedPlaces,
         roadCount,
         city: cityName,
         analyticsId: analyticsDoc?._id || null,
@@ -154,7 +165,13 @@ export const searchArea = async (req, res, next) => {
     });
   } catch (error) {
     console.error('[Areas] Search error:', error.message);
-    next(error);
+    // Ensure we always send valid JSON, even on error
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Area search failed',
+      });
+    }
   }
 };
 

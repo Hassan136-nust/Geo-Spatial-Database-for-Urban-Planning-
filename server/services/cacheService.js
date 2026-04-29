@@ -117,6 +117,38 @@ export async function saveRoadsFromOSM(roads, city = '', areaId = null) {
 }
 
 /**
+ * Map external geocode types to valid CityProfile category enum values
+ */
+function mapCategoryToEnum(type) {
+  const categoryMap = {
+    place: 'city',
+    city: 'city',
+    town: 'town',
+    village: 'village',
+    suburb: 'suburb',
+    county: 'county',
+    state: 'state',
+    region: 'state',
+    country: 'country',
+    residential: 'residential',
+    administrative: 'administrative',
+    neighbourhood: 'neighbourhood',
+    neighborhood: 'neighbourhood',
+    hamlet: 'hamlet',
+    district: 'district',
+    municipality: 'municipality',
+    quarter: 'quarter',
+    borough: 'borough',
+    address: 'other',
+    poi: 'other',
+    locality: 'city',
+    street: 'other',
+    virtual_street: 'other',
+  };
+  return categoryMap[(type || '').toLowerCase()] || 'other';
+}
+
+/**
  * Upsert a CityProfile from geocoded data
  */
 export async function upsertCityProfile(geocodeResult) {
@@ -126,6 +158,7 @@ export async function upsertCityProfile(geocodeResult) {
   if (!cityName) return null;
 
   const countryCode = geocodeResult.address?.country_code?.toUpperCase() || '';
+  const safeCategory = mapCategoryToEnum(geocodeResult.type);
 
   try {
     const city = await CityProfile.findOneAndUpdate(
@@ -141,7 +174,7 @@ export async function upsertCityProfile(geocodeResult) {
             coordinates: [geocodeResult.lng, geocodeResult.lat],
           },
           bounding_box: geocodeResult.boundingBox || [],
-          category: geocodeResult.type || 'city',
+          category: safeCategory,
           last_data_fetch: new Date(),
         },
         $inc: { search_count: 1 },
