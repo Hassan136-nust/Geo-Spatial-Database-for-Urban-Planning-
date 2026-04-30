@@ -47,22 +47,24 @@ function setCache(key, data) {
   cache.set(key, { data, timestamp: Date.now() });
 }
 
-let lastOverpassCall = 0;
+// Per-query-type throttle tracking so parallel queries don't block each other
+const lastOverpassCalls = { places: 0, roads: 0, boundaries: 0, default: 0 };
 
-async function throttleOverpass() {
+async function throttleOverpass(queryType = 'default') {
   const now = Date.now();
-  const diff = now - lastOverpassCall;
-  // Minimum 2 seconds between Overpass calls to prevent 429
-  if (diff < 2000) {
-    const waitMs = 2000 - diff;
-    console.log(`[Overpass] Throttling: waiting ${waitMs}ms...`);
+  const lastCall = lastOverpassCalls[queryType] || 0;
+  const diff = now - lastCall;
+  // Minimum 1.5 seconds between same-type Overpass calls
+  if (diff < 1500) {
+    const waitMs = 1500 - diff;
+    console.log(`[Overpass] Throttling ${queryType}: waiting ${waitMs}ms...`);
     await new Promise((resolve) => setTimeout(resolve, waitMs));
   }
-  lastOverpassCall = Date.now();
+  lastOverpassCalls[queryType] = Date.now();
 }
 
-async function fetchOverpassData(query, timeout = 30000) {
-  await throttleOverpass();
+async function fetchOverpassData(query, timeout = 30000, { skipThrottle = false, queryType = 'default' } = {}) {
+  if (!skipThrottle) await throttleOverpass(queryType);
   
   let lastError;
   // Try each endpoint sequentially until one succeeds
@@ -80,7 +82,7 @@ async function fetchOverpassData(query, timeout = 30000) {
       
       // If rate limited (429), wait before trying next endpoint
       if (status === 429) {
-        await new Promise((r) => setTimeout(r, 3000));
+        await new Promise((r) => setTimeout(r, 2000));
       }
     }
   }
@@ -92,15 +94,15 @@ async function fetchOverpassData(query, timeout = 30000) {
  * fetchOverpassWithRetry — wraps fetchOverpassData with automatic retry
  * on 429/504 errors. Will attempt up to `maxRetries` times with backoff.
  */
-async function fetchOverpassWithRetry(query, timeout = 15000, maxRetries = 2) {
+async function fetchOverpassWithRetry(query, timeout = 12000, maxRetries = 1, { skipThrottle = false, queryType = 'default' } = {}) {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      const data = await fetchOverpassData(query, timeout);
+      const data = await fetchOverpassData(query, timeout, { skipThrottle: skipThrottle || attempt > 0, queryType });
       return data;
     } catch (err) {
       const status = err.response?.status || 0;
       if (attempt < maxRetries && (status === 429 || status === 504 || status === 0)) {
-        const backoff = (attempt + 1) * 3000; // 3s, 6s
+        const backoff = (attempt + 1) * 2000; // 2s, 4s
         console.log(`[Overpass] Retry ${attempt + 1}/${maxRetries} after ${backoff}ms...`);
         await new Promise((r) => setTimeout(r, backoff));
       } else {
@@ -256,14 +258,14 @@ export async function getNearbyPlaces(lat, lng, radiusMeters = 5000, type = 'hos
 }
 
 // Fetch multiple types at once — with retry on failure and caching
-export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000) {
+export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000, { skipThrottle = false } = {}) {
   const cacheKey = getCacheKey('all', lat, lng, radiusMeters);
   const cachedData = getFromCache(cacheKey);
   if (cachedData) return cachedData;
 
   // Use highly-optimized Regex queries for Overpass to prevent timeouts
   const query = `
-    [out:json][timeout:15];
+    [out:json][timeout:12];
     (
       node["amenity"~"^(hospital|clinic|school|university|pharmacy|bank|police|fire_station|place_of_worship|mosque|restaurant)$"](around:${radiusMeters},${lat},${lng});
       way["amenity"~"^(hospital|clinic|school|university|pharmacy|bank|police|fire_station|place_of_worship|mosque|restaurant)$"](around:${radiusMeters},${lat},${lng});
@@ -278,8 +280,8 @@ export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000) {
   `;
 
   try {
-    // Use retry wrapper — this is the most critical query
-    const data = await fetchOverpassWithRetry(query, 15000, 2);
+    const startMs = Date.now();
+    const data = await fetchOverpassWithRetry(query, 12000, 1, { skipThrottle, queryType: 'places' });
 
     const results = (data.elements || []).map((el) => ({
       id: el.id,
@@ -292,7 +294,7 @@ export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000) {
       distance: haversineDistance(lat, lng, el.lat || el.center?.lat, el.lon || el.center?.lon),
     }));
 
-    console.log(`[OSM] getNearbyAllTypes: ${results.length} places found for (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+    console.log(`[OSM] getNearbyAllTypes: ${results.length} places in ${Date.now() - startMs}ms for (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
     setCache(cacheKey, results);
     return results;
   } catch (err) {
@@ -304,13 +306,13 @@ export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000) {
 // ─────────────────────────────────────────────────────────
 // ROADS — Fetch road network from Overpass
 // ─────────────────────────────────────────────────────────
-export async function getRoads(lat, lng, radiusMeters = 3000) {
+export async function getRoads(lat, lng, radiusMeters = 3000, { skipThrottle = false } = {}) {
   const cacheKey = getCacheKey('roads', lat, lng, radiusMeters);
   const cachedData = getFromCache(cacheKey);
   if (cachedData) return cachedData;
 
   const query = `
-    [out:json][timeout:15];
+    [out:json][timeout:12];
     (
       way["highway"~"^(motorway|trunk|primary|secondary|tertiary|residential)$"](around:${radiusMeters},${lat},${lng});
     );
@@ -318,7 +320,8 @@ export async function getRoads(lat, lng, radiusMeters = 3000) {
   `;
 
   try {
-    const data = await fetchOverpassWithRetry(query, 15000, 1);
+    const startMs = Date.now();
+    const data = await fetchOverpassWithRetry(query, 12000, 1, { skipThrottle, queryType: 'roads' });
 
     const resultRoads = (data.elements || []).map((el) => ({
       id: el.id,
@@ -331,6 +334,7 @@ export async function getRoads(lat, lng, radiusMeters = 3000) {
         ? el.geometry.map((pt) => [pt.lat, pt.lng || pt.lon])
         : [],
     }));
+    console.log(`[OSM] getRoads: ${resultRoads.length} roads in ${Date.now() - startMs}ms`);
     setCache(cacheKey, resultRoads);
     return resultRoads;
   } catch (err) {
@@ -381,7 +385,7 @@ export async function getAdminBoundaries(lat, lng, radiusMeters = 10000) {
 
   // Query for administrative boundaries and major suburbs/neighborhoods
   const query = `
-    [out:json][timeout:15];
+    [out:json][timeout:12];
     (
       relation["boundary"="administrative"]["admin_level"~"^(8|9|10)$"](around:${radiusMeters},${lat},${lng});
       relation["landuse"="residential"]["name"](around:${radiusMeters},${lat},${lng});
@@ -393,7 +397,7 @@ export async function getAdminBoundaries(lat, lng, radiusMeters = 10000) {
   `;
 
   try {
-    const data = await fetchOverpassWithRetry(query, 15000, 2);
+    const data = await fetchOverpassWithRetry(query, 12000, 1, { queryType: 'boundaries' });
     const boundaries = (data.elements || [])
       .map(el => {
         let rings = [];

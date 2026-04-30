@@ -2,7 +2,6 @@ import osmService from '../services/osmService.js';
 import { analyzeArea } from '../services/analysisService.js';
 import cacheService from '../services/cacheService.js';
 
-const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // @desc    Search/geocode an area by name
 // @route   GET /api/maps/search-area?q=Islamabad
@@ -96,6 +95,7 @@ export const reverse = async (req, res, next) => {
 // @route   POST /api/maps/analyze-area
 export const analyzeSelectedArea = async (req, res, next) => {
   try {
+    const startTime = Date.now();
     const { lat, lng, radius = 5000, areaName = 'Selected Area' } = req.body;
     if (!lat || !lng) {
       return res.status(400).json({ success: false, message: 'Provide lat and lng' });
@@ -111,28 +111,19 @@ export const analyzeSelectedArea = async (req, res, next) => {
 
     console.log(`[Maps/Analyze] Analyzing: "${areaName}" at (${parsedLat.toFixed(4)}, ${parsedLng.toFixed(4)})`);
 
-    // Fetch places first
-    let places = [];
-    try {
-      places = await osmService.getNearbyAllTypes(parsedLat, parsedLng, parsedRadius);
-    } catch (placeErr) {
-      console.error('[Maps/Analyze] Places fetch error:', placeErr.message);
-    }
+    // Fetch places AND roads IN PARALLEL (saves ~15s vs sequential)
+    const [placesResult, roadsResult] = await Promise.allSettled([
+      osmService.getNearbyAllTypes(parsedLat, parsedLng, parsedRadius, { skipThrottle: true }),
+      osmService.getRoads(parsedLat, parsedLng, Math.min(parsedRadius, 3000), { skipThrottle: true }),
+    ]);
 
-    // Wait before roads call to prevent 429
-    await delay(2000);
+    let places = placesResult.status === 'fulfilled' ? placesResult.value : [];
+    let roadData = roadsResult.status === 'fulfilled' ? roadsResult.value : [];
 
-    let roadData = [];
-    try {
-      roadData = await osmService.getRoads(parsedLat, parsedLng, Math.min(parsedRadius, 3000));
-    } catch (roadErr) {
-      console.error('[Maps/Analyze] Roads fetch error:', roadErr.message);
-    }
-
-    // VALIDATION: If 0 places but roads exist, retry places after delay
+    // Smart retry: only if places=0 AND roads succeeded (Overpass is reachable)
     if (places.length === 0 && roadData.length > 0) {
-      console.warn(`[Maps/Analyze] ⚠️ 0 places but ${roadData.length} roads — retrying places in 3s...`);
-      await delay(3000);
+      console.warn(`[Maps/Analyze] ⚠️ 0 places but ${roadData.length} roads — retrying places in 2s...`);
+      await new Promise(r => setTimeout(r, 2000));
       try {
         places = await osmService.getNearbyAllTypes(parsedLat, parsedLng, parsedRadius);
         console.log(`[Maps/Analyze] Retry result: ${places.length} places`);
@@ -141,7 +132,7 @@ export const analyzeSelectedArea = async (req, res, next) => {
       }
     }
 
-    console.log(`[Maps/Analyze] Final: ${places.length} places, ${roadData.length} roads`);
+    console.log(`[Maps/Analyze] Data: ${places.length} places, ${roadData.length} roads (${Date.now() - startTime}ms)`);
 
     // Save to cache (non-blocking)
     if (places.length > 0 || roadData.length > 0) {
@@ -157,7 +148,7 @@ export const analyzeSelectedArea = async (req, res, next) => {
     let analysis = null;
     try {
       analysis = analyzeArea(places, parsedLat, parsedLng, parsedRadius / 1000, roadData?.length || 0);
-      console.log(`[Maps/Analyze] Score: ${analysis.score}/100 (${analysis.rating})`);
+      console.log(`[Maps/Analyze] Score: ${analysis.score}/100 (${analysis.rating}) — total ${Date.now() - startTime}ms`);
     } catch (analysisErr) {
       console.error('[Maps/Analyze] Analysis engine error:', analysisErr.message);
       throw new Error('Internal analysis engine failed');
