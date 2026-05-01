@@ -116,52 +116,92 @@ async function fetchOverpassWithRetry(query, timeout = 12000, maxRetries = 1, { 
 // GEOCODING — Search for an area by name (MapTiler API)
 // ─────────────────────────────────────────────────────────
 export async function searchArea(query) {
-  const { data } = await axios.get(`${MAPTILER_GEOCODING_BASE}/${encodeURIComponent(query)}.json`, {
-    params: {
-      key: MAPTILER_API_KEY,
-      limit: 5,
-      language: 'en',
-    },
-    headers: { 'User-Agent': USER_AGENT },
-  });
-
-  return (data.features || []).map((feature) => {
-    const [lng, lat] = feature.center || feature.geometry?.coordinates || [0, 0];
-    const bbox = feature.bbox; // [west, south, east, north]
-    const props = feature.properties || {};
-
-    return {
-      displayName: feature.place_name || props.name || query,
-      lat: lat,
-      lng: lng,
-      boundingBox: bbox ? [bbox[1], bbox[3], bbox[0], bbox[2]] : null, // [south, north, west, east]
-      type: (feature.place_type || [])[0] || props.kind || 'place',
-      category: props.kind || 'place',
-      address: {
-        city: props.city || '',
-        state: props.state || '',
-        country: props.country || '',
+  try {
+    const { data } = await axios.get(`${MAPTILER_GEOCODING_BASE}/${encodeURIComponent(query)}.json`, {
+      params: {
+        key: MAPTILER_API_KEY,
+        limit: 5,
+        language: 'en',
       },
-      geojson: feature.geometry || null,
-      importance: props.relevance || 0,
-    };
-  });
+      headers: { 'User-Agent': USER_AGENT },
+    });
+
+    return (data.features || []).map((feature) => {
+      const [lng, lat] = feature.center || feature.geometry?.coordinates || [0, 0];
+      const bbox = feature.bbox; // [west, south, east, north]
+      const props = feature.properties || {};
+
+      return {
+        displayName: feature.place_name || props.name || query,
+        lat: lat,
+        lng: lng,
+        boundingBox: bbox ? [bbox[1], bbox[3], bbox[0], bbox[2]] : null, // [south, north, west, east]
+        type: (feature.place_type || [])[0] || props.kind || 'place',
+        category: props.kind || 'place',
+        address: {
+          city: props.city || '',
+          state: props.state || '',
+          country: props.country || '',
+        },
+        geojson: feature.geometry || null,
+        importance: props.relevance || 0,
+      };
+    });
+  } catch (err) {
+    console.error('[MapTiler] SearchArea error:', err.message);
+    return []; // Return empty array on error so controller returns 404 gracefully
+  }
 }
 
 // ─────────────────────────────────────────────────────────
 // REVERSE GEOCODING — Coordinates to address (MapTiler API)
 // ─────────────────────────────────────────────────────────
 export async function reverseGeocode(lat, lng) {
-  const { data } = await axios.get(`${MAPTILER_GEOCODING_BASE}/${lng},${lat}.json`, {
-    params: {
-      key: MAPTILER_API_KEY,
-      language: 'en',
-    },
-    headers: { 'User-Agent': USER_AGENT },
-  });
+  try {
+    const { data } = await axios.get(`${MAPTILER_GEOCODING_BASE}/${lng},${lat}.json`, {
+      params: {
+        key: MAPTILER_API_KEY,
+        language: 'en',
+      },
+      headers: { 'User-Agent': USER_AGENT },
+    });
 
-  const feature = (data.features || [])[0];
-  if (!feature) {
+    const feature = (data.features || [])[0];
+    if (!feature) {
+      return {
+        displayName: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+        address: {},
+        lat,
+        lng,
+      };
+    }
+
+    const props = feature.properties || {};
+    const [rLng, rLat] = feature.center || [lng, lat];
+
+    // Build address object from context array
+    const address = { city: '', state: '', country: '' };
+    if (feature.context) {
+      feature.context.forEach((ctx) => {
+        const ctxId = ctx.id || '';
+        if (ctxId.startsWith('place') || ctxId.startsWith('city')) address.city = ctx.text;
+        if (ctxId.startsWith('region') || ctxId.startsWith('state')) address.state = ctx.text;
+        if (ctxId.startsWith('country')) address.country = ctx.text;
+      });
+    }
+    // Also pull from properties if context didn't fill them
+    if (!address.city) address.city = props.city || '';
+    if (!address.state) address.state = props.state || '';
+    if (!address.country) address.country = props.country || '';
+
+    return {
+      displayName: feature.place_name || props.name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+      address,
+      lat: rLat,
+      lng: rLng,
+    };
+  } catch (err) {
+    console.error('[MapTiler] ReverseGeocode error:', err.message);
     return {
       displayName: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
       address: {},
@@ -169,31 +209,6 @@ export async function reverseGeocode(lat, lng) {
       lng,
     };
   }
-
-  const props = feature.properties || {};
-  const [rLng, rLat] = feature.center || [lng, lat];
-
-  // Build address object from context array
-  const address = { city: '', state: '', country: '' };
-  if (feature.context) {
-    feature.context.forEach((ctx) => {
-      const ctxId = ctx.id || '';
-      if (ctxId.startsWith('place') || ctxId.startsWith('city')) address.city = ctx.text;
-      if (ctxId.startsWith('region') || ctxId.startsWith('state')) address.state = ctx.text;
-      if (ctxId.startsWith('country')) address.country = ctx.text;
-    });
-  }
-  // Also pull from properties if context didn't fill them
-  if (!address.city) address.city = props.city || '';
-  if (!address.state) address.state = props.state || '';
-  if (!address.country) address.country = props.country || '';
-
-  return {
-    displayName: feature.place_name || props.name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-    address,
-    lat: rLat,
-    lng: rLng,
-  };
 }
 
 // ─────────────────────────────────────────────────────────
@@ -265,7 +280,7 @@ export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000, { skipThr
 
   // Use highly-optimized Regex queries for Overpass to prevent timeouts
   const query = `
-    [out:json][timeout:12];
+    [out:json][timeout:15];
     (
       node["amenity"~"^(hospital|clinic|school|university|pharmacy|bank|police|fire_station|place_of_worship|mosque|restaurant)$"](around:${radiusMeters},${lat},${lng});
       way["amenity"~"^(hospital|clinic|school|university|pharmacy|bank|police|fire_station|place_of_worship|mosque|restaurant)$"](around:${radiusMeters},${lat},${lng});
@@ -281,7 +296,7 @@ export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000, { skipThr
 
   try {
     const startMs = Date.now();
-    const data = await fetchOverpassWithRetry(query, 12000, 1, { skipThrottle, queryType: 'places' });
+    const data = await fetchOverpassWithRetry(query, 15000, 2, { skipThrottle, queryType: 'places' });
 
     const results = (data.elements || []).map((el) => ({
       id: el.id,

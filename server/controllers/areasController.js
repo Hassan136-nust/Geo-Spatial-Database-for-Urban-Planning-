@@ -36,70 +36,40 @@ export const searchArea = async (req, res, next) => {
       .then(cp => { cityProfile = cp; cityName = cp?.name || ''; })
       .catch(cpErr => console.error('[Areas] CityProfile error (non-fatal):', cpErr.message));
 
-    // 3. CHECK DB CACHE FIRST — skip Overpass if we have fresh data
-    let places = [];
-    let roadData = [];
-    let roadCount = 0;
-    let usedCache = false;
+    // 3. Fetch places AND roads from Overpass IN PARALLEL
+    //    NOTE: osmService has its own 24h in-memory cache that preserves original
+    //    OSM types (hospital, mosque, pharmacy etc.) — repeat searches are fast.
+    //    We do NOT use the DB Landmark cache here because it maps types to schema
+    //    types (mosque→religious, pharmacy→commercial) which breaks the scoring engine.
+    console.log(`[Areas] Fetching data for (${lat.toFixed(4)}, ${lng.toFixed(4)}) — in parallel...`);
+    const [placesResult, roadsResult] = await Promise.allSettled([
+      osmService.getNearbyAllTypes(lat, lng, parsedRadius, { skipThrottle: true }),
+      osmService.getRoads(lat, lng, Math.min(parsedRadius, 3000), { skipThrottle: true }),
+    ]);
 
-    try {
-      console.log(`[Areas] Checking DB cache for (${lat.toFixed(4)}, ${lng.toFixed(4)})...`);
-      const [cachedLandmarks, cachedRoads] = await Promise.all([
-        cacheService.findCachedLandmarks(lat, lng, radiusKm),
-        cacheService.findCachedRoads(lat, lng, Math.min(radiusKm, 3)),
-      ]);
+    let places = placesResult.status === 'fulfilled' ? placesResult.value : [];
+    let roadData = roadsResult.status === 'fulfilled' ? roadsResult.value : [];
+    let roadCount = roadData.length;
 
-      if (cachedLandmarks.length >= 5 && cachedRoads.length >= 3) {
-        // Use DB cache — near-instant response
-        console.log(`[Areas] ✅ DB cache HIT: ${cachedLandmarks.length} landmarks, ${cachedRoads.length} roads`);
-        places = cachedLandmarks.map(l => ({
-          id: l.osm_id || l._id,
-          name: l.name,
-          type: l.type,
-          lat: l.geometry?.coordinates?.[1],
-          lng: l.geometry?.coordinates?.[0],
-          distance: haversineDistance(lat, lng, l.geometry?.coordinates?.[1], l.geometry?.coordinates?.[0]),
-          address: l.address || '',
-        }));
-        roadCount = cachedRoads.length;
-        usedCache = true;
-      }
-    } catch (cacheErr) {
-      console.warn('[Areas] DB cache check failed (non-fatal):', cacheErr.message);
+    // 4. Smart retry: only if places=0 AND roads succeeded (Overpass is reachable)
+    if (places.length === 0 && roadCount > 0) {
+      console.warn(`[Areas] ⚠️ 0 places but ${roadCount} roads — retrying places in 2s...`);
+      await new Promise(r => setTimeout(r, 2000));
+      places = await osmService.getNearbyAllTypes(lat, lng, parsedRadius);
+      console.log(`[Areas] Retry result: ${places.length} places`);
     }
 
-    if (!usedCache) {
-      // 4. Fetch places AND roads from Overpass IN PARALLEL (biggest perf win)
-      console.log(`[Areas] DB cache miss — fetching from Overpass in parallel...`);
-      const [placesResult, roadsResult] = await Promise.allSettled([
-        osmService.getNearbyAllTypes(lat, lng, parsedRadius, { skipThrottle: true }),
-        osmService.getRoads(lat, lng, Math.min(parsedRadius, 3000), { skipThrottle: true }),
-      ]);
+    console.log(`[Areas] Data: ${places.length} landmarks, ${roadCount} roads (${Date.now() - startTime}ms)`);
 
-      places = placesResult.status === 'fulfilled' ? placesResult.value : [];
-      roadData = roadsResult.status === 'fulfilled' ? roadsResult.value : [];
-      roadCount = roadData.length;
-
-      // 5. Smart retry: only if places=0 AND roads succeeded (Overpass is reachable)
-      if (places.length === 0 && roadCount > 0) {
-        console.warn(`[Areas] ⚠️ 0 places but ${roadCount} roads — retrying places in 2s...`);
-        await new Promise(r => setTimeout(r, 2000));
-        places = await osmService.getNearbyAllTypes(lat, lng, parsedRadius);
-        console.log(`[Areas] Retry result: ${places.length} places`);
-      }
-
-      console.log(`[Areas] Overpass data: ${places.length} landmarks, ${roadCount} roads (${Date.now() - startTime}ms)`);
-
-      // 6. Save fetched data to DB cache (non-blocking)
-      if (places.length > 0 || roadData.length > 0) {
-        await cityPromise; // Ensure cityName is resolved
-        cacheService.saveLandmarksFromOSM(places, cityName, null).catch(err => 
-          console.error('[Areas] DB cache landmarks save error:', err.message)
-        );
-        cacheService.saveRoadsFromOSM(roadData, cityName, null).catch(err => 
-          console.error('[Areas] DB cache roads save error:', err.message)
-        );
-      }
+    // 5. Save fetched data to DB cache (non-blocking — for other features, not scoring)
+    if (places.length > 0 || roadData.length > 0) {
+      await cityPromise; // Ensure cityName is resolved
+      cacheService.saveLandmarksFromOSM(places, cityName, null).catch(err => 
+        console.error('[Areas] DB cache landmarks save error:', err.message)
+      );
+      cacheService.saveRoadsFromOSM(roadData, cityName, null).catch(err => 
+        console.error('[Areas] DB cache roads save error:', err.message)
+      );
     }
 
     // Wait for city profile if not yet resolved
@@ -210,16 +180,6 @@ export const searchArea = async (req, res, next) => {
     }
   }
 };
-
-// Haversine distance helper for DB-cached results
-function haversineDistance(lat1, lng1, lat2, lng2) {
-  if (!lat1 || !lng1 || !lat2 || !lng2) return 0;
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLng = ((lng2 - lng1) * Math.PI) / 180;
-  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
-  return parseFloat((R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(2));
-}
 
 // @desc    Get user's saved area history
 // @route   GET /api/areas/history
