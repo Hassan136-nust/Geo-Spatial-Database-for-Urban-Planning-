@@ -116,8 +116,7 @@ export function CompareAreas() {
         backgroundRepeat: 'no-repeat'
       }}
     >
-      {/* Subtle overlay for readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background/80" />
+      {/* No overlay - clear background image */}
       
       <div className="relative z-10">
         {/* Toast */}

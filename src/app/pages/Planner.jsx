@@ -704,8 +704,8 @@ export function Planner() {
 
       {/* Tool Palette - Left Side */}
       <div className="absolute top-24 left-4 z-[1000] w-56">
-        <div className="bg-white/95 backdrop-blur-xl border border-gray-200 rounded-2xl p-4 shadow-2xl">
-          <h3 className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+        <div className="bg-primary/95 backdrop-blur-xl border border-primary/30 rounded-2xl p-4 shadow-2xl">
+          <h3 className="text-xs font-bold text-text-on-dark uppercase tracking-wider mb-3 flex items-center gap-2">
             <GripVertical className="w-3.5 h-3.5" /> Planning Tools
           </h3>
           <div className="space-y-1.5">
@@ -717,17 +717,17 @@ export function Planner() {
                 onClick={() => setActiveTool(activeTool === item.type ? null : item.type)}
                 className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all text-xs ${
                   activeTool === item.type
-                    ? 'bg-cyan-500/20 border border-cyan-500/40 text-gray-900 ring-1 ring-cyan-500/30'
-                    : 'bg-white/5 border border-gray-200 text-gray-700 hover:bg-white/10'
+                    ? 'bg-amber/30 border border-amber/50 text-text-on-dark ring-1 ring-amber/40'
+                    : 'bg-primary/20 border border-text-on-dark/20 text-text-on-dark/90 hover:bg-primary/30'
                 }`}
               >
                 <span className="text-base flex-shrink-0">{item.icon}</span>
                 <div className="flex-1">
                   <div className="font-semibold">{item.label}</div>
-                  <div className="text-[10px] text-gray-500">{item.desc}</div>
+                  <div className="text-[10px] text-text-on-dark/70">{item.desc}</div>
                 </div>
                 {typeCounts[item.type] > 0 && (
-                  <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded-full">{typeCounts[item.type]}</span>
+                  <span className="text-[10px] bg-amber/20 text-text-on-dark px-1.5 py-0.5 rounded-full">{typeCounts[item.type]}</span>
                 )}
               </motion.button>
             ))}
@@ -737,15 +737,15 @@ export function Planner() {
             <motion.div
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-3 px-3 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-lg text-[10px] text-cyan-300 text-center"
+              className="mt-3 px-3 py-2 bg-amber/20 border border-amber/40 rounded-lg text-[10px] text-text-on-dark text-center"
             >
               Click on the map to place {PLANNER_ITEMS.find((i) => i.type === activeTool)?.label}
             </motion.div>
           )}
 
           {/* Radius Selector */}
-          <div className="mt-3 pt-3 border-t border-gray-200">
-            <h4 className="text-[10px] font-bold text-gray-900/50 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <div className="mt-3 pt-3 border-t border-text-on-dark/20">
+            <h4 className="text-[10px] font-bold text-text-on-dark/80 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <Shield className="w-3 h-3" /> Evaluation Radius
             </h4>
             <div className="grid grid-cols-3 gap-1">
@@ -755,27 +755,27 @@ export function Planner() {
                   onClick={() => setRadius(r)}
                   className={`px-2 py-2 rounded-lg text-[10px] font-semibold transition-all ${
                     radius === r
-                      ? 'bg-cyan-500/25 border border-cyan-400/50 text-cyan-300 ring-1 ring-cyan-500/30'
-                      : 'bg-white/5 border border-gray-200 text-gray-900/50 hover:bg-white/10'
+                      ? 'bg-amber/30 border border-amber/50 text-text-on-dark ring-1 ring-amber/40'
+                      : 'bg-primary/20 border border-text-on-dark/20 text-text-on-dark/80 hover:bg-primary/30'
                   }`}
                 >
                   {r} km
                 </button>
               ))}
             </div>
-            <p className="text-[9px] text-gray-400 mt-1.5">Score adjusts based on radius</p>
+            <p className="text-[9px] text-text-on-dark/70 mt-1.5">Score adjusts based on radius</p>
           </div>
 
-          <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
-            <div className="flex gap-2 text-[10px] text-gray-900/50">
-              <span className="bg-white/5 px-2 py-1 rounded">{elements.length} placed</span>
-              {analyzing && <span className="px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 flex items-center gap-1"><Loader2 className="w-2.5 h-2.5 animate-spin" />analyzing</span>}
+          <div className="mt-3 pt-3 border-t border-text-on-dark/20 space-y-2">
+            <div className="flex gap-2 text-[10px] text-text-on-dark/80">
+              <span className="bg-primary/20 px-2 py-1 rounded">{elements.length} placed</span>
+              {analyzing && <span className="px-2 py-1 rounded bg-amber/20 text-text-on-dark flex items-center gap-1"><Loader2 className="w-2.5 h-2.5 animate-spin" />analyzing</span>}
             </div>
 
             {/* AI Generate Button */}
             <button
               onClick={() => { setShowAiPanel(true); setDeleteMode(false); setActiveTool(null); }}
-              className="w-full px-3 py-2.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-xl text-[10px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-lg shadow-violet-900/30"
+              className="w-full px-3 py-2.5 bg-gradient-to-r from-amber to-[#D4B574] hover:from-amber/90 hover:to-[#D4B574]/90 rounded-xl text-[10px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-lg shadow-amber/30 text-text-primary"
             >
               <Bot className="w-3.5 h-3.5" /> AI City Generator ✨
             </button>
@@ -785,7 +785,7 @@ export function Planner() {
               <button
                 onClick={runAnalysis}
                 disabled={elements.length < 2 || analyzing}
-                className="px-3 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg text-[10px] font-semibold disabled:opacity-40 flex items-center justify-center gap-1"
+                className="px-3 py-2 bg-amber hover:bg-amber/90 rounded-lg text-[10px] font-semibold disabled:opacity-40 flex items-center justify-center gap-1 text-text-primary transition-colors"
               >
                 {analyzing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Lightbulb className="w-3 h-3" />}
                 Analyze
@@ -795,49 +795,49 @@ export function Planner() {
                 disabled={elements.length === 0}
                 className={`px-3 py-2 rounded-lg text-[10px] font-semibold disabled:opacity-40 flex items-center justify-center gap-1 transition-all ${
                   deleteMode
-                    ? 'bg-red-500/25 border border-red-400/50 text-red-300 ring-1 ring-red-500/30'
-                    : 'bg-white/5 border border-gray-200 text-gray-600 hover:bg-red-500/10 hover:text-red-300 hover:border-red-500/20'
+                    ? 'bg-destructive/30 border border-destructive/50 text-text-on-dark ring-1 ring-destructive/40'
+                    : 'bg-primary/20 border border-text-on-dark/20 text-text-on-dark/80 hover:bg-destructive/20 hover:text-text-on-dark hover:border-destructive/30'
                 }`}
               >
                 <Trash2 className="w-3 h-3" /> {deleteMode ? 'Click to Del' : 'Delete'}
               </button>
             </div>
             <div className="grid grid-cols-3 gap-1.5">
-              <button onClick={handleUndoLast} disabled={elements.length === 0} className="px-2 py-2 bg-white/5 border border-gray-200 rounded-lg text-[10px] text-gray-600 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-amber-500/10 hover:text-amber-300 hover:border-amber-500/20 transition-all">
+              <button onClick={handleUndoLast} disabled={elements.length === 0} className="px-2 py-2 bg-primary/20 border border-text-on-dark/20 rounded-lg text-[10px] text-text-on-dark/80 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-amber/20 hover:text-text-on-dark hover:border-amber/30 transition-all">
                 <Undo2 className="w-3 h-3" /> Undo
               </button>
-              <button onClick={handleClear} disabled={elements.length === 0} className="px-2 py-2 bg-white/5 border border-gray-200 rounded-lg text-[10px] text-gray-600 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-white/10 transition-all">
+              <button onClick={handleClear} disabled={elements.length === 0} className="px-2 py-2 bg-primary/20 border border-text-on-dark/20 rounded-lg text-[10px] text-text-on-dark/80 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-primary/30 transition-all">
                 <RotateCcw className="w-3 h-3" /> Clear
               </button>
-              <button onClick={handleExportGeoJSON} disabled={elements.length === 0} className="px-2 py-2 bg-white/5 border border-gray-200 rounded-lg text-[10px] text-gray-600 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-white/10 transition-all">
+              <button onClick={handleExportGeoJSON} disabled={elements.length === 0} className="px-2 py-2 bg-primary/20 border border-text-on-dark/20 rounded-lg text-[10px] text-text-on-dark/80 disabled:opacity-40 flex items-center justify-center gap-1 hover:bg-primary/30 transition-all">
                 <Download className="w-3 h-3" /> Export
               </button>
             </div>
             <div className="grid grid-cols-2 gap-1.5">
-              <label className="px-3 py-2 bg-white/5 border border-gray-200 rounded-lg text-[10px] text-gray-600 cursor-pointer flex items-center justify-center gap-1 hover:bg-white/10 col-span-2">
+              <label className="px-3 py-2 bg-primary/20 border border-text-on-dark/20 rounded-lg text-[10px] text-text-on-dark/80 cursor-pointer flex items-center justify-center gap-1 hover:bg-primary/30 col-span-2">
                 <FileDown className="w-3 h-3" /> Import GeoJSON
                 <input type="file" accept=".geojson,.json" onChange={handleImportGeoJSON} className="hidden" />
               </label>
             </div>
             {user && (
-              <button onClick={() => setShowSaveDialog(true)} disabled={elements.length === 0} className="w-full mt-1.5 px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 rounded-lg text-[10px] font-semibold flex items-center justify-center gap-1 transition-colors">
+              <button onClick={() => setShowSaveDialog(true)} disabled={elements.length === 0} className="w-full mt-1.5 px-3 py-2 bg-vegetation hover:bg-vegetation/90 rounded-lg text-[10px] font-semibold flex items-center justify-center gap-1 transition-colors text-white">
                 <Save className="w-3 h-3" /> Save / Update Design
               </button>
             )}
 
             {/* Line legend */}
             {elements.filter((e) => e.type === 'house').length > 0 && (
-              <div className="mt-2 pt-2 border-t border-gray-100">
-                <p className="text-[9px] text-gray-500 mb-1.5">Distance Lines</p>
+              <div className="mt-2 pt-2 border-t border-text-on-dark/20">
+                <p className="text-[9px] text-text-on-dark/70 mb-1.5">Distance Lines</p>
                 <div className="space-y-1">
                   <div className="flex items-center gap-1.5 text-[9px]">
-                    <div className="w-4 h-0.5 bg-green-400 rounded" /> <span className="text-green-400">Ideal range</span>
+                    <div className="w-4 h-0.5 bg-vegetation rounded" /> <span className="text-vegetation">Ideal range</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-[9px]">
-                    <div className="w-4 h-0.5 bg-yellow-400 rounded" /> <span className="text-yellow-400">Acceptable</span>
+                    <div className="w-4 h-0.5 bg-amber rounded" /> <span className="text-amber">Acceptable</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-[9px]">
-                    <div className="w-4 h-0.5 bg-red-400 rounded" /> <span className="text-red-400">Too far</span>
+                    <div className="w-4 h-0.5 bg-destructive rounded" /> <span className="text-destructive">Too far</span>
                   </div>
                 </div>
               </div>

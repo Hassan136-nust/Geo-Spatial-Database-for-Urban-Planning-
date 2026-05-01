@@ -65,8 +65,7 @@ export function MyDesigns() {
         backgroundRepeat: 'no-repeat'
       }}
     >
-      {/* Subtle overlay for readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background/80" />
+      {/* No overlay - clear background image */}
       
       <div className="max-w-6xl mx-auto relative z-10">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">

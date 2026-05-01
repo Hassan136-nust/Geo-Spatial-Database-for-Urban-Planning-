@@ -208,8 +208,19 @@ export function LandmarksManager() {
   }
 
   return (
-    <div className="min-h-screen pt-28 pb-20 px-8">
-      <div className="max-w-7xl mx-auto">
+    <div 
+      className="min-h-screen pt-28 pb-20 px-8 relative"
+      style={{
+        backgroundImage: 'url(https://www.economist.com/cdn-cgi/image/width=1920,quality=95,format=auto/content-assets/images/20241221_STP001.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* No overlay - clear background image */}
+      
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <h1 className="text-3xl font-bold text-foreground">
