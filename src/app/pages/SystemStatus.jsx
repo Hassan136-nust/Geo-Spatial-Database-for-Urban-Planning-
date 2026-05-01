@@ -95,17 +95,17 @@ export function SystemStatus() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold text-text-primary">
               System Status
             </h1>
-            <p className="text-gray-900/50 mt-2">Database collections, server health, and activity monitoring</p>
+            <p className="text-text-secondary mt-2">Database collections, server health, and activity monitoring</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleRefresh}
             disabled={refreshing}
-            className="px-4 py-2.5 bg-white/10 hover:bg-white/15 border border-gray-200 rounded-xl text-sm text-gray-700 flex items-center gap-2 transition-colors"
+            className="px-4 py-2.5 bg-white/90 hover:bg-white border border-primary/30 rounded-xl text-sm text-text-primary font-semibold flex items-center gap-2 transition-colors"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
@@ -179,7 +179,7 @@ export function SystemStatus() {
 
         {/* Collection Grid */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-          <h2 className="text-lg font-bold mb-4 text-gray-700">Collection Details</h2>
+          <h2 className="text-lg font-bold mb-4 text-text-primary">Collection Details</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-8">
             {stats?.counts && Object.entries(stats.counts).sort((a, b) => b[1] - a[1]).map(([name, count], i) => {
               const meta = COLLECTION_META[name] || { icon: Database, color: '#6b7280', label: name };
@@ -197,7 +197,7 @@ export function SystemStatus() {
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: meta.color + '15' }}>
                           <Icon className="w-4 h-4" style={{ color: meta.color }} />
                         </div>
-                        <span className="text-xs text-gray-900/50 truncate">{meta.label}</span>
+                        <span className="text-xs text-text-primary truncate">{meta.label}</span>
                       </div>
                       <div className="text-2xl font-bold">{count.toLocaleString()}</div>
                       <div className="mt-2 h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -221,18 +221,18 @@ export function SystemStatus() {
         {activityFeed.length > 0 && (
           <GlassPanel>
             <div className="p-5">
-              <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Activity className="w-4 h-4 text-cyan-400" /> Recent Activity
+              <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-primary" /> Recent Activity
               </h3>
               <div className="space-y-2 max-h-80 overflow-y-auto">
                 {activityFeed.slice(0, 20).map((a, i) => (
-                  <div key={a._id || i} className="flex items-center gap-3 p-2.5 bg-white/5 rounded-xl text-xs">
-                    <div className="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center flex-shrink-0">
-                      <Activity className="w-3.5 h-3.5 text-cyan-400" />
+                  <div key={a._id || i} className="flex items-center gap-3 p-2.5 bg-white/80 rounded-xl text-xs">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <Activity className="w-3.5 h-3.5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-gray-700 truncate">{a.action?.replace(/_/g, ' ')}</p>
-                      <p className="text-gray-400">{a.resource_type} • {new Date(a.createdAt || a.created_at).toLocaleString()}</p>
+                      <p className="text-text-primary font-semibold truncate">{a.action?.replace(/_/g, ' ')}</p>
+                      <p className="text-text-secondary font-medium text-[10px]">{a.resource_type} • {new Date(a.createdAt || a.created_at).toLocaleString()}</p>
                     </div>
                   </div>
                 ))}
@@ -243,7 +243,7 @@ export function SystemStatus() {
 
         {/* API Version Info */}
         <div className="mt-6 text-center">
-          <p className="text-xs text-gray-300">
+          <p className="text-xs text-text-secondary">
             UrbanPulse API v{health?.version || '2.0'} • {stats?.totalCollections || 18} collections • Last refreshed {new Date().toLocaleTimeString()}
           </p>
         </div>

@@ -103,7 +103,7 @@ export function CompareAreas() {
     } catch (err) { console.error(err); }
   };
 
-  if (!user) return <div className="min-h-screen pt-28 pb-20 px-8 text-center"><p className="text-gray-900/50">Please login</p></div>;
+  if (!user) return <div className="min-h-screen pt-28 pb-20 px-8 text-center"><p className="text-text-primary font-medium" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>Please login</p></div>;
 
   return (
     <div 
@@ -139,19 +139,19 @@ export function CompareAreas() {
 
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-300 to-teal-400 bg-clip-text text-transparent">Compare Areas</h1>
-            <p className="text-gray-900/50 mt-2">Side-by-side analysis of multiple areas</p>
+            <h1 className="text-3xl font-bold text-text-primary">Compare Areas</h1>
+            <p className="text-text-secondary mt-2">Side-by-side analysis of multiple areas</p>
           </motion.div>
 
           {/* Create Comparison */}
           <GlassPanel>
             <div className="p-6">
-              <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4">New Comparison</h3>
+              <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-4">New Comparison</h3>
               <input 
                 value={compName} 
                 onChange={(e) => setCompName(e.target.value)} 
                 placeholder="Comparison name (optional)" 
-                className="w-full bg-white/5 border border-gray-200 rounded-xl px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-teal-500/50" 
+                className="w-full bg-white/90 border border-primary/30 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted mb-4 focus:outline-none focus:border-primary" 
               />
               {areas.length > 0 ? (
                 <div className="flex flex-wrap gap-2 mb-4">
@@ -159,18 +159,18 @@ export function CompareAreas() {
                     <button 
                       key={area._id} 
                       onClick={() => toggleArea(area._id)}
-                      className={`px-3 py-1.5 rounded-full text-xs border transition-all duration-300 ${selectedAreas.includes(area._id) ? 'bg-teal-500/20 border-teal-500/50 text-teal-300 shadow-[0_0_10px_rgba(20,184,166,0.3)]' : 'bg-white/5 border-gray-200 text-gray-900/50 hover:bg-white/10'}`}>
+                      className={`px-3 py-1.5 rounded-full text-xs border transition-all duration-300 ${selectedAreas.includes(area._id) ? 'bg-primary/20 border-primary/50 text-primary shadow-[0_0_10px_rgba(39,174,96,0.3)]' : 'bg-white/80 border-primary/20 text-text-primary hover:bg-white/100'}`}>
                       {area.area_name} {area.last_analysis_score != null && `(${area.last_analysis_score})`}
                     </button>
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-gray-400 mb-4">Search areas on the Dashboard first to compare them.</p>
+                <p className="text-xs text-text-secondary mb-4">Search areas on the Dashboard first to compare them.</p>
               )}
               <button 
                 onClick={handleCompare} 
                 disabled={selectedAreas.length < 2 || selectedAreas.length > 4 || creating} 
-                className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl text-sm font-semibold disabled:opacity-50 flex items-center gap-2">
+                className="px-6 py-2.5 bg-gradient-to-r from-primary to-vegetation rounded-xl text-white text-sm font-semibold disabled:opacity-50 flex items-center gap-2">
                 {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <GitCompare className="w-4 h-4" />} 
                 Compare ({selectedAreas.length} selected) {selectedAreas.length > 4 && "(Max 4)"}
               </button>
@@ -179,19 +179,19 @@ export function CompareAreas() {
 
           {/* Existing Comparisons */}
           {loading ? (
-            <div className="text-center py-10"><Loader2 className="w-6 h-6 text-teal-400 mx-auto animate-spin" /></div>
+            <div className="text-center py-10"><Loader2 className="w-6 h-6 text-primary mx-auto animate-spin" /></div>
           ) : comparisons.length > 0 && (
             <div className="mt-6 space-y-4">
-              <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Previous Comparisons</h3>
+              <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Previous Comparisons</h3>
               {comparisons.map((comp) => (
                 <GlassPanel key={comp._id}>
                   <div className="p-5">
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-gray-900/90">{comp.name}</h4>
+                      <h4 className="font-semibold text-text-primary">{comp.name}</h4>
                       <div className="flex items-center gap-2">
                         <button 
                           onClick={() => setExpandedComp(expandedComp === comp._id ? null : comp._id)} 
-                          className="text-gray-500 hover:bg-white/10 p-1 rounded">
+                          className="text-text-primary hover:bg-white/80 p-1 rounded">
                           {expandedComp === comp._id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                         </button>
                         <button 
@@ -227,9 +227,9 @@ export function CompareAreas() {
                           
                           {/* Winner Explanation */}
                           {comp.winner_explanation && (
-                            <div className="mb-4 p-4 bg-emerald-900/20 border border-emerald-500/20 rounded-xl text-sm text-emerald-100">
+                            <div className="mb-4 p-4 bg-green-500/10 border border-green-500/20 rounded-xl text-sm text-text-primary font-medium">
                               <h5 className="font-bold flex items-center gap-2 mb-1">
-                                <Trophy className="w-4 h-4 text-emerald-400" /> Final Verdict
+                                <Trophy className="w-4 h-4 text-green-400" /> Final Verdict
                               </h5>
                               <p>{comp.winner_explanation}</p>
                             </div>
@@ -280,9 +280,9 @@ export function CompareAreas() {
 
                           {/* Difference Analysis / Metric Breakdown */}
                           {comp.difference_analysis && (
-                            <div className="bg-white/60 rounded-xl border border-gray-100 p-4">
-                              <h5 className="font-semibold text-gray-800 flex items-center gap-2 mb-3 text-sm">
-                                <BarChart3 className="w-4 h-4 text-cyan-400" /> Metric Breakdown
+                            <div className="bg-white/80 rounded-xl border border-primary/20 p-4">
+                              <h5 className="font-semibold text-text-primary flex items-center gap-2 mb-3 text-sm">
+                                <BarChart3 className="w-4 h-4 text-primary" /> Metric Breakdown
                               </h5>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 {Object.entries(comp.difference_analysis).map(([metric, diff]) => {
