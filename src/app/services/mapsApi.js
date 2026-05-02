@@ -3,7 +3,7 @@
 // UrbanPulse v2.0 — 18-collection system
 // ═══════════════════════════════════════════════════════════
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 function getAuthHeaders() {
   const token = localStorage.getItem('urbanpulse_token');
