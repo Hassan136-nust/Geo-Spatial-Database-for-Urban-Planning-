@@ -52,16 +52,15 @@ if (!fs.existsSync(reportsDir)) {
 
 // Middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? [
-        process.env.FRONTEND_URL || 'https://your-app.vercel.app',
-        'https://*.vercel.app'
-      ]
-    : [
-        'http://localhost:5173',
-        'http://localhost:5174'
-      ],
-  credentials: true
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://geo-spatial-database-for-urban-plan.vercel.app',
+    'https://*.vercel.app'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(morgan('dev'));
