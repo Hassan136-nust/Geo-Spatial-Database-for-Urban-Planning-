@@ -51,7 +51,17 @@ if (!fs.existsSync(reportsDir)) {
 }
 
 // Middleware
-app.use(cors());
+const cors = require('cors');
+
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://geo-spatial-database-for-urban-planning.onrender.com',
+    'https://*.vercel.app'
+  ],
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(morgan('dev'));
 
