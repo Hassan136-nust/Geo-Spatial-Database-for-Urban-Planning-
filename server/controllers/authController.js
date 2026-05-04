@@ -1,7 +1,9 @@
 import User from '../models/User.js';
+import { OAuth2Client } from 'google-auth-library';
 
-// @desc    Register user
-// @route   POST /api/auth/register
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+
 export const register = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
@@ -68,6 +70,63 @@ export const login = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+
+// @desc    Google OAuth Login
+// @route   POST /api/auth/google
+export const googleAuth = async (req, res, next) => {
+  try {
+    const { credential } = req.body;
+
+    // Verify Google token
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+
+    // Find or create user
+    let user = await User.findOne({ $or: [{ email }, { googleId }] });
+
+    if (user) {
+      // Update Google ID if not set
+      if (!user.googleId) {
+        user.googleId = googleId;
+        await user.save();
+      }
+      user.lastLogin = Date.now();
+      await user.save({ validateBeforeSave: false });
+    } else {
+      // Create new user
+      user = await User.create({
+        googleId,
+        name,
+        email,
+        avatar: picture,
+        role: 'viewer',
+        password: Math.random().toString(36).slice(-12), // Random password for OAuth users
+      });
+    }
+
+    const token = user.getSignedJwt();
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+      },
+    });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    res.status(400).json({ success: false, message: 'Google authentication failed' });
   }
 };
 

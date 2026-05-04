@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, getMe, updateProfile, changePassword, getAllUsers, updateUserRole, deleteUser } from '../controllers/authController.js';
+import { register, login, getMe, updateProfile, changePassword, getAllUsers, updateUserRole, deleteUser, googleAuth } from '../controllers/authController.js';
 import { protect, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -7,6 +7,7 @@ const router = express.Router();
 router.post('/register', register);
 router.post('/signup', register);
 router.post('/login', login);
+router.post('/google', googleAuth); // Google OAuth endpoint
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
 router.put('/password', protect, changePassword);
