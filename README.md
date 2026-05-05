@@ -39,7 +39,7 @@ UrbanPulse transforms raw geospatial data into actionable urban planning intelli
 │                    Frontend (React + Vite)                    │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
 │  │Dashboard │  │ Planner  │  │Analytics │  │7 New Pages│    │
-│  │(Leaflet) │  │(Drag/Drop│  │(Charts)  │  │(CRUD)     │    │
+│  │(Leaflet) │  │(Drag/Drop)│  │(Charts)  │  │(CRUD)     │    │
 │  └─────┬────┘  └─────┬────┘  └─────┬────┘  └─────┬────┘    │
 │        └──────────────┴─────────────┴─────────────┘          │
 │                    mapsApi.js (fetch wrapper)                 │
