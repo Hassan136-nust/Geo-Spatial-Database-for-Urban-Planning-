@@ -263,8 +263,8 @@ function CityModal({ design, onClose }) {
           {/* Legend */}
           <div className="absolute bottom-4 left-4 flex flex-wrap gap-2 max-w-sm">
             {Object.entries(typeGroups).map(([type, count]) => (
-              <span key={type} className="text-[10px] px-2 py-1 rounded-lg border backdrop-blur-sm text-gray-900 font-medium"
-                style={{ background: (TYPE_COLOR[type] || '#6b7280') + '35', borderColor: (TYPE_COLOR[type] || '#6b7280') + '60' }}>
+              <span key={type} className="text-[10px] px-2 py-1 rounded-lg border backdrop-blur-md text-white font-bold"
+                style={{ background: (TYPE_COLOR[type] || '#6b7280') + '66', borderColor: (TYPE_COLOR[type] || '#6b7280') + '99' }}>
                 {type} × {count}
               </span>
             ))}

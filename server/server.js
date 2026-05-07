@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import connectDB from './config/db.js';
+import { connectRedis } from './config/redis.js';
 import errorHandler from './middleware/errorHandler.js';
 
 // ─── Original Route imports ─────────────────────────────
@@ -41,8 +42,9 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 
-// Connect to MongoDB
+// Connect to Databases
 connectDB();
+connectRedis();
 
 // Ensure reports directory exists
 const reportsDir = path.join(__dirname, 'reports');

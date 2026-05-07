@@ -158,15 +158,16 @@ export function Analytics() {
         backgroundRepeat: 'no-repeat'
       }}
     >
-      {/* No overlay - clear background image */}
+      {/* Overlay for better text contrast */}
+      <div className="absolute inset-0 bg-black/40 z-0" />
       
       <div className="max-w-7xl mx-auto relative z-10">
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="text-5xl font-bold mb-3 text-text-primary">
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-8 relative z-10">
+          <h1 className="text-5xl font-bold mb-3 text-white">
             Reports & Analytics
           </h1>
-          <p className="text-lg text-text-secondary">Search any area or click the map to analyze infrastructure coverage</p>
-          <p className="text-xs text-text-muted mt-1 flex items-center gap-1">
+          <p className="text-lg text-white/90">Search any area or click the map to analyze infrastructure coverage</p>
+          <p className="text-xs text-white/60 mt-1 flex items-center gap-1">
             <Database className="w-3 h-3" /> Uses same data source as Map page — scores are always synchronized
           </p>
         </motion.div>
@@ -210,21 +211,21 @@ export function Analytics() {
             <div className="p-6 flex flex-col justify-center h-80">
               {!analysis && !loading && (
                 <div className="text-center">
-                  <MapPin className="w-12 h-12 text-primary/30 mx-auto mb-3" />
-                  <p className="text-sm text-text-primary">Search or click the map to analyze an area</p>
+                  <MapPin className="w-12 h-12 text-white/30 mx-auto mb-3" />
+                  <p className="text-sm text-white">Search or click the map to analyze an area</p>
                 </div>
               )}
               {loading && (
                 <div className="text-center">
                   <Loader2 className="w-10 h-10 text-primary mx-auto mb-3 animate-spin" />
-                  <p className="text-sm text-text-primary">Fetching real-time data...</p>
-                  <p className="text-xs text-text-secondary mt-1">Analyzing infrastructure via MapTiler</p>
+                  <p className="text-sm text-white">Fetching real-time data...</p>
+                  <p className="text-xs text-white/70 mt-1">Analyzing infrastructure via MapTiler</p>
                 </div>
               )}
               {analysis && !loading && (
                 <>
-                  <p className="text-xs text-gray-500 mb-1">Analysis for</p>
-                  <h3 className="text-sm font-medium text-gray-800 mb-4 line-clamp-2">{areaName}</h3>
+                  <p className="text-xs text-white/50 mb-1">Analysis for</p>
+                  <h3 className="text-sm font-medium text-white mb-4 line-clamp-2">{areaName}</h3>
 
                   <div className="flex items-end gap-3 mb-4">
                     <span className={`text-6xl font-bold ${
@@ -297,7 +298,7 @@ export function Analytics() {
                         <span className="ml-auto text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">{s.score}/100</span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-700">{s.message}</p>
+                    <p className="text-xs text-white/80">{s.message}</p>
                   </div>
                 </GlassPanel>
               ))}
@@ -326,7 +327,7 @@ export function Analytics() {
                         w.severity === 'critical' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
                       }`}>{(w.severity || 'warning').toUpperCase()}</span>
                     </div>
-                    <p className="text-xs text-gray-700">{w.message}</p>
+                    <p className="text-xs text-white/80">{w.message}</p>
                   </div>
                 </GlassPanel>
               ))}
@@ -418,9 +419,9 @@ export function Analytics() {
                         rec.priority === 'medium' ? 'bg-blue-500/20 text-blue-400' :
                         'bg-green-500/20 text-green-400'
                       }`}>{(rec.priority || 'medium').toUpperCase()}</span>
-                      <span className="text-xs text-text-secondary font-medium capitalize">{rec.category}</span>
+                      <span className="text-xs text-white/60 font-medium capitalize">{rec.category}</span>
                     </div>
-                    <p className="text-xs text-text-primary font-medium mt-1">{rec.message}</p>
+                    <p className="text-xs text-white font-medium mt-1">{rec.message}</p>
                   </motion.div>
                 ))}
               </div>

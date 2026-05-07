@@ -2,6 +2,7 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { redisGet, redisSet } from '../config/redis.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,27 +25,28 @@ const OSRM_BASE = 'https://router.project-osrm.org';
 const USER_AGENT = 'UrbanPulse/1.0 (urban-planning-tool)';
 
 // ─────────────────────────────────────────────────────────
-// CACHING & RATE LIMITING
+// REDIS CACHING CONFIG
 // ─────────────────────────────────────────────────────────
-const cache = new Map();
-const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
+const TTL_OSM = parseInt(process.env.REDIS_TTL_OSM) || 86400; // 24 hours
+const TTL_GEOCODE = parseInt(process.env.REDIS_TTL_GEOCODE) || 2592000; // 30 days
+const TTL_ROUTES = parseInt(process.env.REDIS_TTL_ROUTES) || 604800; // 7 days
 
 function getCacheKey(type, lat, lng, radius) {
   // Round coordinates to ~110m precision for cache hits (3 decimal places)
-  return `${type}_${lat.toFixed(3)}_${lng.toFixed(3)}_${radius}`;
+  return `osm:${type}:${lat.toFixed(3)}:${lng.toFixed(3)}:${radius}`;
 }
 
-function getFromCache(key) {
-  const cached = cache.get(key);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    console.log(`[Cache] HIT for ${key}`);
-    return cached.data;
+async function getFromCache(key) {
+  const data = await redisGet(key);
+  if (data) {
+    console.log(`[Redis] HIT for ${key}`);
+    return data;
   }
   return null;
 }
 
-function setCache(key, data) {
-  cache.set(key, { data, timestamp: Date.now() });
+async function setCache(key, data, ttl = TTL_OSM) {
+  await redisSet(key, data, ttl);
 }
 
 // Per-query-type throttle tracking so parallel queries don't block each other
@@ -116,6 +118,10 @@ async function fetchOverpassWithRetry(query, timeout = 12000, maxRetries = 1, { 
 // GEOCODING — Search for an area by name (MapTiler API)
 // ─────────────────────────────────────────────────────────
 export async function searchArea(query) {
+  const cacheKey = `geocode:${query.toLowerCase().replace(/\s+/g, '_')}`;
+  const cached = await redisGet(cacheKey);
+  if (cached) return cached;
+
   try {
     const { data } = await axios.get(`${MAPTILER_GEOCODING_BASE}/${encodeURIComponent(query)}.json`, {
       params: {
@@ -126,7 +132,7 @@ export async function searchArea(query) {
       headers: { 'User-Agent': USER_AGENT },
     });
 
-    return (data.features || []).map((feature) => {
+    const results = (data.features || []).map((feature) => {
       const [lng, lat] = feature.center || feature.geometry?.coordinates || [0, 0];
       const bbox = feature.bbox; // [west, south, east, north]
       const props = feature.properties || {};
@@ -147,6 +153,11 @@ export async function searchArea(query) {
         importance: props.relevance || 0,
       };
     });
+
+    if (results.length > 0) {
+      await redisSet(cacheKey, results, TTL_GEOCODE);
+    }
+    return results;
   } catch (err) {
     console.error('[MapTiler] SearchArea error:', err.message);
     return []; // Return empty array on error so controller returns 404 gracefully
@@ -157,6 +168,10 @@ export async function searchArea(query) {
 // REVERSE GEOCODING — Coordinates to address (MapTiler API)
 // ─────────────────────────────────────────────────────────
 export async function reverseGeocode(lat, lng) {
+  const cacheKey = `revgeocode:${lat.toFixed(4)}:${lng.toFixed(4)}`;
+  const cached = await redisGet(cacheKey);
+  if (cached) return cached;
+
   try {
     const { data } = await axios.get(`${MAPTILER_GEOCODING_BASE}/${lng},${lat}.json`, {
       params: {
@@ -194,12 +209,15 @@ export async function reverseGeocode(lat, lng) {
     if (!address.state) address.state = props.state || '';
     if (!address.country) address.country = props.country || '';
 
-    return {
+    const result = {
       displayName: feature.place_name || props.name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
       address,
       lat: rLat,
       lng: rLng,
     };
+
+    await redisSet(cacheKey, result, TTL_GEOCODE);
+    return result;
   } catch (err) {
     console.error('[MapTiler] ReverseGeocode error:', err.message);
     return {
@@ -238,6 +256,10 @@ const OSM_TYPE_MAP = {
 };
 
 export async function getNearbyPlaces(lat, lng, radiusMeters = 5000, type = 'hospital') {
+  const cacheKey = getCacheKey(type, lat, lng, radiusMeters);
+  const cached = await getFromCache(cacheKey);
+  if (cached) return cached;
+
   const osmFilter = OSM_TYPE_MAP[type] || `["amenity"="${type}"]`;
   
   const query = `
@@ -257,7 +279,7 @@ export async function getNearbyPlaces(lat, lng, radiusMeters = 5000, type = 'hos
     return [];
   }
 
-  return (data.elements || []).map((el) => ({
+  const results = (data.elements || []).map((el) => ({
     id: el.id,
     name: el.tags?.name || el.tags?.['name:en'] || `Unnamed ${type}`,
     type: type,
@@ -270,33 +292,37 @@ export async function getNearbyPlaces(lat, lng, radiusMeters = 5000, type = 'hos
     openingHours: el.tags?.opening_hours || '',
     distance: haversineDistance(lat, lng, el.lat || el.center?.lat, el.lon || el.center?.lon),
   }));
+
+  if (results.length > 0) {
+    await setCache(cacheKey, results);
+  }
+  return results;
 }
 
 // Fetch multiple types at once — with retry on failure and caching
 export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000, { skipThrottle = false } = {}) {
   const cacheKey = getCacheKey('all', lat, lng, radiusMeters);
-  const cachedData = getFromCache(cacheKey);
+  const cachedData = await getFromCache(cacheKey);
   if (cachedData) return cachedData;
 
   // Use highly-optimized Regex queries for Overpass to prevent timeouts
   const query = `
-    [out:json][timeout:15];
+    [out:json][timeout:25];
     (
       node["amenity"~"^(hospital|clinic|school|university|pharmacy|bank|police|fire_station|place_of_worship|mosque|restaurant)$"](around:${radiusMeters},${lat},${lng});
-      way["amenity"~"^(hospital|clinic|school|university|pharmacy|bank|police|fire_station|place_of_worship|mosque|restaurant)$"](around:${radiusMeters},${lat},${lng});
       node["leisure"~"^(park|playground|sports_centre)$"](around:${radiusMeters},${lat},${lng});
-      way["leisure"~"^(park|playground|sports_centre)$"](around:${radiusMeters},${lat},${lng});
       node["shop"~"^(mall|supermarket)$"](around:${radiusMeters},${lat},${lng});
-      way["shop"~"^(mall|supermarket)$"](around:${radiusMeters},${lat},${lng});
       node["office"~"^(government)$"](around:${radiusMeters},${lat},${lng});
-      way["office"~"^(government)$"](around:${radiusMeters},${lat},${lng});
+      way["amenity"~"^(hospital|clinic|school|university|pharmacy|bank|police|fire_station|place_of_worship|mosque|restaurant)$"](around:${radiusMeters},${lat},${lng});
+      way["leisure"~"^(park|playground|sports_centre)$"](around:${radiusMeters},${lat},${lng});
+      way["shop"~"^(mall|supermarket)$"](around:${radiusMeters},${lat},${lng});
     );
-    out center body;
+    out center qt;
   `;
 
   try {
     const startMs = Date.now();
-    const data = await fetchOverpassWithRetry(query, 15000, 2, { skipThrottle, queryType: 'places' });
+    const data = await fetchOverpassWithRetry(query, 35000, 1, { skipThrottle, queryType: 'places' });
 
     const results = (data.elements || []).map((el) => ({
       id: el.id,
@@ -310,7 +336,7 @@ export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000, { skipThr
     }));
 
     console.log(`[OSM] getNearbyAllTypes: ${results.length} places in ${Date.now() - startMs}ms for (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
-    setCache(cacheKey, results);
+    await setCache(cacheKey, results);
     return results;
   } catch (err) {
     console.error('[OSM] getNearbyAllTypes error (all retries exhausted):', err.message);
@@ -323,20 +349,23 @@ export async function getNearbyAllTypes(lat, lng, radiusMeters = 5000, { skipThr
 // ─────────────────────────────────────────────────────────
 export async function getRoads(lat, lng, radiusMeters = 3000, { skipThrottle = false } = {}) {
   const cacheKey = getCacheKey('roads', lat, lng, radiusMeters);
-  const cachedData = getFromCache(cacheKey);
+  const cachedData = await getFromCache(cacheKey);
   if (cachedData) return cachedData;
 
+  // If radius is large, only fetch major roads to prevent timeouts
+  const highwayFilter = radiusMeters > 3000 
+    ? 'motorway|trunk|primary|secondary' 
+    : 'motorway|trunk|primary|secondary|tertiary|residential';
+
   const query = `
-    [out:json][timeout:12];
-    (
-      way["highway"~"^(motorway|trunk|primary|secondary|tertiary|residential)$"](around:${radiusMeters},${lat},${lng});
-    );
-    out body geom;
+    [out:json][timeout:15];
+    way["highway"~"^(${highwayFilter})$"](around:${radiusMeters},${lat},${lng});
+    out body geom qt;
   `;
 
   try {
     const startMs = Date.now();
-    const data = await fetchOverpassWithRetry(query, 12000, 1, { skipThrottle, queryType: 'roads' });
+    const data = await fetchOverpassWithRetry(query, 15000, 1, { skipThrottle, queryType: 'roads' });
 
     const resultRoads = (data.elements || []).map((el) => ({
       id: el.id,
@@ -350,7 +379,7 @@ export async function getRoads(lat, lng, radiusMeters = 3000, { skipThrottle = f
         : [],
     }));
     console.log(`[OSM] getRoads: ${resultRoads.length} roads in ${Date.now() - startMs}ms`);
-    setCache(cacheKey, resultRoads);
+    await setCache(cacheKey, resultRoads);
     return resultRoads;
   } catch (err) {
     console.error('[OSM] Roads fetch error (all retries exhausted):', err.message);
@@ -362,6 +391,10 @@ export async function getRoads(lat, lng, radiusMeters = 3000, { skipThrottle = f
 // ROUTING — Get directions between two points via OSRM
 // ─────────────────────────────────────────────────────────
 export async function getDirections(originLat, originLng, destLat, destLng) {
+  const cacheKey = `route:${originLat.toFixed(4)}:${originLng.toFixed(4)}:${destLat.toFixed(4)}:${destLng.toFixed(4)}`;
+  const cached = await redisGet(cacheKey);
+  if (cached) return cached;
+
   const url = `${OSRM_BASE}/route/v1/driving/${originLng},${originLat};${destLng},${destLat}`;
   
   const { data } = await axios.get(url, {
@@ -378,7 +411,7 @@ export async function getDirections(originLat, originLng, destLat, destLng) {
   }
 
   const route = data.routes[0];
-  return {
+  const result = {
     distance: route.distance, // meters
     duration: route.duration, // seconds
     geometry: route.geometry,
@@ -388,6 +421,9 @@ export async function getDirections(originLat, originLng, destLat, destLng) {
       duration: s.duration,
     })),
   };
+
+  await redisSet(cacheKey, result, TTL_ROUTES);
+  return result;
 }
 
 // ─────────────────────────────────────────────────────────
@@ -395,7 +431,7 @@ export async function getDirections(originLat, originLng, destLat, destLng) {
 // ─────────────────────────────────────────────────────────
 export async function getAdminBoundaries(lat, lng, radiusMeters = 10000) {
   const cacheKey = getCacheKey('admin_bounds', lat, lng, radiusMeters);
-  const cachedData = getFromCache(cacheKey);
+  const cachedData = await getFromCache(cacheKey);
   if (cachedData) return cachedData;
 
   // Query for administrative boundaries and major suburbs/neighborhoods
@@ -412,7 +448,7 @@ export async function getAdminBoundaries(lat, lng, radiusMeters = 10000) {
   `;
 
   try {
-    const data = await fetchOverpassWithRetry(query, 12000, 1, { queryType: 'boundaries' });
+    const data = await fetchOverpassWithRetry(query, 15000, 1, { queryType: 'boundaries' });
     const boundaries = (data.elements || [])
       .map(el => {
         let rings = [];
@@ -482,7 +518,7 @@ export async function getAdminBoundaries(lat, lng, radiusMeters = 10000) {
     boundaries.sort((a, b) => b.area_sqkm - a.area_sqkm);
 
     console.log(`[OSM] getAdminBoundaries: ${boundaries.length} boundaries found for (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
-    setCache(cacheKey, boundaries);
+    await setCache(cacheKey, boundaries);
     return boundaries;
   } catch (err) {
     console.error('[OSM] getAdminBoundaries error:', err.message);

@@ -69,8 +69,15 @@ export function Login() {
 
     script.onload = () => {
       if (window.google) {
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+        const isPlaceholder = !clientId || clientId === 'your_google_client_id_here';
+        
+        if (isPlaceholder) {
+          console.warn('Google Client ID is missing. Google Login will not work until you add it to .env');
+        }
+
         window.google.accounts.id.initialize({
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '1234567890-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com',
+          client_id: isPlaceholder ? 'missing-id' : clientId,
           callback: handleGoogleLogin,
         });
         

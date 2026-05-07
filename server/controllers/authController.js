@@ -1,7 +1,15 @@
 import User from '../models/User.js';
 import { OAuth2Client } from 'google-auth-library';
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const getGoogleClient = () => {
+  const id = process.env.GOOGLE_CLIENT_ID;
+  if (!id || id === 'your_google_client_id_here') {
+    return null;
+  }
+  return new OAuth2Client(id);
+};
+
+const client = getGoogleClient();
 
 
 export const register = async (req, res, next) => {
@@ -78,6 +86,13 @@ export const login = async (req, res, next) => {
 export const googleAuth = async (req, res, next) => {
   try {
     const { credential } = req.body;
+
+    if (!client) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Google Authentication is not configured on the server. Please add GOOGLE_CLIENT_ID to .env' 
+      });
+    }
 
     // Verify Google token
     const ticket = await client.verifyIdToken({

@@ -340,7 +340,7 @@ export function Zones() {
             <button
               onClick={handleSaveAll}
               disabled={savingAll || osmZones.every(z => z.alreadySaved)}
-              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl text-xs font-bold text-gray-900 shadow-lg border border-gray-200 disabled:opacity-50 flex items-center gap-2 hover:shadow-cyan-500/20 transition-all"
+              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl text-xs font-bold text-white shadow-lg border border-white/20 disabled:opacity-50 flex items-center gap-2 hover:shadow-cyan-500/20 transition-all"
             >
               {savingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save All to DB

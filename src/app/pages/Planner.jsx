@@ -610,8 +610,8 @@ export function Planner() {
               <div className="bg-white border border-green-200 rounded-2xl shadow-2xl shadow-green-900/20 p-6">
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <h2 className="text-lg font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent flex items-center gap-2">
-                      <Bot className="w-5 h-5 text-violet-500" /> AI City Generator
+                    <h2 className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent flex items-center gap-2">
+                      <Bot className="w-5 h-5 text-emerald-500" /> AI City Generator
                     </h2>
                     <p className="text-[11px] text-gray-500 mt-0.5">Smart urban planner · Works instantly · Gemini AI if key is configured</p>
                   </div>
@@ -623,18 +623,18 @@ export function Planner() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider block mb-1.5">City Name</label>
-                      <input type="text" value={aiForm.cityName} onChange={(e) => setAiForm((f) => ({ ...f, cityName: e.target.value }))} placeholder="e.g. Islamabad East" className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-violet-500 transition-colors text-gray-900 placeholder-gray-400" />
+                      <input type="text" value={aiForm.cityName} onChange={(e) => setAiForm((f) => ({ ...f, cityName: e.target.value }))} placeholder="e.g. Islamabad East" className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors text-gray-900 placeholder-gray-400" />
                     </div>
                     <div>
                       <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider block mb-1.5">Population</label>
-                      <input type="number" value={aiForm.population} onChange={(e) => setAiForm((f) => ({ ...f, population: +e.target.value }))} min={1000} className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-violet-500 transition-colors text-gray-900" />
+                      <input type="number" value={aiForm.population} onChange={(e) => setAiForm((f) => ({ ...f, population: +e.target.value }))} min={1000} className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors text-gray-900" />
                     </div>
                   </div>
                   <div>
                     <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider block mb-1.5">City Radius (km)</label>
                     <div className="flex gap-2">
                       {[3, 5, 8, 12].map((r) => (
-                        <button key={r} onClick={() => setAiForm((f) => ({ ...f, radiusKm: r }))} className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${aiForm.radiusKm === r ? 'bg-violet-600 border border-violet-600 text-white shadow-md' : 'bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200'}`}>{r} km</button>
+                        <button key={r} onClick={() => setAiForm((f) => ({ ...f, radiusKm: r }))} className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${aiForm.radiusKm === r ? 'bg-primary border border-primary text-white shadow-md' : 'bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200'}`}>{r} km</button>
                       ))}
                     </div>
                   </div>
@@ -665,15 +665,15 @@ export function Planner() {
                   </div>
                   <div>
                     <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider block mb-1.5">Additional Instructions (optional)</label>
-                    <textarea value={aiForm.additionalNotes} onChange={(e) => setAiForm((f) => ({ ...f, additionalNotes: e.target.value }))} placeholder="e.g. Keep industrial zones near the eastern border. Add a university near city center." rows={3} className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-violet-500 transition-colors text-gray-900 placeholder-gray-400 resize-none" />
+                    <textarea value={aiForm.additionalNotes} onChange={(e) => setAiForm((f) => ({ ...f, additionalNotes: e.target.value }))} placeholder="e.g. Keep industrial zones near the eastern border. Add a university near city center." rows={3} className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors text-gray-900 placeholder-gray-400 resize-none" />
                   </div>
-                  <div className="bg-violet-50 border border-violet-200 rounded-xl p-3 text-[11px] text-violet-700 flex gap-2">
-                    <Bot className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-violet-500" />
-                    <span>AI places elements around the <strong className="text-violet-800">current map center</strong>. Pan the map to your target location first. Existing elements are preserved — you can edit manually afterwards.</span>
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-[11px] text-emerald-700 flex gap-2">
+                    <Bot className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-emerald-500" />
+                    <span>AI places elements around the <strong className="text-emerald-800">current map center</strong>. Pan the map to your target location first. Existing elements are preserved — you can edit manually afterwards.</span>
                   </div>
                   <div className="flex gap-3 pt-1">
                     <button onClick={() => setShowAiPanel(false)} className="flex-1 py-3 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Cancel</button>
-                    <button onClick={handleAiGenerate} disabled={aiGenerating || !aiForm.cityName.trim()} className="flex-1 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all shadow-lg shadow-violet-500/30">
+                    <button onClick={handleAiGenerate} disabled={aiGenerating || !aiForm.cityName.trim()} className="flex-1 py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 disabled:opacity-50 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/30">
                       {aiGenerating ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating…</> : <><Wand2 className="w-4 h-4" /> Generate City</>}
                     </button>
                   </div>

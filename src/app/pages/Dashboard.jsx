@@ -234,10 +234,10 @@ export function Dashboard() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search any area... (e.g. F-6 Islamabad, Lahore, New York)"
-              className="w-full bg-white/90 backdrop-blur-xl border border-gray-300 rounded-2xl px-5 py-3.5 pl-12 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 shadow-2xl"
+              className="w-full bg-sidebar/90 backdrop-blur-xl border border-sidebar-border rounded-2xl px-5 py-3.5 pl-12 text-sm text-white placeholder-white/50 focus:outline-none focus:border-accent/50 focus:ring-2 focus:ring-accent/20 shadow-2xl"
               id="map-search-input"
             />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
             {loading && (
               <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400 animate-spin" />
             )}
@@ -256,7 +256,7 @@ export function Dashboard() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowLayers(!showLayers)}
-          className="p-3 bg-white/90 backdrop-blur-xl border border-gray-300 rounded-xl text-gray-900 shadow-2xl"
+          className="p-3 bg-sidebar/90 backdrop-blur-xl border border-sidebar-border rounded-xl text-white shadow-2xl hover:bg-sidebar transition-colors"
         >
           <Layers className="w-5 h-5" />
         </motion.button>
@@ -267,9 +267,9 @@ export function Dashboard() {
               initial={{ opacity: 0, scale: 0.9, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: -10 }}
-              className="absolute top-14 right-0 bg-white/95 backdrop-blur-xl border border-gray-300 rounded-2xl p-4 w-52 shadow-2xl"
+              className="absolute top-14 right-0 bg-sidebar/95 backdrop-blur-xl border border-sidebar-border rounded-2xl p-4 w-52 shadow-2xl"
             >
-              <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-3">Map Layers</h4>
+              <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3">Map Layers</h4>
               {layerConfig.map((layer) => (
                 <label
                   key={layer.key}
@@ -279,10 +279,10 @@ export function Dashboard() {
                     type="checkbox"
                     checked={layers[layer.key]}
                     onChange={() => toggleLayer(layer.key)}
-                    className="w-4 h-4 rounded accent-cyan-500"
+                    className="w-4 h-4 rounded accent-accent"
                   />
                   <span className="text-sm">{layer.icon}</span>
-                  <span className="text-xs text-gray-800">{layer.label}</span>
+                  <span className="text-xs text-white/90">{layer.label}</span>
                   <span className="ml-auto text-[10px] text-gray-400">
                     {layer.key === 'coverageCircles' ? '' : nearbyPlaces.filter((p) => {
                       if (layer.key === 'hospitals') return p.type === 'hospital' || p.type === 'clinic';
@@ -421,7 +421,7 @@ export function Dashboard() {
           {/* Quick stats overlay bottom-left */}
           {nearbyPlaces.length > 0 && (
             <div className="absolute bottom-4 left-4 z-[1000]">
-              <div className="bg-white/90 backdrop-blur-xl border border-gray-200 rounded-2xl px-4 py-3 flex gap-4">
+              <div className="bg-sidebar/90 backdrop-blur-xl border border-sidebar-border rounded-2xl px-4 py-3 flex gap-4 shadow-2xl">
                 {[
                   { icon: <FaHospital />, count: nearbyPlaces.filter((p) => p.type === 'hospital' || p.type === 'clinic').length, label: 'Hospitals' },
                   { icon: <FaSchool />, count: nearbyPlaces.filter((p) => p.type === 'school' || p.type === 'university').length, label: 'Schools' },
@@ -429,9 +429,9 @@ export function Dashboard() {
                   { icon: <FaMosque />, count: nearbyPlaces.filter((p) => p.type === 'mosque' || p.type === 'religious').length, label: 'Mosques' },
                 ].map((s) => (
                   <div key={s.label} className="text-center flex flex-col items-center">
-                    <div className="text-sm mb-1">{s.icon}</div>
-                    <div className="text-lg font-bold">{s.count}</div>
-                    <div className="text-[9px] text-gray-500">{s.label}</div>
+                    <div className="text-sm mb-1 text-white">{s.icon}</div>
+                    <div className="text-lg font-bold text-white">{s.count}</div>
+                    <div className="text-[9px] text-white/60">{s.label}</div>
                   </div>
                 ))}
               </div>
@@ -447,7 +447,7 @@ export function Dashboard() {
               animate={{ x: 0 }}
               exit={{ x: 400 }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed top-20 right-0 w-[380px] h-[calc(100vh-5rem)] bg-white/95 backdrop-blur-xl border-l border-gray-200 z-[999] overflow-y-auto"
+              className="fixed top-20 right-0 w-[380px] h-[calc(100vh-5rem)] bg-sidebar/95 backdrop-blur-2xl border-l border-sidebar-border z-[999] overflow-y-auto"
             >
               <div className="p-5">
                 <div className="flex items-center justify-between mb-5">
