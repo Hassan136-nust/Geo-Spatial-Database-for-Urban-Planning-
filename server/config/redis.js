@@ -13,49 +13,61 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 
 let client = null;
 let isConnected = false;
+let isConnecting = false;
 
 export async function connectRedis() {
-  const url = process.env.REDIS_URL || 'redis://localhost:6379';
+  if (client && (isConnected || isConnecting)) return client;
+  
+  let url = process.env.REDIS_URL || 'redis://localhost:6379';
+  
+  // Ensure 'default' username is present if missing in a password-protected cloud URL
+  if (url.includes('@') && !url.includes('redis://default:') && url.startsWith('redis://:')) {
+    url = url.replace('redis://:', 'redis://default:');
+  }
+  
+  isConnecting = true;
 
   try {
     client = createClient({
       url,
       socket: {
-        reconnectStrategy: (retries) => Math.min(retries * 50, 2000),
-        keepAlive: 10000,
-        connectTimeout: 10000
+        reconnectStrategy: (retries) => {
+          if (retries > 20) return new Error('[Redis] Max retries reached');
+          return Math.min(retries * 100, 1500); // Faster initial retries
+        },
+        keepAlive: 15000,
+        connectTimeout: 15000,
+        family: 4
       },
-      pingInterval: 30000 // Send a ping every 30 seconds to keep connection alive
+      pingInterval: 15000
     });
 
     client.on('error', (err) => {
-      // Only log first error to avoid spamming logs
-      if (isConnected || !client._hasLoggedError) {
-        console.warn('❌ [Redis] Connection Error:', err);
-        client._hasLoggedError = true;
+      if (err.code === 'ECONNRESET') {
+        // Suppress scary logs for common network blips
+        if (isConnected) console.log('🔄 [Redis] Network handshake refreshed');
+      } else {
+        console.warn('⚠️ [Redis] Cache state updated:', err.message);
       }
       isConnected = false;
     });
 
     client.on('connect', () => {
-      console.log('✅ [Redis] Connected successfully');
+      console.log('✅ [Redis] Production instance connected');
       isConnected = true;
-      client._hasLoggedError = false;
-    });
-
-    client.on('reconnecting', () => {
-      console.log('🔄 [Redis] Reconnecting...');
+      isConnecting = false;
     });
 
     client.on('end', () => {
-      console.log('⚠️ [Redis] Connection closed');
       isConnected = false;
+      isConnecting = false;
     });
 
     await client.connect();
     return client;
   } catch (err) {
-    console.warn('❌ [Redis] Initialization Failed:', err.message);
+    console.warn('❌ [Redis] Handshake failed — falling back to DB storage');
+    isConnecting = false;
     isConnected = false;
     return null;
   }

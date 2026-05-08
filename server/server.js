@@ -166,6 +166,18 @@ process.on('unhandledRejection', (err, promise) => {
 process.on('uncaughtException', (err) => {
   console.error(`❌ [Server] Uncaught Exception: ${err.message}`);
   console.error(err);
-  // Optional: Graceful shutdown if critical
-  // process.exit(1);
+  // Graceful shutdown on critical error
+  gracefulShutdown();
 });
+
+async function gracefulShutdown() {
+  console.log('🛑 [Server] Shutting down gracefully...');
+  try {
+    const { default: redisClient } = await import('./config/redis.js');
+    if (redisClient && redisClient.isOpen) {
+      await redisClient.quit();
+      console.log('✅ [Redis] Connection closed safely');
+    }
+  } catch (e) {}
+  process.exit(1);
+}
