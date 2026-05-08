@@ -42,19 +42,19 @@ export function Home() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm mb-6 font-medium"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/40 text-white text-sm mb-6 font-medium"
           >
             <Globe2 className="w-4 h-4" />
             <span>Global Urban Data Platform</span>
           </motion.div>
 
-          <h1 className="text-7xl font-bold mb-6 text-foreground leading-tight">
+          <h1 className="text-7xl font-bold mb-6 text-white leading-tight drop-shadow-md">
             UrbanPulse
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
+          <p className="text-xl text-white/90 max-w-2xl mx-auto mb-4 drop-shadow-sm">
             Dynamic Urban Planning Intelligence — Real-time map analytics, infrastructure analysis, and interactive planning tools
           </p>
-          <p className="text-sm text-muted-foreground/80 max-w-xl mx-auto mb-10">
+          <p className="text-sm text-white/70 max-w-xl mx-auto mb-10">
             Search any area worldwide • Real-time infrastructure data • Drag & Drop Planner • PDF Reports
           </p>
 

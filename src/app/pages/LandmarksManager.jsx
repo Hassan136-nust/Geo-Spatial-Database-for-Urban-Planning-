@@ -223,10 +223,10 @@ export function LandmarksManager() {
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-3xl font-bold text-white">
             Landmarks Manager
           </h1>
-          <p className="text-muted-foreground mt-2">Fetch landmarks via MapTiler, view on map, and save to database</p>
+          <p className="text-white/70 mt-2">Fetch landmarks via MapTiler, view on map, and save to database</p>
         </motion.div>
 
         {/* Controls */}
@@ -234,7 +234,7 @@ export function LandmarksManager() {
           {/* City Selector */}
           <GlassPanel>
             <div className="p-5">
-              <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <h3 className="text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Globe className="w-4 h-4 text-cyan-400" /> Select City
               </h3>
               <div className="grid grid-cols-2 gap-2 mb-3">
@@ -257,7 +257,7 @@ export function LandmarksManager() {
                 value={customCity}
                 onChange={(e) => setCustomCity(e.target.value)}
                 placeholder="Or type any city/area name..."
-                className="w-full bg-white/5 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder-white/30 focus:outline-none focus:border-cyan-500/50 mb-3"
+                className="w-full bg-white/5 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-cyan-500/50 mb-3"
               />
               <div className="flex gap-2">
                 <motion.button
@@ -287,7 +287,7 @@ export function LandmarksManager() {
           {/* Add Custom Landmark */}
           <GlassPanel>
             <div className="p-5">
-              <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <h3 className="text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Plus className="w-4 h-4 text-green-400" /> Add Custom Landmark
               </h3>
               <div className="space-y-3">
@@ -345,7 +345,7 @@ export function LandmarksManager() {
           {/* Stats, Filters & Save */}
           <GlassPanel>
             <div className="p-5">
-              <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <h3 className="text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Filter className="w-4 h-4 text-amber-400" /> Filter & Stats
               </h3>
               <div className="grid grid-cols-2 gap-2 mb-4">
@@ -478,8 +478,8 @@ export function LandmarksManager() {
                       >
                         <span className="flex-shrink-0 text-lg">{typeInfo.icon}</span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-gray-800 truncate">{l.name}</p>
-                          <p className="text-[10px] text-gray-400 capitalize">{l.type} • {coords.lat?.toFixed(4)}, {coords.lng?.toFixed(4)}</p>
+                          <p className="text-xs font-medium text-white truncate">{l.name}</p>
+                          <p className="text-[10px] text-white/60 capitalize">{l.type} • {coords.lat?.toFixed(4)}, {coords.lng?.toFixed(4)}</p>
                         </div>
                         <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${
                           l.source === 'user' ? 'bg-green-500/10 text-green-400' : 'bg-blue-500/10 text-blue-400'

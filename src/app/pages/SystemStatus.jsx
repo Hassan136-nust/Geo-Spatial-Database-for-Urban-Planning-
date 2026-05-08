@@ -244,7 +244,7 @@ export function SystemStatus() {
 
         {/* API Version Info */}
         <div className="mt-6 text-center">
-          <p className="text-xs text-white/50 font-medium">
+          <p className="text-[10px] text-white/50 uppercase tracking-widest font-bold">
             UrbanPulse API v{health?.version || '2.0'} • {stats?.totalCollections || 18} collections • Last refreshed {new Date().toLocaleTimeString()}
           </p>
         </div>

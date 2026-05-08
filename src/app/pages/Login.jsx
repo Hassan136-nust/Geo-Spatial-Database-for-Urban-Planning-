@@ -86,8 +86,8 @@ export function Login() {
           { 
             theme: 'filled_black', 
             size: 'large',
-            width: '100%',
             text: 'continue_with',
+            shape: 'pill'
           }
         );
       }

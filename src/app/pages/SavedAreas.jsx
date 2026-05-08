@@ -57,7 +57,7 @@ export function SavedAreas() {
   if (!user) {
     return (
       <div className="min-h-screen pt-28 pb-20 px-8 text-center">
-        <p className="text-text-primary font-medium" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>Please login to view saved areas</p>
+        <p className="text-white font-medium" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.4)' }}>Please login to view saved areas</p>
       </div>
     );
   }
@@ -77,10 +77,10 @@ export function SavedAreas() {
       
       <div className="max-w-6xl mx-auto relative z-10">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="text-3xl font-bold text-text-primary">
+          <h1 className="text-3xl font-bold text-white">
             Saved Areas
           </h1>
-          <p className="text-text-secondary mt-2">Your search history with cached analytics</p>
+          <p className="text-white/70 mt-2">Your search history with cached analytics</p>
         </motion.div>
 
         {loading ? (
@@ -113,8 +113,8 @@ export function SavedAreas() {
                     <div className={`p-5 bg-gradient-to-br ${getScoreBg(area.last_analysis_score)} rounded-2xl`}>
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-text-primary truncate">{area.area_name}</h3>
-                          <p className="text-xs text-text-secondary mt-1 truncate">{area.display_name}</p>
+                          <h3 className="font-semibold text-white truncate">{area.area_name}</h3>
+                          <p className="text-xs text-white/70 mt-1 truncate">{area.display_name}</p>
                         </div>
                         {area.last_analysis_score != null && (
                           <div className={`text-2xl font-bold ${getScoreColor(area.last_analysis_score)}`}>
