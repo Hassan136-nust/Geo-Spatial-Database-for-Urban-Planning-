@@ -139,8 +139,8 @@ export function CompareAreas() {
 
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <h1 className="text-3xl font-bold text-text-primary">Compare Areas</h1>
-            <p className="text-text-secondary mt-2">Side-by-side analysis of multiple areas</p>
+            <h1 className="text-3xl font-bold text-white">Compare Areas</h1>
+            <p className="text-white/70 mt-2">Side-by-side analysis of multiple areas</p>
           </motion.div>
 
           {/* Create Comparison */}
@@ -292,11 +292,11 @@ export function CompareAreas() {
                                   const displayName = metricNames[metric] || metric;
                                   return (
                                     <div key={metric} className="flex items-center justify-between p-2.5 bg-white/5 rounded-lg border border-gray-200">
-                                      <span className="text-xs font-medium text-gray-700 capitalize w-24">{displayName}</span>
+                                      <span className="text-xs font-medium text-white/80 capitalize w-24">{displayName}</span>
                                       <div className="flex-1 flex items-center justify-end gap-2">
                                         {diff.leader !== 'Tie' ? (
                                           <>
-                                            <span className="text-xs text-gray-900/90 truncate max-w-[100px]">{diff.leader}</span>
+                                            <span className="text-xs text-white truncate max-w-[100px]">{diff.leader}</span>
                                             <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-green-500/20 text-green-400 flex items-center font-bold">
                                               <ArrowUpRight className="w-3 h-3 mr-0.5" /> {diff.delta.toFixed(1)}
                                             </span>

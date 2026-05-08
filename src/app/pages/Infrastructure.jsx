@@ -78,7 +78,7 @@ export function Infrastructure() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between mb-10">
           <div>
             <h1 className="text-5xl font-bold mb-3 bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent">Infrastructure</h1>
-            <p className="text-lg text-gray-900/50">{landmarks.length} landmarks across Islamabad</p>
+            <p className="text-lg text-white/80">{landmarks.length} landmarks across Islamabad</p>
           </div>
           {canEdit && (
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { setShowForm(true); setEditingId(null); setFormData({ name: '', type: 'hospital', subtype: '', description: '', address: '', capacity: 0, service_radius_km: 2, status: 'operational' }); }}
@@ -110,8 +110,8 @@ export function Infrastructure() {
                         <Icon className="w-5 h-5" />
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold leading-tight">{lm.name}</h3>
-                        <span className="text-xs text-gray-500 capitalize">{lm.subtype || lm.type}</span>
+                        <h3 className="text-sm font-bold leading-tight text-white">{lm.name}</h3>
+                        <span className="text-xs text-white/60 capitalize">{lm.subtype || lm.type}</span>
                       </div>
                     </div>
                     {lm.rating > 0 && (
@@ -120,11 +120,11 @@ export function Infrastructure() {
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-gray-900/50 mb-3 line-clamp-2">{lm.description}</p>
-                  {lm.address && <p className="text-xs text-gray-400 mb-3 flex items-center gap-1"><MapPin className="w-3 h-3" />{lm.address}</p>}
+                  <p className="text-xs text-white/70 mb-3 line-clamp-2">{lm.description}</p>
+                  {lm.address && <p className="text-xs text-white/60 mb-3 flex items-center gap-1"><MapPin className="w-3 h-3" />{lm.address}</p>}
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="bg-white/5 rounded-lg p-2"><span className="text-gray-500">Capacity</span><div className="font-bold">{lm.capacity?.toLocaleString()}</div></div>
-                    <div className="bg-white/5 rounded-lg p-2"><span className="text-gray-500">Radius</span><div className="font-bold">{lm.service_radius_km} km</div></div>
+                    <div className="bg-white/5 rounded-lg p-2"><span className="text-white/50">Capacity</span><div className="font-bold text-white">{lm.capacity?.toLocaleString()}</div></div>
+                    <div className="bg-white/5 rounded-lg p-2"><span className="text-white/50">Radius</span><div className="font-bold text-white">{lm.service_radius_km} km</div></div>
                   </div>
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
                     <span className={`text-xs ${lm.status === 'operational' ? 'text-green-400' : 'text-amber-400'} capitalize`}>{lm.status}</span>
