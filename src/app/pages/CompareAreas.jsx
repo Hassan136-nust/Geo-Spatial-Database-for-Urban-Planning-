@@ -139,14 +139,14 @@ export function CompareAreas() {
 
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <h1 className="text-3xl font-bold text-white">Compare Areas</h1>
-            <p className="text-white/70 mt-2">Side-by-side analysis of multiple areas</p>
+            <h1 className="text-3xl font-bold text-white" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.9)' }}>Compare Areas</h1>
+            <p className="text-white mt-2 font-medium" style={{ textShadow: '1px 1px 6px rgba(0,0,0,0.8)' }}>Side-by-side analysis of multiple areas</p>
           </motion.div>
 
           {/* Create Comparison */}
           <GlassPanel>
             <div className="p-6">
-              <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-4">New Comparison</h3>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>New Comparison</h3>
               <input 
                 value={compName} 
                 onChange={(e) => setCompName(e.target.value)} 
@@ -182,12 +182,12 @@ export function CompareAreas() {
             <div className="text-center py-10"><Loader2 className="w-6 h-6 text-primary mx-auto animate-spin" /></div>
           ) : comparisons.length > 0 && (
             <div className="mt-6 space-y-4">
-              <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Previous Comparisons</h3>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>Previous Comparisons</h3>
               {comparisons.map((comp) => (
                 <GlassPanel key={comp._id}>
                   <div className="p-5">
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-text-primary">{comp.name}</h4>
+                      <h4 className="font-semibold text-white" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>{comp.name}</h4>
                       <div className="flex items-center gap-2">
                         <button 
                           onClick={() => setExpandedComp(expandedComp === comp._id ? null : comp._id)} 
@@ -209,7 +209,7 @@ export function CompareAreas() {
                           <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
                           <div className="flex items-center gap-1 mb-1 pl-2">
                             {area.area_id === comp.winner_area_id?.toString() && <Trophy className="w-4 h-4 text-amber-400 drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]" />}
-                            <p className="text-xs font-medium truncate">{area.area_name}</p>
+                            <p className="text-xs font-medium truncate text-white" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{area.area_name}</p>
                           </div>
                           <p className={`text-2xl font-bold pl-2 ${area.score >= 70 ? 'text-green-400' : area.score >= 50 ? 'text-yellow-400' : 'text-red-400'}`}>{area.score}</p>
                         </div>

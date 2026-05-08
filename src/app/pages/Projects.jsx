@@ -161,7 +161,7 @@ function DesignCard({ design, index, onExpand }) {
       transition={{ delay: index * 0.07, duration: 0.5 }}
       className="group"
     >
-      <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white/5 hover:border-indigo-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10">
+      <div className="rounded-2xl overflow-hidden border border-white/30 bg-white/95 backdrop-blur-sm hover:border-indigo-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/20">
         {/* Lightweight CSS preview — no WebGL context created */}
         <div className="relative cursor-pointer" onClick={() => onExpand(design)}>
           <CardPreview design={design} />
@@ -173,20 +173,20 @@ function DesignCard({ design, index, onExpand }) {
           </button>
           {design.evaluation_score != null && (
             <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-bold backdrop-blur-sm border ${
-              design.evaluation_score >= 70 ? 'bg-green-500/25 border-green-500/40 text-green-200'
-              : design.evaluation_score >= 50 ? 'bg-yellow-500/25 border-yellow-500/40 text-yellow-200'
-              : 'bg-red-500/25 border-red-500/40 text-red-200'}`}>
+              design.evaluation_score >= 70 ? 'bg-green-500/25 border-green-500/40 text-green-900'
+              : design.evaluation_score >= 50 ? 'bg-yellow-500/25 border-yellow-500/40 text-yellow-900'
+              : 'bg-red-500/25 border-red-500/40 text-red-900'}`}>
               <Star className="w-3 h-3 inline mr-0.5" />{design.evaluation_score}/100
             </div>
           )}
         </div>
         {/* Info */}
-        <div className="p-4">
-          <h3 className="font-semibold text-foreground truncate flex items-center gap-2 mb-1">
-            <PenTool className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+        <div className="p-4 bg-white/90">
+          <h3 className="font-semibold text-gray-900 truncate flex items-center gap-2 mb-1">
+            <PenTool className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
             {design.design_name}
           </h3>
-          <div className="flex items-center gap-3 text-xs text-gray-600 mb-3">
+          <div className="flex items-center gap-3 text-xs text-gray-700 mb-3">
             <span className="flex items-center gap-1"><Hash className="w-3 h-3" />{design.element_count || design.elements?.length || 0} elements</span>
             <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(design.created_at).toLocaleDateString()}</span>
           </div>
@@ -200,11 +200,11 @@ function DesignCard({ design, index, onExpand }) {
           </div>
           <div className="flex gap-2">
             <button onClick={() => onExpand(design)}
-              className="flex-1 py-2 text-xs font-medium rounded-xl bg-indigo-500/15 border border-indigo-500/25 text-indigo-300 hover:bg-indigo-500/25 transition-colors flex items-center justify-center gap-1">
+              className="flex-1 py-2 text-xs font-medium rounded-xl bg-indigo-600 border border-indigo-700 text-white hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1">
               <RotateCcw className="w-3 h-3" /> Explore 3D
             </button>
             <button onClick={() => navigate(`/planner?load=${design._id}`)}
-              className="py-2 px-3 text-xs rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 hover:text-emerald-900 hover:bg-emerald-500/20 transition-colors flex items-center gap-1">
+              className="py-2 px-3 text-xs rounded-xl bg-emerald-600 border border-emerald-700 text-white hover:bg-emerald-700 transition-colors flex items-center gap-1">
               Edit <ChevronRight className="w-3 h-3" />
             </button>
           </div>
@@ -294,35 +294,57 @@ export function Projects() {
     finally { setLoading(false); }
   };
 
-  if (!user) return <div className="min-h-screen pt-28 text-center"><p className="text-gray-900/50">Please login</p></div>;
+  if (!user) return (
+    <div 
+      className="min-h-screen pt-28 text-center"
+      style={{
+        backgroundImage: 'url(https://www.economist.com/cdn-cgi/image/width=1920,quality=95,format=auto/content-assets/images/20241221_STP001.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      <p className="text-white font-bold text-lg" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.9)' }}>Please login</p>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen pt-28 pb-20 px-8">
+    <div 
+      className="min-h-screen pt-28 pb-20 px-8"
+      style={{
+        backgroundImage: 'url(https://www.economist.com/cdn-cgi/image/width=1920,quality=95,format=auto/content-assets/images/20241221_STP001.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <div className="max-w-6xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-3xl font-bold text-white" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.9)' }}>
             My 3D Cities
           </h1>
-          <p className="text-gray-700 mt-2 font-medium">Your saved urban layouts visualized as 3D cities. Click any card to explore it interactively.</p>
+          <p className="text-white mt-2 font-medium" style={{ textShadow: '1px 1px 6px rgba(0,0,0,0.8)' }}>Your saved urban layouts visualized as 3D cities. Click any card to explore it interactively.</p>
         </motion.div>
 
         {loading ? (
           <div className="text-center py-24">
-            <Loader2 className="w-8 h-8 text-indigo-400 mx-auto animate-spin mb-3" />
-            <p className="text-gray-400 text-sm">Loading your cities...</p>
+            <Loader2 className="w-8 h-8 text-white mx-auto animate-spin mb-3" />
+            <p className="text-white text-sm font-medium" style={{ textShadow: '1px 1px 6px rgba(0,0,0,0.8)' }}>Loading your cities...</p>
           </div>
         ) : designs.length === 0 ? (
-          <GlassPanel>
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-white/30 shadow-2xl">
             <div className="text-center py-20">
               <div className="text-5xl mb-4">🏙️</div>
-              <h3 className="text-lg font-semibold text-gray-600 mb-2">No saved designs yet</h3>
-              <p className="text-gray-400 text-sm mb-6">Build a city in the Planner and save it — it will appear here in 3D.</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No saved designs yet</h3>
+              <p className="text-gray-700 text-sm mb-6">Build a city in the Planner and save it — it will appear here in 3D.</p>
               <button onClick={() => navigate('/planner')}
-                className="px-6 py-2.5 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl text-purple-300 text-sm font-medium hover:from-purple-500/30 hover:to-pink-500/30 transition-all">
+                className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 border border-purple-700 rounded-xl text-white text-sm font-medium hover:from-purple-700 hover:to-pink-700 transition-all">
                 Open Planner
               </button>
             </div>
-          </GlassPanel>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {designs.map((d, i) => (
