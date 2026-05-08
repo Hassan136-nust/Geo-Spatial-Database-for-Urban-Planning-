@@ -1,6 +1,7 @@
 import Landmark from '../models/Landmark.js';
 import Road from '../models/Road.js';
 import CityProfile from '../models/CityProfile.js';
+import { redisGet, redisSet } from '../config/redis.js';
 
 // ═══════════════════════════════════════════════════════════
 // Cache Service — prevents duplicate API calls
@@ -265,4 +266,6 @@ export default {
   saveRoadsFromOSM,
   upsertCityProfile,
   isAreaCached,
+  redisGet,
+  redisSet,
 };

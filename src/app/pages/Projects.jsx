@@ -182,11 +182,11 @@ function DesignCard({ design, index, onExpand }) {
         </div>
         {/* Info */}
         <div className="p-4">
-          <h3 className="font-semibold text-pure-white truncate flex items-center gap-2 mb-1">
-            <PenTool className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
+          <h3 className="font-semibold text-foreground truncate flex items-center gap-2 mb-1">
+            <PenTool className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
             {design.design_name}
           </h3>
-          <div className="flex items-center gap-3 text-xs text-pure-white/50 mb-3">
+          <div className="flex items-center gap-3 text-xs text-gray-600 mb-3">
             <span className="flex items-center gap-1"><Hash className="w-3 h-3" />{design.element_count || design.elements?.length || 0} elements</span>
             <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(design.created_at).toLocaleDateString()}</span>
           </div>
@@ -204,7 +204,7 @@ function DesignCard({ design, index, onExpand }) {
               <RotateCcw className="w-3 h-3" /> Explore 3D
             </button>
             <button onClick={() => navigate(`/planner?load=${design._id}`)}
-              className="py-2 px-3 text-xs rounded-xl bg-white/5 border border-pure-white/10 text-pure-white/60 hover:text-pure-white hover:bg-white/10 transition-colors flex items-center gap-1">
+              className="py-2 px-3 text-xs rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 hover:text-emerald-900 hover:bg-emerald-500/20 transition-colors flex items-center gap-1">
               Edit <ChevronRight className="w-3 h-3" />
             </button>
           </div>
@@ -300,10 +300,10 @@ export function Projects() {
     <div className="min-h-screen pt-28 pb-20 px-8">
       <div className="max-w-6xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-foreground">
             My 3D Cities
           </h1>
-          <p className="text-gray-500 mt-2">Your saved urban layouts visualized as 3D cities. Click any card to explore it interactively.</p>
+          <p className="text-gray-700 mt-2 font-medium">Your saved urban layouts visualized as 3D cities. Click any card to explore it interactively.</p>
         </motion.div>
 
         {loading ? (

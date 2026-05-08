@@ -18,31 +18,44 @@ export async function connectRedis() {
   const url = process.env.REDIS_URL || 'redis://localhost:6379';
 
   try {
-    client = createClient({ url });
+    client = createClient({
+      url,
+      socket: {
+        reconnectStrategy: (retries) => Math.min(retries * 50, 2000),
+        keepAlive: 10000,
+        connectTimeout: 10000
+      },
+      pingInterval: 30000 // Send a ping every 30 seconds to keep connection alive
+    });
 
     client.on('error', (err) => {
       // Only log first error to avoid spamming logs
       if (isConnected || !client._hasLoggedError) {
-        console.warn('[Redis] Connection error — cache disabled:', err.message);
+        console.warn('❌ [Redis] Connection Error:', err);
         client._hasLoggedError = true;
       }
       isConnected = false;
     });
 
     client.on('connect', () => {
-      console.log('[Redis] ✅ Connected successfully');
+      console.log('✅ [Redis] Connected successfully');
       isConnected = true;
       client._hasLoggedError = false;
     });
 
     client.on('reconnecting', () => {
-      console.log('[Redis] Reconnecting...');
+      console.log('🔄 [Redis] Reconnecting...');
+    });
+
+    client.on('end', () => {
+      console.log('⚠️ [Redis] Connection closed');
+      isConnected = false;
     });
 
     await client.connect();
     return client;
   } catch (err) {
-    console.warn('[Redis] ⚠️  Could not connect — running without Redis cache:', err.message);
+    console.warn('❌ [Redis] Initialization Failed:', err.message);
     isConnected = false;
     return null;
   }

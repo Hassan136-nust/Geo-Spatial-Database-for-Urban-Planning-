@@ -18,6 +18,18 @@ export const searchArea = async (req, res, next) => {
 
     console.log(`[Areas] Searching: "${query}" (radius: ${radius}m, user: ${req.user?.id || 'anonymous'})`);
 
+    // 0. Check Deep Search Cache (Full analysis result)
+    const deepCacheKey = `search_result:${query.toLowerCase().replace(/\s+/g, '_')}:${radius}`;
+    const cachedResult = await cacheService.redisGet(deepCacheKey);
+    if (cachedResult) {
+      console.log(`[Areas] ⚡ Deep Cache HIT for "${query}"`);
+      return res.json({
+        success: true,
+        data: cachedResult,
+        cached: true
+      });
+    }
+
     // 1. Geocode the query
     const searchResults = await osmService.searchArea(query);
     if (!searchResults || searchResults.length === 0) {
@@ -158,16 +170,21 @@ export const searchArea = async (req, res, next) => {
       address: p.address || '',
     }));
 
+    const responseData = {
+      area: savedArea || { lat, lng, displayName: area.displayName },
+      analysis,
+      places: trimmedPlaces,
+      roadCount,
+      city: cityName,
+      analyticsId: analyticsDoc?._id || null,
+    };
+
+    // 9. Cache the final result (1 hour for fresh searches)
+    cacheService.redisSet(deepCacheKey, responseData, 3600).catch(() => {});
+
     res.json({
       success: true,
-      data: {
-        area: savedArea || { lat, lng, displayName: area.displayName },
-        analysis,
-        places: trimmedPlaces,
-        roadCount,
-        city: cityName,
-        analyticsId: analyticsDoc?._id || null,
-      },
+      data: responseData,
     });
   } catch (error) {
     console.error('[Areas] Search error:', error.message);

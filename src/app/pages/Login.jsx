@@ -238,7 +238,14 @@ export function Login() {
             </div>
 
             {/* Google Sign-In Button */}
-            <div id="googleSignInButton" className="w-full flex justify-center"></div>
+            <div className="w-full">
+              <div id="googleSignInButton" className="w-full flex justify-center"></div>
+              {(!import.meta.env.VITE_GOOGLE_CLIENT_ID || import.meta.env.VITE_GOOGLE_CLIENT_ID === 'your_google_client_id_here') && (
+                <p className="text-[10px] text-white/40 text-center mt-2 italic">
+                  Note: Google Login is in setup mode. Please provide your Client ID in .env
+                </p>
+              )}
+            </div>
 
             {/* Toggle */}
             <div className="mt-6 text-center">

@@ -94,10 +94,10 @@ export function Home() {
             return (
               <Link key={stat.label} to={stat.link}>
                 <GlassPanel delay={0.1 * index}>
-                  <div className="p-6 bg-card border border-border rounded-2xl cursor-pointer hover:shadow-md transition-shadow">
-                    <Icon className="w-12 h-12 text-primary mb-4" />
-                    <div className="text-lg text-card-foreground font-semibold">{stat.label}</div>
-                    <div className="text-sm text-muted-foreground mt-1">{stat.desc}</div>
+                  <div className="p-6 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl cursor-pointer hover:shadow-md transition-shadow group-hover:bg-white/10">
+                    <Icon className="w-12 h-12 text-emerald-400 mb-4" />
+                    <div className="text-lg text-white font-semibold">{stat.label}</div>
+                    <div className="text-sm text-white/60 mt-1">{stat.desc}</div>
                   </div>
                 </GlassPanel>
               </Link>
@@ -128,8 +128,8 @@ export function Home() {
           </GlassPanel>
 
           <GlassPanel delay={0.6}>
-            <div className="p-8 bg-card border border-border rounded-2xl">
-              <h3 className="text-2xl font-bold mb-6 text-foreground">How It Works</h3>
+            <div className="p-8 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl">
+              <h3 className="text-2xl font-bold mb-6 text-white">How It Works</h3>
               <div className="space-y-6">
                 {[
                   { step: '1', title: 'Search Any Area', desc: 'Type any location worldwide — the system fetches real geospatial data via MapTiler' },
@@ -148,8 +148,8 @@ export function Home() {
                       {item.step}
                     </div>
                     <div>
-                      <div className="text-base font-semibold text-card-foreground">{item.title}</div>
-                      <div className="text-sm text-muted-foreground mt-1">{item.desc}</div>
+                      <div className="text-base font-semibold text-white">{item.title}</div>
+                      <div className="text-sm text-white/60 mt-1">{item.desc}</div>
                     </div>
                   </motion.div>
                 ))}

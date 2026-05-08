@@ -150,7 +150,22 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`UrbanPulse Server v2.1 running on port ${PORT}`);
   console.log(`API available at http://localhost:${PORT}/api`);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err, promise) => {
+  console.error(`❌ [Server] Unhandled Rejection: ${err.message}`);
+  // Log full error but don't crash
+  console.error(err);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error(`❌ [Server] Uncaught Exception: ${err.message}`);
+  console.error(err);
+  // Optional: Graceful shutdown if critical
+  // process.exit(1);
 });
