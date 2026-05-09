@@ -93,12 +93,21 @@ export function Admin() {
 
   if (!user || user.role !== 'admin') {
     return (
-      <div className="min-h-screen pt-32 flex items-center justify-center">
+      <div 
+        className="min-h-screen pt-32 flex items-center justify-center"
+        style={{
+          backgroundImage: 'url(https://www.economist.com/cdn-cgi/image/width=1920,quality=95,format=auto/content-assets/images/20241221_STP001.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         <GlassPanel>
           <div className="p-8 text-center">
-            <Shield className="w-16 h-16 mx-auto mb-4 text-red-400/30" />
-            <h2 className="text-xl font-bold mb-2">Access Denied</h2>
-            <p className="text-gray-900/50 text-sm">Admin privileges required to access this page.</p>
+            <Shield className="w-16 h-16 mx-auto mb-4 text-red-400" />
+            <h2 className="text-xl font-bold mb-2 text-white" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>Access Denied</h2>
+            <p className="text-white/80 text-sm" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>Admin privileges required to access this page.</p>
           </div>
         </GlassPanel>
       </div>
@@ -106,11 +115,37 @@ export function Admin() {
   }
 
   if (loading) {
-    return <div className="min-h-screen pt-32 flex items-center justify-center"><motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }} className="w-12 h-12 border-3 border-cyan-400 border-t-transparent rounded-full" /></div>;
+    return (
+      <div 
+        className="min-h-screen pt-32 flex items-center justify-center"
+        style={{
+          backgroundImage: 'url(https://www.economist.com/cdn-cgi/image/width=1920,quality=95,format=auto/content-assets/images/20241221_STP001.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }} className="w-12 h-12 border-3 border-white border-t-transparent rounded-full" />
+      </div>
+    );
   }
 
   const counts = systemStats?.counts || overview?.counts || {};
-  const totalDocs = Object.values(counts).reduce((s, c) => s + (typeof c === 'number' ? c : 0), 0);
+  
+  // Map actual MongoDB collection names to display values
+  const displayCounts = {
+    users: counts.users || counts.users || 0,
+    landmarks: counts.landmarks || 0,
+    roads: counts.roads || 0,
+    saved_areas: counts.savedareas || counts.saved_areas || 0,
+    analytics_results: counts.analyticsresults || counts.analytics_results || 0,
+    planner_designs: counts.plannerdesigns || counts.planner_designs || 0,
+    reports: counts.reports || 0,
+    activity_logs: counts.activitylogs || counts.activity_logs || 0,
+  };
+  
+  const totalDocs = Object.values(displayCounts).reduce((s, c) => s + (typeof c === 'number' ? c : 0), 0);
 
   const tabs = [
     { key: 'users', label: 'Users', icon: Users },
@@ -119,29 +154,38 @@ export function Admin() {
   ];
 
   return (
-    <div className="min-h-screen pt-28 pb-20 px-8">
+    <div 
+      className="min-h-screen pt-28 pb-20 px-8"
+      style={{
+        backgroundImage: 'url(https://www.economist.com/cdn-cgi/image/width=1920,quality=95,format=auto/content-assets/images/20241221_STP001.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <div className="max-w-7xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-          <h1 className="text-5xl font-bold mb-3 bg-gradient-to-r from-white via-amber-100 to-orange-200 bg-clip-text text-transparent">Admin Panel</h1>
-          <p className="text-lg text-gray-900/50">System administration, user management, and activity monitoring</p>
+          <h1 className="text-5xl font-bold mb-3 text-white" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.9)' }}>Admin Panel</h1>
+          <p className="text-lg text-white font-medium" style={{ textShadow: '1px 1px 6px rgba(0,0,0,0.8)' }}>System administration, user management, and activity monitoring</p>
         </motion.div>
 
         {/* DB Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-8">
           {[
-            { label: 'Users', value: counts.users || 0, color: '#3b82f6' },
-            { label: 'Landmarks', value: counts.landmarks || 0, color: '#22c55e' },
-            { label: 'Roads', value: counts.roads || 0, color: '#f97316' },
-            { label: 'Areas', value: counts.saved_areas || 0, color: '#06b6d4' },
-            { label: 'Analytics', value: counts.analytics_results || 0, color: '#8b5cf6' },
-            { label: 'Designs', value: counts.planner_designs || 0, color: '#ec4899' },
-            { label: 'Reports', value: counts.reports || 0, color: '#eab308' },
+            { label: 'Users', value: displayCounts.users, color: '#3b82f6' },
+            { label: 'Landmarks', value: displayCounts.landmarks, color: '#22c55e' },
+            { label: 'Roads', value: displayCounts.roads, color: '#f97316' },
+            { label: 'Areas', value: displayCounts.saved_areas, color: '#06b6d4' },
+            { label: 'Analytics', value: displayCounts.analytics_results, color: '#8b5cf6' },
+            { label: 'Designs', value: displayCounts.planner_designs, color: '#ec4899' },
+            { label: 'Reports', value: displayCounts.reports, color: '#eab308' },
             { label: 'Total', value: totalDocs, color: '#14b8a6' },
           ].map((s, i) => (
             <GlassPanel key={s.label} delay={0.03 * i}>
               <div className="p-3 text-center">
-                <div className="text-xl font-bold" style={{ color: s.color }}>{s.value.toLocaleString()}</div>
-                <div className="text-[10px] text-pure-white/40 mt-1">{s.label}</div>
+                <div className="text-xl font-bold text-white" style={{ color: s.color, textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>{s.value.toLocaleString()}</div>
+                <div className="text-[10px] text-white/80 mt-1 font-medium" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{s.label}</div>
               </div>
             </GlassPanel>
           ))}
@@ -157,9 +201,10 @@ export function Admin() {
                 onClick={() => setActiveTab(tab.key)}
                 className={`px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all ${
                   activeTab === tab.key
-                    ? 'bg-cyan-500/20 border border-cyan-500/30 text-cyan-400'
-                    : 'bg-white/5 border border-pure-white/10 text-pure-white/50 hover:bg-white/10'
+                    ? 'bg-cyan-600 border border-cyan-700 text-white'
+                    : 'bg-white/10 border border-white/30 text-white hover:bg-white/20 backdrop-blur-md'
                 }`}
+                style={activeTab !== tab.key ? { textShadow: '1px 1px 3px rgba(0,0,0,0.8)' } : {}}
               >
                 <Icon className="w-4 h-4" />
                 {tab.label}
@@ -172,17 +217,17 @@ export function Admin() {
         {activeTab === 'users' && (
           <GlassPanel delay={0.1}>
             <div className="p-6">
-              <h3 className="text-xl font-bold mb-5 flex items-center gap-2"><Users className="w-5 h-5 text-cyan-400" /> User Management ({users.length})</h3>
+              <h3 className="text-xl font-bold mb-5 flex items-center gap-2 text-white" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}><Users className="w-5 h-5 text-cyan-400" /> User Management ({users.length})</h3>
               <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
                 {users.map((u, i) => {
-                  const roleColors = { admin: 'text-amber-400 bg-amber-400/10 border-amber-400/20', planner: 'text-blue-400 bg-blue-400/10 border-blue-400/20', viewer: 'text-green-400 bg-green-400/10 border-green-400/20' };
+                  const roleColors = { admin: 'text-amber-400 bg-amber-600 border-amber-700', planner: 'text-white bg-blue-600 border-blue-700', viewer: 'text-white bg-green-600 border-green-700' };
                   return (
                     <motion.div key={u._id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 * i }}
-                      className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                      className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/30">
                       <div>
-                        <div className="font-medium text-sm">{u.name}</div>
-                        <div className="text-xs text-gray-500 mt-0.5">{u.email}</div>
-                        {u.createdAt && <div className="text-[10px] text-gray-900/25 mt-0.5">Joined {new Date(u.createdAt).toLocaleDateString()}</div>}
+                        <div className="font-medium text-sm text-white" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{u.name}</div>
+                        <div className="text-xs text-white/80 mt-0.5" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{u.email}</div>
+                        {u.createdAt && <div className="text-[10px] text-white/60 mt-0.5" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>Joined {new Date(u.createdAt).toLocaleDateString()}</div>}
                       </div>
                       <div className="flex items-center gap-2">
                         <select value={u.role} onChange={(e) => handleRoleChange(u._id, e.target.value)}
@@ -210,8 +255,8 @@ export function Admin() {
           <GlassPanel delay={0.1}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-xl font-bold flex items-center gap-2"><Activity className="w-5 h-5 text-cyan-400" /> Activity Log</h3>
-                <button onClick={() => loadActivities(activityPage)} className="px-3 py-1.5 bg-white/10 rounded-lg text-xs text-gray-600 hover:bg-white/15 flex items-center gap-1">
+                <h3 className="text-xl font-bold flex items-center gap-2 text-white" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}><Activity className="w-5 h-5 text-cyan-400" /> Activity Log</h3>
+                <button onClick={() => loadActivities(activityPage)} className="px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-lg text-xs text-white hover:bg-white/20 flex items-center gap-1 border border-white/30" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
                   <RefreshCw className={`w-3 h-3 ${activityLoading ? 'animate-spin' : ''}`} /> Refresh
                 </button>
               </div>
@@ -222,8 +267,8 @@ export function Admin() {
                 </div>
               ) : activities.length === 0 ? (
                 <div className="text-center py-12">
-                  <Activity className="w-12 h-12 text-gray-900/10 mx-auto mb-4" />
-                  <p className="text-gray-500 text-sm">No activity recorded yet</p>
+                  <Activity className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                  <p className="text-white text-sm font-medium" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>No activity recorded yet</p>
                 </div>
               ) : (
                 <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
@@ -246,21 +291,21 @@ export function Admin() {
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: Math.min(i * 0.03, 0.5) }}
-                        className="flex items-center gap-3 p-3 bg-white/5 rounded-xl"
+                        className="flex items-center gap-3 p-3 bg-white/10 backdrop-blur-md rounded-xl border border-white/30"
                       >
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: actionMeta.color + '15' }}>
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: actionMeta.color + '33' }}>
                           <ActionIcon className="w-4 h-4" style={{ color: actionMeta.color }} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs text-gray-800 font-medium capitalize">{a.action?.replace(/_/g, ' ')}</p>
-                          <p className="text-[10px] text-gray-500">
+                          <p className="text-xs text-white font-medium capitalize" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{a.action?.replace(/_/g, ' ')}</p>
+                          <p className="text-[10px] text-white/80" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
                             {a.resource_type} {a.metadata?.query ? `• "${a.metadata.query}"` : ''} 
                             {a.metadata?.score != null ? ` • Score: ${a.metadata.score}` : ''}
                           </p>
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <p className="text-[10px] text-gray-400">{new Date(a.createdAt || a.created_at).toLocaleDateString()}</p>
-                          <p className="text-[10px] text-gray-300">{new Date(a.createdAt || a.created_at).toLocaleTimeString()}</p>
+                          <p className="text-[10px] text-white/70" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>{new Date(a.createdAt || a.created_at).toLocaleDateString()}</p>
+                          <p className="text-[10px] text-white/70" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>{new Date(a.createdAt || a.created_at).toLocaleTimeString()}</p>
                         </div>
                       </motion.div>
                     );
@@ -273,15 +318,17 @@ export function Admin() {
                 <button
                   onClick={() => loadActivities(Math.max(1, activityPage - 1))}
                   disabled={activityPage <= 1}
-                  className="px-3 py-1.5 bg-white/5 rounded-lg text-xs text-gray-900/50 disabled:opacity-30"
+                  className="px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-lg text-xs text-white disabled:opacity-30 border border-white/30"
+                  style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}
                 >
                   Previous
                 </button>
-                <span className="px-3 py-1.5 text-xs text-gray-400">Page {activityPage}</span>
+                <span className="px-3 py-1.5 text-xs text-white font-medium" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>Page {activityPage}</span>
                 <button
                   onClick={() => loadActivities(activityPage + 1)}
                   disabled={activities.length < 20}
-                  className="px-3 py-1.5 bg-white/5 rounded-lg text-xs text-gray-900/50 disabled:opacity-30"
+                  className="px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-lg text-xs text-white disabled:opacity-30 border border-white/30"
+                  style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}
                 >
                   Next
                 </button>
@@ -294,11 +341,11 @@ export function Admin() {
         {activeTab === 'data' && (
           <GlassPanel delay={0.1}>
             <div className="p-6">
-              <h3 className="text-xl font-bold mb-5 flex items-center gap-2"><Upload className="w-5 h-5 text-emerald-400" /> Bulk Data Import</h3>
+              <h3 className="text-xl font-bold mb-5 flex items-center gap-2 text-white" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}><Upload className="w-5 h-5 text-emerald-400" /> Bulk Data Import</h3>
               <div className="mb-4">
-                <label className="text-xs text-gray-600 mb-1 block">Collection</label>
+                <label className="text-xs text-white font-medium mb-1 block" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>Collection</label>
                 <select value={importType} onChange={(e) => setImportType(e.target.value)}
-                  className="w-full bg-white/5 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500/50">
+                  className="w-full bg-white/10 backdrop-blur-md border border-white/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50">
                   <option value="zones" className="bg-gray-900">Zones</option>
                   <option value="roads" className="bg-gray-900">Roads</option>
                   <option value="landmarks" className="bg-gray-900">Landmarks</option>
@@ -307,21 +354,21 @@ export function Admin() {
                 </select>
               </div>
               <div className="mb-4">
-                <label className="text-xs text-gray-600 mb-1 block">JSON Data</label>
+                <label className="text-xs text-white font-medium mb-1 block" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>JSON Data</label>
                 <textarea value={importData} onChange={(e) => setImportData(e.target.value)} placeholder='[{"name": "Zone Name", "zone_type": "residential", ...}]'
-                  className="w-full bg-white/5 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500/50 h-40 resize-none font-mono" />
+                  className="w-full bg-white/10 backdrop-blur-md border border-white/30 rounded-xl px-4 py-3 text-sm text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 h-40 resize-none font-mono" />
               </div>
               {importMsg && (
-                <div className={`mb-4 p-3 rounded-xl text-sm ${importMsg.includes('Error') ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'}`}>{importMsg}</div>
+                <div className={`mb-4 p-3 rounded-xl text-sm font-medium ${importMsg.includes('Error') ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`}>{importMsg}</div>
               )}
               <button onClick={handleImport} disabled={!importData.trim()}
-                className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50">
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 border border-emerald-700 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50 transition-colors">
                 <Database className="w-4 h-4" /> Import Data
               </button>
 
-              <div className="mt-4 p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl flex items-start gap-2">
+              <div className="mt-4 p-3 bg-amber-600/20 border border-amber-500/40 rounded-xl flex items-start gap-2 backdrop-blur-md">
                 <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-amber-400/80">Paste valid JSON array or object. Each item will be created as a new document in the selected collection.</p>
+                <p className="text-xs text-white font-medium" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>Paste valid JSON array or object. Each item will be created as a new document in the selected collection.</p>
               </div>
             </div>
           </GlassPanel>
