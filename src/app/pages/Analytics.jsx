@@ -163,11 +163,11 @@ export function Analytics() {
       
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="mb-8 relative z-10">
-          <h1 className="text-5xl font-bold mb-3 text-white">
+          <h1 className="text-5xl font-bold mb-3 text-white" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.9)' }}>
             Reports & Analytics
           </h1>
-          <p className="text-lg text-white/90">Search any area or click the map to analyze infrastructure coverage</p>
-          <p className="text-xs text-white/60 mt-1 flex items-center gap-1">
+          <p className="text-lg text-white font-medium" style={{ textShadow: '1px 1px 6px rgba(0,0,0,0.8)' }}>Search any area or click the map to analyze infrastructure coverage</p>
+          <p className="text-xs text-white/80 mt-1 flex items-center gap-1 font-medium" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
             <Database className="w-3 h-3" /> Uses same data source as Map page — scores are always synchronized
           </p>
         </motion.div>
@@ -212,20 +212,20 @@ export function Analytics() {
               {!analysis && !loading && (
                 <div className="text-center">
                   <MapPin className="w-12 h-12 text-white/30 mx-auto mb-3" />
-                  <p className="text-sm text-white">Search or click the map to analyze an area</p>
+                  <p className="text-sm text-white font-medium" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>Search or click the map to analyze an area</p>
                 </div>
               )}
               {loading && (
                 <div className="text-center">
                   <Loader2 className="w-10 h-10 text-primary mx-auto mb-3 animate-spin" />
-                  <p className="text-sm text-white">Fetching real-time data...</p>
-                  <p className="text-xs text-white/70 mt-1">Analyzing infrastructure via MapTiler</p>
+                  <p className="text-sm text-white font-medium" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>Fetching real-time data...</p>
+                  <p className="text-xs text-white/80 mt-1" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>Analyzing infrastructure via MapTiler</p>
                 </div>
               )}
               {analysis && !loading && (
                 <>
-                  <p className="text-xs text-white/50 mb-1">Analysis for</p>
-                  <h3 className="text-sm font-medium text-white mb-4 line-clamp-2">{areaName}</h3>
+                  <p className="text-xs text-white/70 mb-1 font-medium" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>Analysis for</p>
+                  <h3 className="text-sm font-medium text-white mb-4 line-clamp-2" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>{areaName}</h3>
 
                   <div className="flex items-end gap-3 mb-4">
                     <span className={`text-6xl font-bold ${
@@ -256,22 +256,22 @@ export function Analytics() {
                       }`}
                     />
                   </div>
-                  <p className="text-[10px] text-gray-400 mt-2">{analysis.totalPlaces} facilities within 5km radius • {roadCount} roads</p>
+                  <p className="text-[10px] text-white/80 mt-2 font-medium" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{analysis.totalPlaces} facilities within 5km radius • {roadCount} roads</p>
 
                   {/* Score breakdown */}
                   {analysis.scoring && (
                     <div className="flex gap-3 mt-3">
                       <div className="flex-1 bg-white/5 rounded-lg p-2 text-center">
-                        <div className="text-[9px] text-gray-500">Roads</div>
-                        <div className="text-sm font-bold">{analysis.scoring.roadScore}</div>
+                        <div className="text-[9px] text-white/70 font-medium" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>Roads</div>
+                        <div className="text-sm font-bold text-white" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{analysis.scoring.roadScore}</div>
                       </div>
                       <div className="flex-1 bg-white/5 rounded-lg p-2 text-center">
-                        <div className="text-[9px] text-gray-500">Diversity</div>
-                        <div className="text-sm font-bold">{analysis.scoring.diversityScore}</div>
+                        <div className="text-[9px] text-white/70 font-medium" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>Diversity</div>
+                        <div className="text-sm font-bold text-white" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{analysis.scoring.diversityScore}</div>
                       </div>
                       <div className="flex-1 bg-white/5 rounded-lg p-2 text-center">
-                        <div className="text-[9px] text-gray-500">Penalties</div>
-                        <div className="text-sm font-bold text-red-400">{analysis.scoring.penalties?.length || 0}</div>
+                        <div className="text-[9px] text-white/70 font-medium" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>Penalties</div>
+                        <div className="text-sm font-bold text-red-400" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{analysis.scoring.penalties?.length || 0}</div>
                       </div>
                     </div>
                   )}
@@ -284,7 +284,7 @@ export function Analytics() {
         {/* Strengths */}
         {analysis && analysis.strengths && analysis.strengths.length > 0 && (
           <>
-            <motion.h3 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xl font-bold mb-4 flex items-center gap-2 text-text-primary">
+            <motion.h3 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xl font-bold mb-4 flex items-center gap-2 text-white" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
               <CheckCircle className="w-5 h-5 text-green-400" /> Strengths
             </motion.h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -298,7 +298,7 @@ export function Analytics() {
                         <span className="ml-auto text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">{s.score}/100</span>
                       )}
                     </div>
-                    <p className="text-xs text-white/80">{s.message}</p>
+                    <p className="text-xs text-white/90 font-medium" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{s.message}</p>
                   </div>
                 </GlassPanel>
               ))}
@@ -309,7 +309,7 @@ export function Analytics() {
         {/* Weaknesses */}
         {analysis && analysis.weaknesses && analysis.weaknesses.length > 0 && (
           <>
-            <motion.h3 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xl font-bold mb-4 flex items-center gap-2 text-text-primary">
+            <motion.h3 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xl font-bold mb-4 flex items-center gap-2 text-white" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
               <AlertTriangle className="w-5 h-5 text-red-400" /> Weaknesses
             </motion.h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -327,7 +327,7 @@ export function Analytics() {
                         w.severity === 'critical' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
                       }`}>{(w.severity || 'warning').toUpperCase()}</span>
                     </div>
-                    <p className="text-xs text-white/80">{w.message}</p>
+                    <p className="text-xs text-white/90 font-medium" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{w.message}</p>
                   </div>
                 </GlassPanel>
               ))}
@@ -338,7 +338,7 @@ export function Analytics() {
         {/* Coverage Grid */}
         {analysis && coverageEntries.length > 0 && (
           <>
-            <motion.h3 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xl font-bold mb-4 flex items-center gap-2 text-text-primary">
+            <motion.h3 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xl font-bold mb-4 flex items-center gap-2 text-white" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
               <Target className="w-5 h-5 text-primary" /> Coverage by Category
             </motion.h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
@@ -351,21 +351,21 @@ export function Analytics() {
                     <div className={`p-4 ${st.bg} border ${st.border} rounded-2xl`}>
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <Icon className={`w-5 h-5 ${typeInfo?.color || 'text-gray-900/50'}`} />
-                          <span className="text-sm font-semibold capitalize">{type.replace('_', ' ')}</span>
+                          <Icon className={`w-5 h-5 ${typeInfo?.color || 'text-gray-400'}`} />
+                          <span className="text-sm font-semibold capitalize text-white" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{type.replace('_', ' ')}</span>
                         </div>
                         <span className={`w-2.5 h-2.5 rounded-full ${st.dot}`} />
                       </div>
-                      <div className="text-2xl font-bold mb-1">{cov.count}</div>
+                      <div className="text-2xl font-bold mb-1 text-white" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>{cov.count}</div>
                       <div className="flex items-center justify-between text-xs mb-2">
-                        <span className="text-gray-500">found</span>
-                        <span className={st.text}>{cov.nearest ? `${cov.nearest.toFixed(1)}km nearest` : 'none'}</span>
+                        <span className="text-white/70 font-medium" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>found</span>
+                        <span className={`${st.text} font-medium`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{cov.nearest ? `${cov.nearest.toFixed(1)}km nearest` : 'none'}</span>
                       </div>
                       {cov.score !== undefined && (
                         <div className="mt-2">
                           <div className="flex items-center justify-between text-[10px] mb-1">
-                            <span className="text-gray-500">Score</span>
-                            <span className={st.text}>{cov.score}/100</span>
+                            <span className="text-white/70 font-medium" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>Score</span>
+                            <span className={`${st.text} font-medium`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{cov.score}/100</span>
                           </div>
                           <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                             <motion.div
@@ -380,7 +380,7 @@ export function Analytics() {
                         </div>
                       )}
                       {cov.status && (
-                        <div className={`mt-2 text-[10px] ${st.text} capitalize`}>Status: {cov.status}</div>
+                        <div className={`mt-2 text-[10px] ${st.text} capitalize font-medium`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>Status: {cov.status}</div>
                       )}
                     </div>
                   </GlassPanel>
@@ -394,7 +394,7 @@ export function Analytics() {
         {analysis && analysis.recommendations && analysis.recommendations.length > 0 && (
           <GlassPanel delay={0.4}>
             <div className="p-6">
-              <h3 className="text-xl font-bold mb-5 flex items-center gap-2 text-text-primary">
+              <h3 className="text-xl font-bold mb-5 flex items-center gap-2 text-white" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
                 <Zap className="w-5 h-5 text-amber-400" /> Recommendations
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -419,9 +419,9 @@ export function Analytics() {
                         rec.priority === 'medium' ? 'bg-blue-500/20 text-blue-400' :
                         'bg-green-500/20 text-green-400'
                       }`}>{(rec.priority || 'medium').toUpperCase()}</span>
-                      <span className="text-xs text-white/60 font-medium capitalize">{rec.category}</span>
+                      <span className="text-xs text-white/80 font-medium capitalize" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>{rec.category}</span>
                     </div>
-                    <p className="text-xs text-white font-medium mt-1">{rec.message}</p>
+                    <p className="text-xs text-white font-medium mt-1" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{rec.message}</p>
                   </motion.div>
                 ))}
               </div>
@@ -433,7 +433,7 @@ export function Analytics() {
         {analysis && analysis.gaps && analysis.gaps.length > 0 && (
           <GlassPanel delay={0.5}>
             <div className="p-6 mt-6">
-              <h3 className="text-xl font-bold mb-5 flex items-center gap-2 text-text-primary">
+              <h3 className="text-xl font-bold mb-5 flex items-center gap-2 text-white" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
                 <AlertTriangle className="w-5 h-5 text-amber-400" /> Infrastructure Gaps
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -451,9 +451,9 @@ export function Analytics() {
                       <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
                         gap.severity === 'critical' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
                       }`}>{gap.severity.toUpperCase()}</span>
-                      <span className="text-xs text-text-secondary font-medium capitalize">{gap.type}</span>
+                      <span className="text-xs text-white/80 font-medium capitalize" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>{gap.type}</span>
                     </div>
-                    <p className="text-xs text-text-primary font-medium mt-1">{gap.message}</p>
+                    <p className="text-xs text-white font-medium mt-1" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{gap.message}</p>
                   </motion.div>
                 ))}
               </div>
@@ -465,7 +465,7 @@ export function Analytics() {
           <GlassPanel delay={0.4}>
             <div className="p-8 text-center mt-6">
               <Shield className="w-12 h-12 mx-auto mb-3 text-green-400/40" />
-              <p className="text-sm text-text-primary font-medium">All infrastructure categories have adequate coverage!</p>
+              <p className="text-sm text-white font-medium" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>All infrastructure categories have adequate coverage!</p>
             </div>
           </GlassPanel>
         )}
