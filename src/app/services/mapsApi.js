@@ -1,6 +1,4 @@
-// ═══════════════════════════════════════════════════════════
-// Maps API Service — Frontend wrapper for all backend endpoints
-// UrbanPulse v2.0 — 18-collection system
+
 // ═══════════════════════════════════════════════════════════
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';

@@ -82,7 +82,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/maps', mapsRoutes);
 app.use('/api/report', reportRoutes);
 
-// ─── New API Routes (18-collection system) ──────────────
+
 app.use('/api/areas', areasRoutes);
 app.use('/api/analytics2', analytics2Routes);
 app.use('/api/planner', plannerRoutes);
@@ -99,7 +99,7 @@ app.use('/api/cities', cityRoutes);
 app.get('/api/health', async (req, res) => {
   try {
     const mongoose = (await import('mongoose')).default;
-    const dbState = mongoose.connection.readyState; // 0=disconnected,1=connected,2=connecting,3=disconnecting
+    const dbState = mongoose.connection.readyState; 
     const dbStateLabel = ['disconnected','connected','connecting','disconnecting'][dbState] || 'unknown';
     let lastActivity = null;
     try {
@@ -171,12 +171,12 @@ process.on('uncaughtException', (err) => {
 });
 
 async function gracefulShutdown() {
-  console.log('🛑 [Server] Shutting down gracefully...');
+  console.log(' [Server] Shutting down gracefully...');
   try {
     const { default: redisClient } = await import('./config/redis.js');
     if (redisClient && redisClient.isOpen) {
       await redisClient.quit();
-      console.log('✅ [Redis] Connection closed safely');
+      console.log(' [Redis] Connection closed safely');
     }
   } catch (e) {}
   process.exit(1);

@@ -45,7 +45,7 @@ export const register = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    console.log(`🔑 Login attempt for: ${email}`);
+    console.log(` Login attempt for: ${email}`);
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
@@ -62,13 +62,13 @@ export const login = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    console.log('✅ Password matched');
+    console.log(' Password matched');
     user.lastLogin = Date.now();
     await user.save({ validateBeforeSave: false });
-    console.log('💾 User lastLogin updated');
+    console.log(' User lastLogin updated');
 
     const token = user.getSignedJwt();
-    console.log('🎫 JWT generated');
+    console.log(' JWT generated');
 
     res.json({
       success: true,
@@ -82,7 +82,7 @@ export const login = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.error('❌ Login Controller Error:', error);
+    console.error(' Login Controller Error:', error);
     next(error);
   }
 };

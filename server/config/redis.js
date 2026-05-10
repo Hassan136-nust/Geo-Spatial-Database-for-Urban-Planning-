@@ -45,15 +45,15 @@ export async function connectRedis() {
     client.on('error', (err) => {
       if (err.code === 'ECONNRESET') {
         // Suppress scary logs for common network blips
-        if (isConnected) console.log('🔄 [Redis] Network handshake refreshed');
+        if (isConnected) console.log(' [Redis] Network handshake refreshed');
       } else {
-        console.warn('⚠️ [Redis] Cache state updated:', err.message);
+        console.warn(' [Redis] Cache state updated:', err.message);
       }
       isConnected = false;
     });
 
     client.on('connect', () => {
-      console.log('✅ [Redis] Production instance connected');
+      console.log(' [Redis] Production instance connected');
       isConnected = true;
       isConnecting = false;
     });
@@ -66,7 +66,7 @@ export async function connectRedis() {
     await client.connect();
     return client;
   } catch (err) {
-    console.warn('❌ [Redis] Handshake failed — falling back to DB storage');
+    console.warn(' [Redis] Handshake failed — falling back to DB storage');
     isConnecting = false;
     isConnected = false;
     return null;

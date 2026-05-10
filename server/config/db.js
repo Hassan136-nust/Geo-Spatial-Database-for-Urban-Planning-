@@ -12,19 +12,19 @@ const connectDB = async () => {
     };
 
     const conn = await mongoose.connect(uri, options);
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    console.log(` MongoDB Connected: ${conn.connection.host}`);
 
     // Handle connection events
     mongoose.connection.on('error', err => {
-      console.error('❌ MongoDB Connection Event Error:', err);
+      console.error(' MongoDB Connection Event Error:', err);
     });
 
     mongoose.connection.on('disconnected', () => {
-      console.warn('⚠️ MongoDB Disconnected. Attempting to reconnect...');
+      console.warn(' MongoDB Disconnected. Attempting to reconnect...');
     });
 
   } catch (error) {
-    console.error(`❌ MongoDB Startup Error: ${error.message}`);
+    console.error(`MongoDB Startup Error: ${error.message}`);
     // Only exit on initial startup failure if desired, or keep retrying
     // process.exit(1); 
   }
