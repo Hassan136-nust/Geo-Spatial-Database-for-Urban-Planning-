@@ -7,7 +7,7 @@ import connectDB from './config/db.js';
 import { connectRedis } from './config/redis.js';
 import errorHandler from './middleware/errorHandler.js';
 
-// ─── Original Route imports ─────────────────────────────
+
 import authRoutes from './routes/auth.js';
 import zoneRoutes from './routes/zones.js';
 import roadRoutes from './routes/roads.js';
@@ -19,7 +19,7 @@ import analyticsRoutes from './routes/analytics.js';
 import mapsRoutes from './routes/maps.js';
 import reportRoutes from './routes/report.js';
 
-// ─── New Route imports (Phase 2) ────────────────────────
+
 import areasRoutes from './routes/areas.js';
 import analytics2Routes from './routes/analytics2.js';
 import plannerRoutes from './routes/planner.js';
