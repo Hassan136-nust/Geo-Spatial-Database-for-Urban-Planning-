@@ -942,40 +942,40 @@ export function Planner() {
               animate={{ x: 0 }}
               exit={{ x: 400 }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed top-20 right-0 w-[380px] h-[calc(100vh-5rem)] bg-white/95 backdrop-blur-xl border-l border-gray-200 z-[999] overflow-y-auto"
+              className="fixed top-20 right-0 w-[380px] h-[calc(100vh-5rem)] bg-primary/95 backdrop-blur-xl border-l border-primary/30 z-[999] overflow-y-auto shadow-2xl"
             >
               <div className="p-5">
                 <div className="flex items-center justify-between mb-5">
-                  <h2 className="text-lg font-bold bg-gradient-to-r from-emerald-300 to-cyan-400 bg-clip-text text-transparent">
+                  <h2 className="text-lg font-bold text-text-on-dark">
                     Layout Analysis
                   </h2>
-                  <button onClick={() => setShowResults(false)} className="p-1.5 hover:bg-white/10 rounded-lg">
-                    <X className="w-4 h-4 text-pure-white/70" />
+                  <button onClick={() => setShowResults(false)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
+                    <X className="w-4 h-4 text-text-on-dark/70 hover:text-text-on-dark" />
                   </button>
                 </div>
 
                 {/* Score */}
                 <div className={`rounded-xl p-5 border mb-4 ${
-                  analysis.score >= 75 ? 'bg-green-500/10 border-green-500/20' :
-                  analysis.score >= 50 ? 'bg-yellow-500/10 border-yellow-500/20' :
-                  'bg-red-500/10 border-red-500/20'
+                  analysis.score >= 75 ? 'bg-vegetation/20 border-vegetation/30' :
+                  analysis.score >= 50 ? 'bg-amber/20 border-amber/30' :
+                  'bg-destructive/20 border-destructive/30'
                 }`}>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-pure-white/50">Planning Score</span>
-                    {analysis.score >= 75 ? <CheckCircle className="w-5 h-5 text-green-400" /> :
-                     analysis.score >= 50 ? <AlertTriangle className="w-5 h-5 text-yellow-400" /> :
-                     <AlertTriangle className="w-5 h-5 text-red-400" />}
+                    <span className="text-xs text-text-on-dark/70 font-medium">Planning Score</span>
+                    {analysis.score >= 75 ? <CheckCircle className="w-5 h-5 text-vegetation" /> :
+                     analysis.score >= 50 ? <AlertTriangle className="w-5 h-5 text-amber" /> :
+                     <AlertTriangle className="w-5 h-5 text-destructive" />}
                   </div>
-                  <div className="text-4xl font-bold mb-1 text-pure-white">{analysis.score}<span className="text-lg text-pure-white/50">/100</span></div>
+                  <div className="text-4xl font-bold mb-1 text-text-on-dark">{analysis.score}<span className="text-lg text-text-on-dark/60">/100</span></div>
                   <div className={`text-sm font-semibold ${
-                    analysis.score >= 75 ? 'text-green-400' :
-                    analysis.score >= 50 ? 'text-yellow-400' : 'text-red-400'
+                    analysis.score >= 75 ? 'text-vegetation' :
+                    analysis.score >= 50 ? 'text-amber' : 'text-destructive'
                   }`}>{analysis.rating}</div>
                   {analysis.evaluationRadius && (
-                    <div className="mt-1.5 text-[10px] text-pure-white/40 flex items-center gap-1">
+                    <div className="mt-1.5 text-[10px] text-text-on-dark/60 flex items-center gap-1">
                       <Shield className="w-3 h-3" /> Evaluated at {analysis.evaluationRadius}km radius
                       {analysis.summary?.elementsOutOfRadius > 0 && (
-                        <span className="text-amber-400 ml-1">({analysis.summary.elementsOutOfRadius} outside)</span>
+                        <span className="text-amber ml-1">({analysis.summary.elementsOutOfRadius} outside)</span>
                       )}
                     </div>
                   )}
@@ -985,16 +985,16 @@ export function Planner() {
                       animate={{ width: `${analysis.score}%` }}
                       transition={{ duration: 1 }}
                       className={`h-full rounded-full ${
-                        analysis.score >= 75 ? 'bg-green-500' :
-                        analysis.score >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                        analysis.score >= 75 ? 'bg-vegetation' :
+                        analysis.score >= 50 ? 'bg-amber' : 'bg-destructive'
                       }`}
                     />
                   </div>
                 </div>
 
                 {/* Summary counts */}
-                <div className="bg-white/5 rounded-xl p-4 border border-pure-white/10 mb-3">
-                  <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider mb-3">Elements Placed</h4>
+                <div className="bg-white/10 rounded-xl p-4 border border-white/20 mb-3">
+                  <h4 className="text-xs font-bold text-text-on-dark/70 uppercase tracking-wider mb-3">Elements Placed</h4>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     {[
                       { label: 'Houses', count: analysis.summary?.houses || 0, icon: <FaHome /> },
@@ -1004,10 +1004,10 @@ export function Planner() {
                       { label: 'Roads', count: analysis.summary?.roads || 0, icon: <FaRoad /> },
                       { label: 'Total', count: analysis.summary?.totalElements || 0, icon: <FaMapMarkerAlt /> },
                     ].map((s) => (
-                      <div key={s.label} className="bg-white/5 rounded-lg p-2 flex flex-col items-center">
-                        <div className="text-sm mb-1 text-pure-white">{s.icon}</div>
-                        <div className="text-lg font-bold text-pure-white">{s.count}</div>
-                        <div className="text-[9px] text-pure-white/40">{s.label}</div>
+                      <div key={s.label} className="bg-white/5 rounded-lg p-2 flex flex-col items-center border border-white/10">
+                        <div className="text-sm mb-1 text-text-on-dark">{s.icon}</div>
+                        <div className="text-lg font-bold text-text-on-dark">{s.count}</div>
+                        <div className="text-[9px] text-text-on-dark/60">{s.label}</div>
                       </div>
                     ))}
                   </div>
@@ -1015,17 +1015,17 @@ export function Planner() {
 
                 {/* Strengths */}
                 {analysis.strengths && analysis.strengths.length > 0 && (
-                  <div className="bg-white/5 rounded-xl border border-gray-200 mb-3 overflow-hidden">
-                    <button onClick={() => toggleSection('strengths')} className="w-full p-3 flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider flex items-center gap-1.5">
-                        <CheckCircle className="w-3.5 h-3.5 text-green-400" /> Strengths ({analysis.strengths.length})
+                  <div className="bg-white/10 rounded-xl border border-white/20 mb-3 overflow-hidden">
+                    <button onClick={() => toggleSection('strengths')} className="w-full p-3 flex items-center justify-between hover:bg-white/5 transition-colors">
+                      <h4 className="text-xs font-bold text-text-on-dark uppercase tracking-wider flex items-center gap-1.5">
+                        <CheckCircle className="w-3.5 h-3.5 text-vegetation" /> Strengths ({analysis.strengths.length})
                       </h4>
-                      {expandedSection === 'strengths' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
+                      {expandedSection === 'strengths' ? <ChevronUp className="w-3.5 h-3.5 text-text-on-dark/60" /> : <ChevronDown className="w-3.5 h-3.5 text-text-on-dark/60" />}
                     </button>
                     {expandedSection === 'strengths' && (
                       <div className="px-3 pb-3 space-y-1.5">
                         {analysis.strengths.map((s, i) => (
-                          <div key={i} className="text-xs p-2.5 rounded-lg bg-green-500/5 border border-green-500/15 text-green-300">
+                          <div key={i} className="text-xs p-2.5 rounded-lg bg-vegetation/20 border border-vegetation/30 text-text-on-dark">
                             <span className="mr-1">{s.icon}</span> {s.message}
                           </div>
                         ))}
@@ -1036,18 +1036,18 @@ export function Planner() {
 
                 {/* Weaknesses */}
                 {analysis.weaknesses && analysis.weaknesses.length > 0 && (
-                  <div className="bg-white/5 rounded-xl border border-gray-200 mb-3 overflow-hidden">
-                    <button onClick={() => toggleSection('weaknesses')} className="w-full p-3 flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider flex items-center gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 text-red-400" /> Weaknesses ({analysis.weaknesses.length})
+                  <div className="bg-white/10 rounded-xl border border-white/20 mb-3 overflow-hidden">
+                    <button onClick={() => toggleSection('weaknesses')} className="w-full p-3 flex items-center justify-between hover:bg-white/5 transition-colors">
+                      <h4 className="text-xs font-bold text-text-on-dark uppercase tracking-wider flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-destructive" /> Weaknesses ({analysis.weaknesses.length})
                       </h4>
-                      {expandedSection === 'weaknesses' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
+                      {expandedSection === 'weaknesses' ? <ChevronUp className="w-3.5 h-3.5 text-text-on-dark/60" /> : <ChevronDown className="w-3.5 h-3.5 text-text-on-dark/60" />}
                     </button>
                     {expandedSection === 'weaknesses' && (
                       <div className="px-3 pb-3 space-y-1.5">
                         {analysis.weaknesses.map((w, i) => (
                           <div key={i} className={`text-xs p-2.5 rounded-lg border ${
-                            w.severity === 'critical' ? 'bg-red-500/5 border-red-500/15 text-red-300' : 'bg-amber-500/5 border-amber-500/15 text-amber-300'
+                            w.severity === 'critical' ? 'bg-destructive/20 border-destructive/30 text-text-on-dark' : 'bg-amber/20 border-amber/30 text-text-on-dark'
                           }`}>
                             <span className="mr-1">{w.icon}</span> {w.message}
                           </div>
@@ -1058,12 +1058,12 @@ export function Planner() {
                 )}
 
                 {/* Recommendations */}
-                <div className="bg-white/5 rounded-xl border border-gray-200 overflow-hidden">
-                  <button onClick={() => toggleSection('recommendations')} className="w-full p-3 flex items-center justify-between">
-                    <h4 className="text-xs font-bold text-pure-white/60 uppercase tracking-wider flex items-center gap-1.5">
-                      <Lightbulb className="w-3.5 h-3.5 text-amber-400" /> Recommendations ({(analysis.recommendations || []).length})
+                <div className="bg-white/10 rounded-xl border border-white/20 overflow-hidden">
+                  <button onClick={() => toggleSection('recommendations')} className="w-full p-3 flex items-center justify-between hover:bg-white/5 transition-colors">
+                    <h4 className="text-xs font-bold text-text-on-dark uppercase tracking-wider flex items-center gap-1.5">
+                      <Lightbulb className="w-3.5 h-3.5 text-amber" /> Recommendations ({(analysis.recommendations || []).length})
                     </h4>
-                    {expandedSection === 'recommendations' ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
+                    {expandedSection === 'recommendations' ? <ChevronUp className="w-3.5 h-3.5 text-text-on-dark/60" /> : <ChevronDown className="w-3.5 h-3.5 text-text-on-dark/60" />}
                   </button>
                   {expandedSection === 'recommendations' && (
                     <div className="px-3 pb-3 space-y-1.5">
@@ -1073,7 +1073,12 @@ export function Planner() {
                           initial={{ opacity: 0, x: 10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: i * 0.05 }}
-                          className={`text-xs p-3 rounded-lg border ${severityColors[rec.severity] || severityColors.info}`}
+                          className={`text-xs p-3 rounded-lg border text-text-on-dark ${
+                            rec.priority === 'critical' ? 'bg-destructive/20 border-destructive/30' :
+                            rec.priority === 'high' ? 'bg-amber/25 border-amber/35' :
+                            rec.priority === 'medium' ? 'bg-amber/20 border-amber/30' :
+                            'bg-white/10 border-white/20'
+                          }`}
                         >
                           <span className="mr-1">{rec.icon}</span> {rec.message}
                         </motion.div>
