@@ -955,46 +955,45 @@ export function Planner() {
                 </div>
 
                 {/* Score */}
-                <div className={`rounded-xl p-5 border mb-4 ${
-                  analysis.score >= 75 ? 'bg-vegetation/20 border-vegetation/30' :
-                  analysis.score >= 50 ? 'bg-amber/20 border-amber/30' :
-                  'bg-destructive/20 border-destructive/30'
+                <div className={`rounded-xl p-5 border-2 mb-4 shadow-lg ${
+                  analysis.score >= 75 ? 'bg-vegetation/40 border-vegetation' :
+                  analysis.score >= 50 ? 'bg-amber/40 border-amber' :
+                  'bg-destructive/40 border-destructive'
                 }`}>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-text-on-dark/70 font-medium">Planning Score</span>
-                    {analysis.score >= 75 ? <CheckCircle className="w-5 h-5 text-vegetation" /> :
-                     analysis.score >= 50 ? <AlertTriangle className="w-5 h-5 text-amber" /> :
-                     <AlertTriangle className="w-5 h-5 text-destructive" />}
+                    <span className="text-xs text-text-on-dark font-semibold">Planning Score</span>
+                    {analysis.score >= 75 ? <CheckCircle className="w-6 h-6 text-white drop-shadow-lg" /> :
+                     analysis.score >= 50 ? <AlertTriangle className="w-6 h-6 text-white drop-shadow-lg" /> :
+                     <AlertTriangle className="w-6 h-6 text-white drop-shadow-lg" />}
                   </div>
-                  <div className="text-4xl font-bold mb-1 text-text-on-dark">{analysis.score}<span className="text-lg text-text-on-dark/60">/100</span></div>
-                  <div className={`text-sm font-semibold ${
-                    analysis.score >= 75 ? 'text-vegetation' :
-                    analysis.score >= 50 ? 'text-amber' : 'text-destructive'
-                  }`}>{analysis.rating}</div>
+                  <div className="text-5xl font-black mb-1 text-white drop-shadow-lg">{analysis.score}<span className="text-xl text-white/80">/100</span></div>
+                  <div className="text-base font-bold text-white drop-shadow">
+                    {analysis.rating}
+                  </div>
                   {analysis.evaluationRadius && (
-                    <div className="mt-1.5 text-[10px] text-text-on-dark/60 flex items-center gap-1">
-                      <Shield className="w-3 h-3" /> Evaluated at {analysis.evaluationRadius}km radius
+                    <div className="mt-2 text-[11px] text-text-on-dark/90 flex items-center gap-1 font-medium">
+                      <Shield className="w-3.5 h-3.5" /> Evaluated at {analysis.evaluationRadius}km radius
                       {analysis.summary?.elementsOutOfRadius > 0 && (
-                        <span className="text-amber ml-1">({analysis.summary.elementsOutOfRadius} outside)</span>
+                        <span className="text-white font-bold ml-1">({analysis.summary.elementsOutOfRadius} outside)</span>
                       )}
                     </div>
                   )}
-                  <div className="h-2 bg-white/10 rounded-full overflow-hidden mt-3">
+                  <div className="h-3 bg-white/20 rounded-full overflow-hidden mt-3 shadow-inner">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${analysis.score}%` }}
                       transition={{ duration: 1 }}
-                      className={`h-full rounded-full ${
-                        analysis.score >= 75 ? 'bg-vegetation' :
-                        analysis.score >= 50 ? 'bg-amber' : 'bg-destructive'
+                      className={`h-full rounded-full shadow-lg ${
+                        analysis.score >= 75 ? 'bg-white' :
+                        analysis.score >= 50 ? 'bg-white' : 'bg-white'
                       }`}
                     />
                   </div>
                 </div>
 
                 {/* Summary counts */}
-                <div className="bg-white/10 rounded-xl p-4 border border-white/20 mb-3">
-                  <h4 className="text-xs font-bold text-text-on-dark/70 uppercase tracking-wider mb-3">Elements Placed</h4>
+                <div className="bg-white/20 rounded-xl p-4 border-2 border-white/40 mb-3 shadow-lg">
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-3">Elements Placed</h4>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     {[
                       { label: 'Houses', count: analysis.summary?.houses || 0, icon: <FaHome /> },
@@ -1004,10 +1003,10 @@ export function Planner() {
                       { label: 'Roads', count: analysis.summary?.roads || 0, icon: <FaRoad /> },
                       { label: 'Total', count: analysis.summary?.totalElements || 0, icon: <FaMapMarkerAlt /> },
                     ].map((s) => (
-                      <div key={s.label} className="bg-white/5 rounded-lg p-2 flex flex-col items-center border border-white/10">
-                        <div className="text-sm mb-1 text-text-on-dark">{s.icon}</div>
-                        <div className="text-lg font-bold text-text-on-dark">{s.count}</div>
-                        <div className="text-[9px] text-text-on-dark/60">{s.label}</div>
+                      <div key={s.label} className="bg-white/15 rounded-lg p-2.5 flex flex-col items-center border border-white/30 shadow">
+                        <div className="text-base mb-1 text-white">{s.icon}</div>
+                        <div className="text-xl font-black text-white">{s.count}</div>
+                        <div className="text-[10px] text-white/90 font-medium">{s.label}</div>
                       </div>
                     ))}
                   </div>
@@ -1015,18 +1014,18 @@ export function Planner() {
 
                 {/* Strengths */}
                 {analysis.strengths && analysis.strengths.length > 0 && (
-                  <div className="bg-white/10 rounded-xl border border-white/20 mb-3 overflow-hidden">
-                    <button onClick={() => toggleSection('strengths')} className="w-full p-3 flex items-center justify-between hover:bg-white/5 transition-colors">
-                      <h4 className="text-xs font-bold text-text-on-dark uppercase tracking-wider flex items-center gap-1.5">
-                        <CheckCircle className="w-3.5 h-3.5 text-vegetation" /> Strengths ({analysis.strengths.length})
+                  <div className="bg-white/20 rounded-xl border-2 border-white/40 mb-3 overflow-hidden shadow-lg">
+                    <button onClick={() => toggleSection('strengths')} className="w-full p-3 flex items-center justify-between hover:bg-white/10 transition-colors">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-white drop-shadow" /> Strengths ({analysis.strengths.length})
                       </h4>
-                      {expandedSection === 'strengths' ? <ChevronUp className="w-3.5 h-3.5 text-text-on-dark/60" /> : <ChevronDown className="w-3.5 h-3.5 text-text-on-dark/60" />}
+                      {expandedSection === 'strengths' ? <ChevronUp className="w-4 h-4 text-white" /> : <ChevronDown className="w-4 h-4 text-white" />}
                     </button>
                     {expandedSection === 'strengths' && (
-                      <div className="px-3 pb-3 space-y-1.5">
+                      <div className="px-3 pb-3 space-y-2">
                         {analysis.strengths.map((s, i) => (
-                          <div key={i} className="text-xs p-2.5 rounded-lg bg-vegetation/20 border border-vegetation/30 text-text-on-dark">
-                            <span className="mr-1">{s.icon}</span> {s.message}
+                          <div key={i} className="text-xs p-3 rounded-lg bg-vegetation/50 border-2 border-vegetation text-white font-medium shadow">
+                            <span className="mr-1.5 text-sm">{s.icon}</span> {s.message}
                           </div>
                         ))}
                       </div>
@@ -1036,20 +1035,20 @@ export function Planner() {
 
                 {/* Weaknesses */}
                 {analysis.weaknesses && analysis.weaknesses.length > 0 && (
-                  <div className="bg-white/10 rounded-xl border border-white/20 mb-3 overflow-hidden">
-                    <button onClick={() => toggleSection('weaknesses')} className="w-full p-3 flex items-center justify-between hover:bg-white/5 transition-colors">
-                      <h4 className="text-xs font-bold text-text-on-dark uppercase tracking-wider flex items-center gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 text-destructive" /> Weaknesses ({analysis.weaknesses.length})
+                  <div className="bg-white/20 rounded-xl border-2 border-white/40 mb-3 overflow-hidden shadow-lg">
+                    <button onClick={() => toggleSection('weaknesses')} className="w-full p-3 flex items-center justify-between hover:bg-white/10 transition-colors">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-white drop-shadow" /> Weaknesses ({analysis.weaknesses.length})
                       </h4>
-                      {expandedSection === 'weaknesses' ? <ChevronUp className="w-3.5 h-3.5 text-text-on-dark/60" /> : <ChevronDown className="w-3.5 h-3.5 text-text-on-dark/60" />}
+                      {expandedSection === 'weaknesses' ? <ChevronUp className="w-4 h-4 text-white" /> : <ChevronDown className="w-4 h-4 text-white" />}
                     </button>
                     {expandedSection === 'weaknesses' && (
-                      <div className="px-3 pb-3 space-y-1.5">
+                      <div className="px-3 pb-3 space-y-2">
                         {analysis.weaknesses.map((w, i) => (
-                          <div key={i} className={`text-xs p-2.5 rounded-lg border ${
-                            w.severity === 'critical' ? 'bg-destructive/20 border-destructive/30 text-text-on-dark' : 'bg-amber/20 border-amber/30 text-text-on-dark'
+                          <div key={i} className={`text-xs p-3 rounded-lg border-2 font-medium shadow ${
+                            w.severity === 'critical' ? 'bg-destructive/50 border-destructive text-white' : 'bg-amber/50 border-amber text-white'
                           }`}>
-                            <span className="mr-1">{w.icon}</span> {w.message}
+                            <span className="mr-1.5 text-sm">{w.icon}</span> {w.message}
                           </div>
                         ))}
                       </div>
@@ -1058,29 +1057,29 @@ export function Planner() {
                 )}
 
                 {/* Recommendations */}
-                <div className="bg-white/10 rounded-xl border border-white/20 overflow-hidden">
-                  <button onClick={() => toggleSection('recommendations')} className="w-full p-3 flex items-center justify-between hover:bg-white/5 transition-colors">
-                    <h4 className="text-xs font-bold text-text-on-dark uppercase tracking-wider flex items-center gap-1.5">
-                      <Lightbulb className="w-3.5 h-3.5 text-amber" /> Recommendations ({(analysis.recommendations || []).length})
+                <div className="bg-white/20 rounded-xl border-2 border-white/40 overflow-hidden shadow-lg">
+                  <button onClick={() => toggleSection('recommendations')} className="w-full p-3 flex items-center justify-between hover:bg-white/10 transition-colors">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                      <Lightbulb className="w-4 h-4 text-white drop-shadow" /> Recommendations ({(analysis.recommendations || []).length})
                     </h4>
-                    {expandedSection === 'recommendations' ? <ChevronUp className="w-3.5 h-3.5 text-text-on-dark/60" /> : <ChevronDown className="w-3.5 h-3.5 text-text-on-dark/60" />}
+                    {expandedSection === 'recommendations' ? <ChevronUp className="w-4 h-4 text-white" /> : <ChevronDown className="w-4 h-4 text-white" />}
                   </button>
                   {expandedSection === 'recommendations' && (
-                    <div className="px-3 pb-3 space-y-1.5">
+                    <div className="px-3 pb-3 space-y-2">
                       {(analysis.recommendations || []).map((rec, i) => (
                         <motion.div
                           key={i}
                           initial={{ opacity: 0, x: 10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: i * 0.05 }}
-                          className={`text-xs p-3 rounded-lg border text-text-on-dark ${
-                            rec.priority === 'critical' ? 'bg-destructive/20 border-destructive/30' :
-                            rec.priority === 'high' ? 'bg-amber/25 border-amber/35' :
-                            rec.priority === 'medium' ? 'bg-amber/20 border-amber/30' :
-                            'bg-white/10 border-white/20'
+                          className={`text-xs p-3 rounded-lg border-2 text-white font-medium shadow ${
+                            rec.priority === 'critical' ? 'bg-destructive/50 border-destructive' :
+                            rec.priority === 'high' ? 'bg-amber/50 border-amber' :
+                            rec.priority === 'medium' ? 'bg-amber/40 border-amber/80' :
+                            'bg-white/20 border-white/40'
                           }`}
                         >
-                          <span className="mr-1">{rec.icon}</span> {rec.message}
+                          <span className="mr-1.5 text-sm">{rec.icon}</span> {rec.message}
                         </motion.div>
                       ))}
                     </div>
