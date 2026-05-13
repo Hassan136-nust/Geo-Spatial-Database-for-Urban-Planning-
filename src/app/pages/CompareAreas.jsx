@@ -17,7 +17,7 @@ export function CompareAreas() {
   const [expandedComp, setExpandedComp] = useState(null);
   const [toast, setToast] = useState(null);
 
-  const CHART_COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'];
+  const CHART_COLORS = ['#27ae60', '#2ecc71', '#52c41a', '#95de64'];
 
   const formatChartData = (comp) => {
     if (!comp.comparison_metrics) return [];
@@ -151,7 +151,7 @@ export function CompareAreas() {
                 value={compName} 
                 onChange={(e) => setCompName(e.target.value)} 
                 placeholder="Comparison name (optional)" 
-                className="w-full bg-white/90 border border-primary/30 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted mb-4 focus:outline-none focus:border-primary" 
+                className="w-full bg-primary/20 border border-primary/50 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/60 mb-4 focus:outline-none focus:border-primary focus:bg-primary/30" 
               />
               {areas.length > 0 ? (
                 <div className="flex flex-wrap gap-2 mb-4">
@@ -159,13 +159,13 @@ export function CompareAreas() {
                     <button 
                       key={area._id} 
                       onClick={() => toggleArea(area._id)}
-                      className={`px-3 py-1.5 rounded-full text-xs border transition-all duration-300 ${selectedAreas.includes(area._id) ? 'bg-primary/20 border-primary/50 text-primary shadow-[0_0_10px_rgba(39,174,96,0.3)]' : 'bg-white/80 border-primary/20 text-text-primary hover:bg-white/100'}`}>
+                      className={`px-3 py-1.5 rounded-full text-xs border transition-all duration-300 ${selectedAreas.includes(area._id) ? 'bg-primary/30 border-primary text-white shadow-[0_0_10px_rgba(39,174,96,0.5)]' : 'bg-primary/10 border-primary/30 text-white hover:bg-primary/20'}`}>
                       {area.area_name} {area.last_analysis_score != null && `(${area.last_analysis_score})`}
                     </button>
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-text-secondary mb-4">Search areas on the Dashboard first to compare them.</p>
+                <p className="text-xs text-white/70 mb-4">Search areas on the Dashboard first to compare them.</p>
               )}
               <button 
                 onClick={handleCompare} 
@@ -191,12 +191,12 @@ export function CompareAreas() {
                       <div className="flex items-center gap-2">
                         <button 
                           onClick={() => setExpandedComp(expandedComp === comp._id ? null : comp._id)} 
-                          className="text-text-primary hover:bg-white/80 p-1 rounded">
+                          className="text-white hover:bg-primary/20 p-1 rounded">
                           {expandedComp === comp._id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                         </button>
                         <button 
                           onClick={() => handleDelete(comp._id)} 
-                          className="text-red-400 hover:bg-red-500/10 p-1 rounded">
+                          className="text-red-300 hover:bg-red-500/20 p-1 rounded">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -205,13 +205,13 @@ export function CompareAreas() {
                       {comp.areas?.map((area, idx) => (
                         <div 
                           key={area.area_id} 
-                          className={`p-3 rounded-xl border relative overflow-hidden transition-all duration-300 ${area.area_id === comp.winner_area_id?.toString() ? 'bg-emerald-500/10 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-gray-200'}`}>
+                          className={`p-3 rounded-xl border relative overflow-hidden transition-all duration-300 ${area.area_id === comp.winner_area_id?.toString() ? 'bg-primary/30 border-primary shadow-[0_0_15px_rgba(39,174,96,0.4)]' : 'bg-primary/10 border-primary/30'}`}>
                           <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
                           <div className="flex items-center gap-1 mb-1 pl-2">
                             {area.area_id === comp.winner_area_id?.toString() && <Trophy className="w-4 h-4 text-amber-400 drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]" />}
                             <p className="text-xs font-medium truncate text-white" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{area.area_name}</p>
                           </div>
-                          <p className={`text-2xl font-bold pl-2 ${area.score >= 70 ? 'text-green-400' : area.score >= 50 ? 'text-yellow-400' : 'text-red-400'}`}>{area.score}</p>
+                          <p className={`text-2xl font-bold pl-2 ${area.score >= 70 ? 'text-green-300' : area.score >= 50 ? 'text-yellow-300' : 'text-red-300'}`}>{area.score}</p>
                         </div>
                       ))}
                     </div>
@@ -227,9 +227,9 @@ export function CompareAreas() {
                           
                           {/* Winner Explanation */}
                           {comp.winner_explanation && (
-                            <div className="mb-4 p-4 bg-green-500/10 border border-green-500/20 rounded-xl text-sm text-text-primary font-medium">
+                            <div className="mb-4 p-4 bg-primary/20 border border-primary/40 rounded-xl text-sm text-white font-medium">
                               <h5 className="font-bold flex items-center gap-2 mb-1">
-                                <Trophy className="w-4 h-4 text-green-400" /> Final Verdict
+                                <Trophy className="w-4 h-4 text-amber-400" /> Final Verdict
                               </h5>
                               <p>{comp.winner_explanation}</p>
                             </div>
@@ -237,11 +237,11 @@ export function CompareAreas() {
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                             {/* Radar Chart */}
-                            <div className="h-64 bg-white/60 rounded-xl border border-gray-100 p-2">
+                            <div className="h-64 bg-primary/10 rounded-xl border border-primary/30 p-2">
                               <ResponsiveContainer width="100%" height="100%">
                                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={formatChartData(comp)}>
-                                  <PolarGrid stroke="#333" />
-                                  <PolarAngleAxis dataKey="subject" tick={{ fill: '#888', fontSize: 10 }} />
+                                  <PolarGrid stroke="#27ae60" />
+                                  <PolarAngleAxis dataKey="subject" tick={{ fill: '#fff', fontSize: 10 }} />
                                   <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
                                   {comp.areas?.map((area, idx) => (
                                     <Radar 
@@ -252,20 +252,20 @@ export function CompareAreas() {
                                       fill={CHART_COLORS[idx % CHART_COLORS.length]} 
                                       fillOpacity={0.3} />
                                   ))}
-                                  <Legend wrapperStyle={{ fontSize: '10px' }} />
-                                  <Tooltip contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '8px' }} />
+                                  <Legend wrapperStyle={{ fontSize: '10px', color: '#fff' }} />
+                                  <Tooltip contentStyle={{ backgroundColor: 'rgba(39, 174, 96, 0.9)', border: '1px solid #27ae60', borderRadius: '8px', color: '#fff' }} />
                                 </RadarChart>
                               </ResponsiveContainer>
                             </div>
                             
                             {/* Bar Chart */}
-                            <div className="h-64 bg-white/60 rounded-xl border border-gray-100 p-2">
+                            <div className="h-64 bg-primary/10 rounded-xl border border-primary/30 p-2">
                               <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={formatChartData(comp)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                  <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                                  <XAxis dataKey="subject" tick={{ fill: '#888', fontSize: 10 }} axisLine={false} tickLine={false} />
-                                  <YAxis tick={{ fill: '#888', fontSize: 10 }} axisLine={false} tickLine={false} />
-                                  <Tooltip contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '8px' }} cursor={{ fill: '#222' }} />
+                                  <CartesianGrid strokeDasharray="3 3" stroke="#27ae60" vertical={false} />
+                                  <XAxis dataKey="subject" tick={{ fill: '#fff', fontSize: 10 }} axisLine={false} tickLine={false} />
+                                  <YAxis tick={{ fill: '#fff', fontSize: 10 }} axisLine={false} tickLine={false} />
+                                  <Tooltip contentStyle={{ backgroundColor: 'rgba(39, 174, 96, 0.9)', border: '1px solid #27ae60', borderRadius: '8px', color: '#fff' }} cursor={{ fill: 'rgba(39, 174, 96, 0.1)' }} />
                                   {comp.areas?.map((area, idx) => (
                                     <Bar 
                                       key={area.area_id} 
@@ -280,8 +280,8 @@ export function CompareAreas() {
 
                           {/* Difference Analysis / Metric Breakdown */}
                           {comp.difference_analysis && (
-                            <div className="bg-white/80 rounded-xl border border-primary/20 p-4">
-                              <h5 className="font-semibold text-text-primary flex items-center gap-2 mb-3 text-sm">
+                            <div className="bg-primary/10 rounded-xl border border-primary/30 p-4">
+                              <h5 className="font-semibold text-white flex items-center gap-2 mb-3 text-sm">
                                 <BarChart3 className="w-4 h-4 text-primary" /> Metric Breakdown
                               </h5>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -291,18 +291,18 @@ export function CompareAreas() {
                                   };
                                   const displayName = metricNames[metric] || metric;
                                   return (
-                                    <div key={metric} className="flex items-center justify-between p-2.5 bg-white/5 rounded-lg border border-gray-200">
-                                      <span className="text-xs font-medium text-white/80 capitalize w-24">{displayName}</span>
+                                    <div key={metric} className="flex items-center justify-between p-2.5 bg-primary/5 rounded-lg border border-primary/20">
+                                      <span className="text-xs font-medium text-white capitalize w-24">{displayName}</span>
                                       <div className="flex-1 flex items-center justify-end gap-2">
                                         {diff.leader !== 'Tie' ? (
                                           <>
                                             <span className="text-xs text-white truncate max-w-[100px]">{diff.leader}</span>
-                                            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-green-500/20 text-green-400 flex items-center font-bold">
+                                            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-primary/30 text-white flex items-center font-bold">
                                               <ArrowUpRight className="w-3 h-3 mr-0.5" /> {diff.delta.toFixed(1)}
                                             </span>
                                           </>
                                         ) : (
-                                          <span className="text-xs text-gray-900/50 flex items-center gap-1">
+                                          <span className="text-xs text-white/50 flex items-center gap-1">
                                             <Minus className="w-3 h-3" /> Tie
                                           </span>
                                         )}
